@@ -941,20 +941,25 @@ var _SAYFALAR = ['dashboard','yukleme','tara','kisiler','raporlar'];
 
 function rolAyarla(rol) {
   var navBtnler = document.querySelectorAll('.nav-btn');
+
   if (rol === 'personel') {
-    // Sadece Tara & Teslim görünsün
+    // Personel: Yükleme gizle, Ayarlar gizle
     navBtnler.forEach(function(btn) {
       var onclick = btn.getAttribute('onclick') || '';
-      if (onclick.indexOf('tara') === -1) {
-        btn.style.display = 'none';
-      }
+      btn.style.display = onclick.indexOf('yukleme') !== -1 ? 'none' : '';
     });
-    showPage('tara', null);
+    var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
+    if (ayarBtn) ayarBtn.style.display = 'none';
+    showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   } else {
-    // Admin — hepsi görünsün
+    // Admin: her şey görünsün
     navBtnler.forEach(function(btn) { btn.style.display = ''; });
-    showPage('dashboard', document.querySelector('.nav-btn'));
+    var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
+    if (ayarBtn) ayarBtn.style.display = '';
+    showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   }
+
+  // Nav kullanıcı bilgisi
   var navKul = document.getElementById('nav-kullanici');
   if (navKul && window._aktifKullanici) {
     navKul.textContent = (rol === 'admin' ? '👑 ' : '👤 ') + window._aktifKullanici.tel + ' ▾';
@@ -963,6 +968,7 @@ function rolAyarla(rol) {
   if (menuBilgi && window._aktifKullanici) {
     menuBilgi.textContent = (rol === 'admin' ? 'Admin' : 'Personel') + ' · ' + window._aktifKullanici.tel;
   }
+
   // Dışarı tıklayınca menüyü kapat
   document.addEventListener('click', function(e) {
     var menu = document.getElementById('kullanici-menu');
