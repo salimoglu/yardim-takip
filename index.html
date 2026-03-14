@@ -943,19 +943,28 @@ function rolAyarla(rol) {
   var navBtnler = document.querySelectorAll('.nav-btn');
 
   if (rol === 'personel') {
-    // Personel: Yükleme gizle, Ayarlar gizle
+    // Nav: Yükleme butonunu gizle
     navBtnler.forEach(function(btn) {
       var onclick = btn.getAttribute('onclick') || '';
       btn.style.display = onclick.indexOf('yukleme') !== -1 ? 'none' : '';
     });
+    // Ayarlar çarkını gizle
     var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
     if (ayarBtn) ayarBtn.style.display = 'none';
+    // Yükleme sayfasını fiziksel olarak gizle
+    var yuklemeSayfasi = document.getElementById('page-yukleme');
+    if (yuklemeSayfasi) yuklemeSayfasi.style.display = 'none';
+    // showPage override — personel yüklemeye gidemez
+    window._personelModu = true;
     showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   } else {
     // Admin: her şey görünsün
+    window._personelModu = false;
     navBtnler.forEach(function(btn) { btn.style.display = ''; });
     var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
     if (ayarBtn) ayarBtn.style.display = '';
+    var yuklemeSayfasi = document.getElementById('page-yukleme');
+    if (yuklemeSayfasi) yuklemeSayfasi.style.display = '';
     showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   }
 
@@ -980,6 +989,11 @@ function rolAyarla(rol) {
 }
 
 function showPage(p, btn) {
+  // Personel modu — yükleme sayfasına erişim engeli
+  if (window._personelModu && (p === 'yukle' || p === 'kayit' || p === 'yukleme')) {
+    toast('Bu sayfaya erişim yetkiniz yok!', 'error');
+    return;
+  }
   _SAYFALAR.forEach(function(id) {
     var el = document.getElementById('page-'+id);
     if (el) el.classList.remove('active');
