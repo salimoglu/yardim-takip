@@ -199,20 +199,49 @@
 </div>
 
 <div id="donem-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-  <div class="modal-box" style="max-width:460px;width:95%">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <div style="font-size:1rem;font-weight:800;color:var(--accent)">Dönem Yönetimi</div>
-      <button onclick="document.getElementById('donem-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">x</button>
+  <div class="modal-box" style="max-width:500px;width:95%;max-height:85vh;display:flex;flex-direction:column">
+    <!-- Başlık -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-shrink:0">
+      <div style="font-size:1rem;font-weight:800;color:var(--accent)">⚙️ Ayarlar</div>
+      <button onclick="document.getElementById('donem-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">✕</button>
     </div>
-    <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Mevcut Dönemler</div>
-    <div id="donem-liste" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem"></div>
-    <hr style="border-color:var(--border);margin-bottom:1rem">
-    <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem">Yeni Dönem Olustur</div>
-    <div style="display:flex;flex-direction:column;gap:0.45rem">
-      <input type="text" id="yeni-donem-id" placeholder="Donem ID - ornek: 2026" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
-      <input type="text" id="yeni-donem-ad" placeholder="Donem Adi - ornek: 2026 Komur Donemi" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
-      <input type="password" id="yeni-donem-sifre" placeholder="Admin Sifresi" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
-      <button onclick="yeniDonemOlustur()" style="padding:0.45rem;border-radius:6px;background:var(--accent);color:#000;border:none;font-weight:700;font-size:0.85rem;cursor:pointer">Donem Olustur</button>
+    <!-- Sekmeler -->
+    <div style="display:flex;gap:0.4rem;margin-bottom:1rem;flex-shrink:0">
+      <button id="ayar-tab-donem" onclick="ayarTab('donem')" class="btn btn-primary btn-sm" style="flex:1">📅 Dönemler</button>
+      <button id="ayar-tab-personel" onclick="ayarTab('personel')" class="btn btn-outline btn-sm" style="flex:1">👥 Personel</button>
+    </div>
+
+    <!-- DÖNEM SEKMESİ -->
+    <div id="ayar-donem" style="overflow-y:auto;flex:1">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Mevcut Dönemler</div>
+      <div id="donem-liste" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem"></div>
+      <hr style="border-color:var(--border);margin-bottom:1rem">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem">Yeni Dönem Oluştur</div>
+      <div style="display:flex;flex-direction:column;gap:0.45rem">
+        <input type="text" id="yeni-donem-id" placeholder="Dönem ID — örn: 2026" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+        <input type="text" id="yeni-donem-ad" placeholder="Dönem Adı — örn: 2026 Kömür Dönemi" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+        <input type="password" id="yeni-donem-sifre" placeholder="Admin Şifresi" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+        <button onclick="yeniDonemOlustur()" style="padding:0.45rem;border-radius:6px;background:var(--accent);color:#000;border:none;font-weight:700;font-size:0.85rem;cursor:pointer">✅ Dönem Oluştur</button>
+      </div>
+    </div>
+
+    <!-- PERSONEL SEKMESİ -->
+    <div id="ayar-personel" style="display:none;overflow-y:auto;flex:1">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Kayıtlı Personel</div>
+      <div id="personel-liste" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:1rem"></div>
+      <hr style="border-color:var(--border);margin-bottom:1rem">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem">Yeni Personel Ekle</div>
+      <div style="display:flex;flex-direction:column;gap:0.45rem">
+        <input type="text" id="yeni-p-tel" placeholder="Telefon No (05xxxxxxxxx)" maxlength="11" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono)">
+        <input type="text" id="yeni-p-ad" placeholder="Ad Soyad" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+        <select id="yeni-p-rol" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+          <option value="personel">👤 Saha Personeli</option>
+          <option value="admin">👑 Admin</option>
+        </select>
+        <input type="password" id="yeni-p-sifre" placeholder="Şifre belirle" style="font-size:0.85rem;padding:0.4rem 0.6rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+        <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
+        <button onclick="yeniPersonelEkle()" style="padding:0.45rem;border-radius:6px;background:var(--accent);color:#000;border:none;font-weight:700;font-size:0.85rem;cursor:pointer">➕ Personel Ekle</button>
+      </div>
     </div>
   </div>
 </div>
@@ -734,6 +763,18 @@
   };
 
   // ===== DÖNEM SEÇ =====
+  // Yardımcı DB fonksiyonları
+  window._dbGet = async function(yol) {
+    var snap = await get(ref(db, yol));
+    return snap.val();
+  };
+  window._dbSet = async function(yol, veri) {
+    return set(ref(db, yol), veri);
+  };
+  window._dbRemove = async function(yol) {
+    return remove(ref(db, yol));
+  };
+
   window.donemSec = function(donemId) {
     if (window._donemUnsub) { window._donemUnsub(); window._donemUnsub=null; }
     window._aktifDonem = donemId;
@@ -1583,6 +1624,16 @@ function mahalleDetayYazdir() {
 }
 
 // ===== DÖNEM YÖNETİM UI =====
+function ayarTab(tab) {
+  document.getElementById('ayar-donem').style.display    = tab==='donem'    ? 'block' : 'none';
+  document.getElementById('ayar-personel').style.display = tab==='personel' ? 'block' : 'none';
+  document.getElementById('ayar-tab-donem').className    = tab==='donem'    ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+  document.getElementById('ayar-tab-personel').className = tab==='personel' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+  document.getElementById('ayar-tab-donem').style.flex = '1';
+  document.getElementById('ayar-tab-personel').style.flex = '1';
+  if (tab === 'personel') personelListeYukle();
+}
+
 function donemYonetModal() {
   var donemler = window._tumDonemler || {};
   var ids = Object.keys(donemler).sort().reverse();
@@ -1602,7 +1653,79 @@ function donemYonetModal() {
   document.getElementById('yeni-donem-id').value = String(yil);
   document.getElementById('yeni-donem-ad').value = yil + ' Kömür Dönemi';
   document.getElementById('yeni-donem-sifre').value = '';
+  ayarTab('donem');
   document.getElementById('donem-modal').style.display = 'flex';
+}
+
+async function personelListeYukle() {
+  var liste = document.getElementById('personel-liste');
+  liste.innerHTML = '<div style="color:var(--muted);font-size:0.8rem">Yükleniyor...</div>';
+  try {
+    var snap = await window._dbGet('kullanicilar');
+    var personeller = snap || {};
+    var ids = Object.keys(personeller);
+    if (ids.length === 0) {
+      liste.innerHTML = '<div style="color:var(--muted);font-size:0.8rem">Henüz personel yok</div>';
+      return;
+    }
+    liste.innerHTML = ids.map(function(tel) {
+      var p = personeller[tel] || {};
+      var rolRenk = p.rol === 'admin' ? 'var(--accent)' : 'var(--muted)';
+      var rolIkon = p.rol === 'admin' ? '👑' : '👤';
+      return '<div style="background:var(--surface2);border-radius:8px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
+        + '<div style="flex:1">'
+        + '<div style="font-weight:700;font-size:0.85rem">' + (p.ad || tel) + '</div>'
+        + '<div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono)">' + tel + '</div>'
+        + '</div>'
+        + '<span style="font-size:0.72rem;font-weight:700;color:' + rolRenk + '">' + rolIkon + ' ' + (p.rol||'personel') + '</span>'
+        + '<button onclick="personelSil(\'' + tel + '\')" style="font-size:0.72rem;padding:0.2rem 0.45rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer;margin-left:0.3rem">🗑</button>'
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    liste.innerHTML = '<div style="color:var(--danger);font-size:0.8rem">Yüklenemedi</div>';
+  }
+}
+
+async function personelSil(tel) {
+  if (!confirm(tel + ' personelini silmek istediğinizden emin misiniz?')) return;
+  try {
+    await window._dbRemove('kullanicilar/' + tel);
+    toast(tel + ' silindi');
+    personelListeYukle();
+  } catch(e) { toast('Hata: ' + e.message, 'error'); }
+}
+
+async function yeniPersonelEkle() {
+  var tel    = document.getElementById('yeni-p-tel').value.trim().replace(/[^0-9]/g,'');
+  var ad     = document.getElementById('yeni-p-ad').value.trim();
+  var rol    = document.getElementById('yeni-p-rol').value;
+  var sifre  = document.getElementById('yeni-p-sifre').value;
+  var hataEl = document.getElementById('personel-hata');
+  hataEl.textContent = '';
+  if (!tel || tel.length < 10) { hataEl.textContent = 'Geçerli telefon girin!'; return; }
+  if (!sifre || sifre.length < 6) { hataEl.textContent = 'Şifre en az 6 karakter olmalı!'; return; }
+  try {
+    // Firebase Auth'a kullanıcı ekle
+    var { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    var email = tel + '@yardim.com';
+    await createUserWithEmailAndPassword(window._auth, email, sifre);
+    // Kullanicilar DB'ye kaydet
+    await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel });
+    toast('✅ ' + (ad||tel) + ' eklendi!');
+    document.getElementById('yeni-p-tel').value = '';
+    document.getElementById('yeni-p-ad').value = '';
+    document.getElementById('yeni-p-sifre').value = '';
+    personelListeYukle();
+  } catch(e) {
+    if (e.code === 'auth/email-already-in-use') {
+      // Zaten Auth'da var, sadece DB'ye ekle
+      await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel });
+      toast('✅ ' + (ad||tel) + ' güncellendi!');
+      personelListeYukle();
+    } else {
+      hataEl.textContent = 'Hata: ' + e.message;
+    }
+  }
 }
 
 function donemKapatOnay(donemId) {
