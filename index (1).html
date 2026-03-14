@@ -817,38 +817,55 @@
   // Auth state — giriş yapılmış mı?
   onAuthStateChanged(auth, async function(user) {
     if (user) {
-      // Kullanıcı giriş yapmış — rolü kontrol et
-      var tel = user.email.replace('@yardim.com','');
-      var rolSnap = await get(ref(db, 'kullanicilar/'+tel+'/rol'));
-      var rol = rolSnap.val() || 'personel';
-      window._aktifKullanici = { tel: tel, rol: rol, uid: user.uid };
-      window._aktifRol = rol;
-      document.getElementById('giris-ekrani').style.display = 'none';
-      document.getElementById('ana-uygulama').style.display = 'block';
-      rolAyarla(rol);
-      document.dispatchEvent(new Event('firebase-hazir'));
-      donemlerYukle();
+      try {
+        var tel = user.email.replace('@yardim.com','');
+        var rolSnap = await get(ref(db, 'kullanicilar/'+tel+'/rol'));
+        var rol = rolSnap.val() || 'admin'; // varsayılan admin
+        window._aktifKullanici = { tel: tel, rol: rol, uid: user.uid };
+        window._aktifRol = rol;
+        document.getElementById('giris-ekrani').style.display = 'none';
+        document.getElementById('ana-uygulama').style.display = 'block';
+        rolAyarla(rol);
+        donemlerYukle();
+      } catch(e) {
+        console.error('Rol okuma hatası:', e);
+        // Hata olsa bile uygulamayı aç
+        window._aktifRol = 'admin';
+        document.getElementById('giris-ekrani').style.display = 'none';
+        document.getElementById('ana-uygulama').style.display = 'block';
+        donemlerYukle();
+      }
     } else {
-      // Giriş yapılmamış — giriş ekranını göster
       document.getElementById('giris-ekrani').style.display = 'flex';
       document.getElementById('ana-uygulama').style.display = 'none';
     }
   });
 
   window.girisYap = async function() {
-    var tel = document.getElementById('giris-tel').value.trim().replace(/\s/g,'');
+    var tel = document.getElementById('giris-tel').value.trim().replace(/[^0-9]/g,'');
     var sifre = document.getElementById('giris-sifre').value;
     var hata = document.getElementById('giris-hata');
+    hata.textContent = '';
     if (!tel || !sifre) { hata.textContent = 'Telefon ve şifre zorunlu!'; return; }
     var email = tel + '@yardim.com';
+    var btn = document.getElementById('giris-btn');
     try {
-      document.getElementById('giris-btn').disabled = true;
-      document.getElementById('giris-btn').textContent = 'Giriş yapılıyor...';
+      btn.disabled = true;
+      btn.textContent = 'Giriş yapılıyor...';
       await signInWithEmailAndPassword(auth, email, sifre);
+      // onAuthStateChanged halleder — ama yedek olarak sayfa yenile
+      setTimeout(function(){ if(document.getElementById('giris-ekrani').style.display !== 'none') window.location.reload(); }, 2000);
     } catch(e) {
-      hata.textContent = 'Telefon veya şifre hatalı!';
-      document.getElementById('giris-btn').disabled = false;
-      document.getElementById('giris-btn').textContent = 'Giriş Yap';
+      console.error('Giriş hatası:', e.code, e.message);
+      if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') {
+        hata.textContent = 'Telefon veya şifre hatalı!';
+      } else if (e.code === 'auth/too-many-requests') {
+        hata.textContent = 'Çok fazla deneme! Lütfen bekleyin.';
+      } else {
+        hata.textContent = 'Hata: ' + e.message;
+      }
+      btn.disabled = false;
+      btn.textContent = 'Giriş Yap';
     }
   };
 
