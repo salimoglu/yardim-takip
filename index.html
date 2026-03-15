@@ -2335,17 +2335,41 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
   page-break-inside: avoid;
   position: relative;
 }
-/* Yatay kesim çizgisi — sayfanın tam ortasında */
+/* Kesim çizgileri — sayfanın kavşak noktasında */
+/* Yatay çift çizgi */
 .sayfa::before {
-  content: '✂';
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50% - 1.5mm);
+  height: 3mm;
+  border-top: 1px dashed #999;
+  border-bottom: 1px dashed #999;
+  z-index: 9;
+  pointer-events: none;
+}
+/* Dikey çift çizgi */
+.sayfa::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: calc(50% - 1.5mm);
+  width: 3mm;
+  border-left: 1px dashed #999;
+  border-right: 1px dashed #999;
+  z-index: 9;
+  pointer-events: none;
+}
+/* Makas ortada */
+.makas-ikon {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   font-size: 14pt;
   background: #fff;
-  padding: 0 2mm;
-  z-index: 10;
+  padding: 1mm 2mm;
+  z-index: 11;
   line-height: 1;
 }
 
@@ -2448,20 +2472,20 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 .fis-kesme {
   margin: 1.5mm 0;
   position: relative;
-  height: 6mm;
+  height: 3mm;
   display: flex;
   align-items: center;
 }
 .fis-kesme-cizgi {
   position: absolute;
   left: 0; right: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2mm;
 }
 .fis-kesme-cizgi span {
   display: block;
   border-top: 1px dashed #555;
+}
+.fis-kesme-cizgi span:last-child {
+  display: none;
 }
 .fis-kesme-ikon {
   position: absolute;
@@ -2575,7 +2599,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 
   for (let i = 0; i < kisiler.length; i += 4) {
     const grup = kisiler.slice(i, i + 4);
-    win.document.write('<div class="sayfa">');
+    win.document.write('<div class="sayfa"><div class="makas-ikon">✂</div>');
     grup.forEach((k, idx) => {
       win.document.write(`
       <div class="fis">
