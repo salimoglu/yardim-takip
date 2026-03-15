@@ -79,15 +79,15 @@
   .badge-blue{background:#1a2e3a;color:var(--accent2);}
 
   .table-wrap{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+  table{width:100%;border-collapse:collapse;font-size:0.85rem;}
   th{text-align:left;padding:0.6rem 0.8rem;color:var(--muted);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);}
-  td{padding:0.8rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+  td{padding:0.6rem 0.8rem;border-bottom:1px solid var(--border);vertical-align:middle;}
   tr:last-child td{border-bottom:none;}
   tr:hover td{background:var(--surface2);}
 
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;}
   .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;}
-  .stat-val{font-size:2rem;font-weight:800;color:var(--accent);line-height:1;margin-bottom:0.3rem;font-family:var(--mono);}
+  .stat-val{font-size:1.7rem;font-weight:800;color:var(--accent);line-height:1;margin-bottom:0.3rem;font-family:var(--mono);}
   .stat-label{font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
 
   #qr-reader{border-radius:10px;overflow:hidden;}
@@ -1522,7 +1522,7 @@ function updateDashboard(){
             <span style="font-size:0.65rem;color:var(--muted);margin-left:3px">teslim</span>
           </div>
           <div>
-            <span style="font-size:0.82rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</span>
+            <span style="font-size:0.82rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.82rem">${bekliyor.toLocaleString('tr-TR')}</span>
             <span style="font-size:0.65rem;color:var(--muted);margin-left:3px">bekliyor</span>
           </div>
         </div>
@@ -1546,7 +1546,7 @@ function updateDashboard(){
     const renk = pct===100?'var(--success)':pct>50?'var(--accent)':'var(--danger)';
     return `<div onclick="mahalleDeta('${m.replace(/'/g,"&#39;")}')" style="cursor:pointer;background:var(--surface2);border-radius:8px;padding:0.55rem 0.9rem;display:flex;align-items:center;gap:0.9rem;transition:opacity 0.15s" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
       <div style="flex:1;min-width:0">
-        <div style="font-size:0.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">${m}</div>
+        <div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">${m}</div>
         <div style="display:flex;align-items:center;gap:6px">
           <div style="flex:1;height:5px;background:var(--surface);border-radius:3px;overflow:hidden">
             <div style="height:100%;width:${pct}%;background:${renk};border-radius:3px"></div>
@@ -1556,15 +1556,15 @@ function updateDashboard(){
       </div>
       <div style="display:flex;gap:0.7rem;flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;align-items:center">
         <div title="Toplam kayıtlı kişi">
-          <span style="font-size:0.78rem;font-weight:600;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">toplam</span>
         </div>
         <div title="Teslim alanlar">
-          <span style="font-size:0.78rem;font-weight:600;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.82rem;font-weight:600;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">aldı</span>
         </div>
         <div title="Henüz almamış">
-          <span style="font-size:0.78rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.78rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.82rem">${bekliyor.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">kaldı</span>
         </div>
       </div>
@@ -1921,10 +1921,10 @@ function renderKisilerTable(f){
     :k.map(x=>`<tr data-tc="${x.tc}">
   <td style="text-align:center"><input type="checkbox" class="kisi-sec" data-tc="${x.tc}" onchange="secimGuncelle()" style="width:15px;height:15px;cursor:pointer"></td>
   <td><b>${x.adsoyad}</b></td>
-  <td style="font-family:var(--mono);font-size:0.82rem">${x.tc}</td>
-  <td style="font-size:0.82rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.adres||''}">${x.adres||'—'}</td>
+  <td style="font-family:var(--mono);font-size:0.85rem">${x.tc}</td>
+  <td style="font-size:0.85rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.adres||''}">${x.adres||'—'}</td>
   <td><span class="badge badge-blue">${x.yardimturu}</span></td>
-  <td style="font-size:0.78rem;color:var(--accent2);white-space:nowrap">${x.gundem||'—'}</td>
+  <td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">${x.gundem||'—'}</td>
   <td>${x.teslimEdildi?'<span class="badge badge-green">✅ Teslim</span>':'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
   <td style="display:flex;gap:4px">
     <button class="btn btn-outline btn-sm" onclick="showDetayByTC('${x.tc}')">Detay</button>
