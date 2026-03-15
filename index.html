@@ -87,7 +87,7 @@
 
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;}
   .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;}
-  .stat-val{font-size:1.7rem;font-weight:800;color:var(--accent);line-height:1;margin-bottom:0.3rem;font-family:var(--mono);}
+  .stat-val{font-size:1.9rem;font-weight:800;color:var(--accent);line-height:1;margin-bottom:0.3rem;font-family:var(--mono);}
   .stat-label{font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
 
   #qr-reader{border-radius:10px;overflow:hidden;}
@@ -156,7 +156,7 @@
   .items-center{align-items:center;} .justify-between{justify-content:space-between;}
   .mb-1{margin-bottom:0.5rem;} .mb-2{margin-bottom:1rem;}
   .text-muted{color:var(--muted);font-size:0.85rem;} .text-center{text-align:center;}
-  @media(max-width:600px){.page{padding:1rem;}.stats-grid{grid-template-columns:repeat(2,1fr);}.step{font-size:0.62rem;padding:0.5rem 0.2rem;}}
+  @media(max-width:600px){.page{padding:0.8rem;}.stats-grid{grid-template-columns:repeat(2,1fr);}.step{font-size:0.62rem;padding:0.5rem 0.2rem;}.stat-val{font-size:1.4rem;}.stat-label{font-size:0.65rem;}}
 </style>
 </head>
 <body>
@@ -1522,7 +1522,7 @@ function updateDashboard(){
             <span style="font-size:0.65rem;color:var(--muted);margin-left:3px">teslim</span>
           </div>
           <div>
-            <span style="font-size:0.82rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.82rem">${bekliyor.toLocaleString('tr-TR')}</span>
+            <span style="font-size:0.82rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.88rem;font-weight:700">${bekliyor.toLocaleString('tr-TR')}</span>
             <span style="font-size:0.65rem;color:var(--muted);margin-left:3px">bekliyor</span>
           </div>
         </div>
@@ -1556,15 +1556,15 @@ function updateDashboard(){
       </div>
       <div style="display:flex;gap:0.7rem;flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;align-items:center">
         <div title="Toplam kayıtlı kişi">
-          <span style="font-size:0.82rem;font-weight:600;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.88rem;font-weight:700;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">toplam</span>
         </div>
         <div title="Teslim alanlar">
-          <span style="font-size:0.82rem;font-weight:600;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.88rem;font-weight:700;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">aldı</span>
         </div>
         <div title="Henüz almamış">
-          <span style="font-size:0.78rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.82rem">${bekliyor.toLocaleString('tr-TR')}</span>
+          <span style="font-size:0.78rem;font-weight:600;color:${bekliyor>0?'var(--danger)':'var(--muted)'};font-size:0.88rem;font-weight:700">${bekliyor.toLocaleString('tr-TR')}</span>
           <span style="font-size:0.6rem;color:var(--muted);margin-left:2px">kaldı</span>
         </div>
       </div>
@@ -1926,9 +1926,9 @@ function renderKisilerTable(f){
   <td><span class="badge badge-blue">${x.yardimturu}</span></td>
   <td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">${x.gundem||'—'}</td>
   <td>${x.teslimEdildi?'<span class="badge badge-green">✅ Teslim</span>':'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
-  <td style="display:flex;gap:4px">
-    <button class="btn btn-outline btn-sm" onclick="showDetayByTC('${x.tc}')">Detay</button>
-    <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="silBaslat('${x.tc}')">🗑️</button>
+  <td style="white-space:nowrap">
+    <button style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-right:3px" onclick="showDetayByTC('${x.tc}')">Detay</button>
+    <button style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer" onclick="silBaslat('${x.tc}')">🗑</button>
   </td>
 </tr>`).join('');
 }
