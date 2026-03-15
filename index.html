@@ -1894,45 +1894,63 @@ async function yeniDonemOlustur() {
 }
 
 // ===== KİŞİLER =====
-// Sıralama state
-var _sortAlan = 'adsoyad';
-var _sortYon  = 'asc'; // 'asc' | 'desc'
+// Sıralama state — çok kademeli (Excel gibi)
+// Varsayılan: mahalle → isim
+var _sortKademeler = [
+  { alan: 'adres',   yon: 'asc' },
+  { alan: 'adsoyad', yon: 'asc' }
+];
+var _sortAlanlar = ['adsoyad','adres','gundem'];
 
 function siralamaYap(alan) {
-  if (_sortAlan === alan) {
-    _sortYon = _sortYon === 'asc' ? 'desc' : 'asc';
+  var mevcut = _sortKademeler.find(function(k){ return k.alan === alan; });
+  if (mevcut) {
+    // Zaten var — yön değiştir
+    mevcut.yon = mevcut.yon === 'asc' ? 'desc' : 'asc';
+    // Öne al
+    _sortKademeler = [mevcut].concat(_sortKademeler.filter(function(k){ return k.alan !== alan; }));
   } else {
-    _sortAlan = alan;
-    _sortYon = 'asc';
+    // Yeni ekle — öne al, en fazla 3 kademe
+    _sortKademeler.unshift({ alan: alan, yon: 'asc' });
+    if (_sortKademeler.length > 3) _sortKademeler.pop();
   }
-  // İkon güncelle
-  ['adsoyad','adres','gundem'].forEach(function(a) {
+  ikonlariGuncelle();
+  aramaYap();
+}
+
+function ikonlariGuncelle() {
+  var oncelikRenkleri = ['var(--accent)', 'var(--accent2)', '#888'];
+  _sortAlanlar.forEach(function(a) {
     var el = document.getElementById('sort-icon-'+a);
     if (!el) return;
-    if (a === _sortAlan) {
-      el.textContent = _sortYon === 'asc' ? '↑' : '↓';
-      el.style.color = 'var(--accent)';
+    var idx = _sortKademeler.findIndex(function(k){ return k.alan === a; });
+    if (idx >= 0) {
+      var k = _sortKademeler[idx];
+      el.textContent = (idx === 0 ? '' : (idx+1)+'') + (k.yon === 'asc' ? '↑' : '↓');
+      el.style.color = oncelikRenkleri[idx] || '#888';
     } else {
       el.textContent = '↕';
       el.style.color = 'var(--muted)';
     }
   });
-  aramaYap();
 }
 
 function uygulaSimrala(liste) {
-  var alan = _sortAlan;
-  var yon  = _sortYon;
   return liste.slice().sort(function(a, b) {
-    var va = String(a[alan] || '');
-    var vb = String(b[alan] || '');
-    // Gündem için sayısal sıralama
-    if (alan === 'gundem') {
-      var na = parseInt(va), nb = parseInt(vb);
-      if (!isNaN(na) && !isNaN(nb)) return yon === 'asc' ? na - nb : nb - na;
+    for (var i = 0; i < _sortKademeler.length; i++) {
+      var k = _sortKademeler[i];
+      var va = String(a[k.alan] || '');
+      var vb = String(b[k.alan] || '');
+      var sonuc;
+      if (k.alan === 'gundem') {
+        var na = parseInt(va), nb = parseInt(vb);
+        sonuc = (!isNaN(na) && !isNaN(nb)) ? na - nb : trSort(va, vb);
+      } else {
+        sonuc = trSort(va, vb);
+      }
+      if (sonuc !== 0) return k.yon === 'asc' ? sonuc : -sonuc;
     }
-    var sonuc = trSort(va, vb);
-    return yon === 'asc' ? sonuc : -sonuc;
+    return 0;
   });
 }
 
