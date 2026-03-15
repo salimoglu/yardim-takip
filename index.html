@@ -79,6 +79,10 @@
   .badge-blue{background:#1a2e3a;color:var(--accent2);}
 
   .table-wrap{overflow-x:auto;}
+  .mah-sayilar{display:flex;flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;}
+  .mah-s{width:56px;text-align:right;padding-right:6px;}
+  .mah-s-val{font-size:0.88rem;font-weight:700;line-height:1.2;}
+  .mah-s-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;}
   table{width:100%;border-collapse:collapse;font-size:0.85rem;}
   th{text-align:left;padding:0.6rem 0.8rem;color:var(--muted);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);}
   td{padding:0.6rem 0.8rem;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -1554,18 +1558,18 @@ function updateDashboard(){
           <span style="font-size:0.7rem;font-weight:800;color:${renk};min-width:28px;text-align:right">%${pct}</span>
         </div>
       </div>
-      <div style="flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;display:flex;gap:0">
-        <div title="Toplam" style="width:52px;text-align:right;padding-right:4px">
-          <div style="font-size:0.88rem;font-weight:700;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted)">toplam</div>
+      <div class="mah-sayilar">
+        <div class="mah-s">
+          <div class="mah-s-val" style="color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</div>
+          <div class="mah-s-lbl">toplam</div>
         </div>
-        <div title="Aldı" style="width:44px;text-align:right;padding-right:4px">
-          <div style="font-size:0.88rem;font-weight:700;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted)">aldı</div>
+        <div class="mah-s">
+          <div class="mah-s-val" style="color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</div>
+          <div class="mah-s-lbl">aldı</div>
         </div>
-        <div title="Kaldı" style="width:48px;text-align:right">
-          <div style="font-size:0.88rem;font-weight:700;color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted)">kaldı</div>
+        <div class="mah-s">
+          <div class="mah-s-val" style="color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</div>
+          <div class="mah-s-lbl">kaldı</div>
         </div>
       </div>
     </div>`;
