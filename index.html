@@ -2317,7 +2317,7 @@ function _qrPencereAc(kisiler, baslik = '📋 Tüm Kişiler') {
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"><\/script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#fff; font-family: Arial, sans-serif; }
+body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 .btn-yazdir { position:fixed;top:10px;right:10px;background:#27ae60;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;z-index:999; }
 .btn-kapat  { position:fixed;top:10px;right:130px;background:#e74c3c;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;z-index:999; }
 .bilgi-bar  { position:fixed;top:10px;left:10px;background:#222;color:#fff;padding:8px 12px;border-radius:6px;font-size:11px;font-weight:600;z-index:999; }
@@ -2336,10 +2336,10 @@ body { background:#fff; font-family: Arial, sans-serif; }
 
 /* Tek fiş — A4'ün tam 1/4'ü */
 .fis {
-  border: 1px solid #999;
+  border: 0.5px solid #999;
   display: flex;
   flex-direction: column;
-  padding: 6mm 7mm 4mm 7mm;
+  padding: 3mm 4mm 2mm 4mm;
   overflow: hidden;
   position: relative;
 }
@@ -2364,9 +2364,9 @@ body { background:#fff; font-family: Arial, sans-serif; }
   font-size: 8.5pt;
   font-weight: 600;
   line-height: 1.35;
-  margin-bottom: 2mm;
-  border-bottom: 1.5px solid #000;
-  padding-bottom: 2mm;
+  margin-bottom: 1mm;
+  border-bottom: 1px solid #000;
+  padding-bottom: 1mm;
 }
 
 /* Ana başlık */
@@ -2375,7 +2375,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
   font-size: 12pt;
   font-weight: 900;
   text-decoration: underline;
-  margin-bottom: 2.5mm;
+  margin-bottom: 1.5mm;
   text-transform: uppercase;
 }
 
@@ -2383,7 +2383,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
 .fis-tablo {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 2mm;
+  margin-bottom: 1mm;
   font-size: 9pt;
 }
 .fis-tablo th {
@@ -2401,7 +2401,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
 /* Alındı metni */
 .fis-alindi {
   font-size: 8.5pt;
-  margin-bottom: 3mm;
+  margin-bottom: 1.5mm;
   line-height: 1.4;
 }
 
@@ -2431,15 +2431,34 @@ body { background:#fff; font-family: Arial, sans-serif; }
 
 /* Kesme çizgisi */
 .fis-kesme {
-  border-top: 1.5px dashed #777;
-  margin: 2mm 0;
+  margin: 1.5mm 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+  position: relative;
+}
+.fis-kesme::before,
+.fis-kesme::after {
+  content: '';
+  display: block;
+  border-top: 1px dashed #555;
+}
+.fis-kesme-ikon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 0 2mm;
+  font-size: 10pt;
+  line-height: 1;
 }
 
 /* Hak sahibi bölümü */
 .fis-hak {
   font-size: 9.9pt;
   font-weight: 700;
-  margin-bottom: 2mm;
+  margin-bottom: 1mm;
   text-decoration: underline;
 }
 .fis-alan {
@@ -2490,7 +2509,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5mm;
+  gap: 0.8mm;
 }
 .fis-imza-bos {
   text-align: left;
@@ -2567,7 +2586,9 @@ body { background:#fff; font-family: Arial, sans-serif; }
           <span>İmza</span>
         </div>
 
-        <div class="fis-kesme"></div>
+        <div class="fis-kesme">
+          <div class="fis-kesme-ikon">✂</div>
+        </div>
 
         <div class="fis-hak">HAK SAHİBİ :</div>
 
