@@ -34,14 +34,13 @@
     .nav-btn{display:none !important;}
     .bottom-nav{display:block;}
     .page{padding-bottom:calc(4.5rem + env(safe-area-inset-bottom));}
-    nav{padding:0.5rem 0.8rem;flex-wrap:nowrap;justify-content:space-between;}
-    .nav-brand{font-size:1.1rem;padding:0;border-right:none;margin-right:0;flex-shrink:0;}
-    .nav-sag{flex-direction:column;align-items:flex-end;gap:0.2rem;flex-wrap:nowrap;}
-    .nav-sag-ust{display:flex;align-items:center;gap:0.3rem;}
-    #donem-select{max-width:130px;font-size:0.68rem;padding:0.2rem 0.4rem;}
-    #firebase-status{font-size:0.65rem;padding:0.2rem 0.35rem;}
+    nav{padding:0.4rem 0.8rem;flex-wrap:nowrap;align-items:center;gap:0.5rem;}
+    .nav-brand{font-size:0.9rem;padding:0;border-right:none;margin-right:0;flex-shrink:0;letter-spacing:0;}
+    .nav-sag{gap:0.3rem;flex-wrap:nowrap;}
+    #donem-select{max-width:120px;font-size:0.68rem;padding:0.2rem 0.35rem;}
     #nav-kullanici{font-size:0.68rem;padding:0.2rem 0.4rem;}
-    .ayar-btn-mob{padding:0.2rem 0.4rem !important;font-size:0.75rem !important;}
+    .ayar-btn-mob{padding:0.2rem 0.35rem !important;font-size:0.75rem !important;}
+    #firebase-status{width:8px;height:8px;}
   }
   .nav-brand{font-size:1.1rem;font-weight:800;color:var(--accent);padding:1rem 1.5rem 1rem 0;white-space:nowrap;border-right:1px solid var(--border);margin-right:0.5rem;letter-spacing:-0.02em;}
   .nav-brand span{color:var(--text);}
@@ -209,7 +208,7 @@
         <option>Yükleniyor...</option>
       </select>
       <button onclick="donemYonetModal()" class="ayar-btn-mob" title="Dönem Yönetimi" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.8rem">⚙️</button>
-      <div id="firebase-status" style="padding:0.25rem 0.5rem;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳</div>
+      <div id="firebase-status" title="Veritabanı durumu" style="width:10px;height:10px;border-radius:50%;background:#888;flex-shrink:0;cursor:default"></div>
       <div style="position:relative">
         <div id="nav-kullanici" onclick="document.getElementById('kullanici-menu').style.display=document.getElementById('kullanici-menu').style.display==='block'?'none':'block'"
           style="font-size:0.75rem;color:var(--muted);font-weight:600;white-space:nowrap;cursor:pointer;padding:0.3rem 0.6rem;border-radius:6px;border:1px solid var(--border)"
@@ -759,11 +758,11 @@
     const indicator = document.getElementById('firebase-status');
     if (indicator) {
       if (connected) {
-        indicator.innerHTML = '🟢 Veritabanı bağlı';
-        indicator.style.color = 'var(--success)';
+        indicator.style.background = 'var(--success)';
+        indicator.title = 'Veritabanı bağlı';
       } else {
-        indicator.innerHTML = '🔴 Veritabanı bağlantısı yok';
-        indicator.style.color = 'var(--danger)';
+        indicator.style.background = 'var(--danger)';
+        indicator.title = 'Bağlantı yok';
       }
     }
     console.log('Firebase bağlantı durumu:', connected ? 'BAĞLI ✅' : 'BAĞLI DEĞİL ❌');
