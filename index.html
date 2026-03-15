@@ -2432,14 +2432,19 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 /* Kesme çizgisi */
 .fis-kesme {
   margin: 1.5mm 0;
+  position: relative;
+  height: 6mm;
+  display: flex;
+  align-items: center;
+}
+.fis-kesme-cizgi {
+  position: absolute;
+  left: 0; right: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5mm;
-  position: relative;
+  gap: 2mm;
 }
-.fis-kesme::before,
-.fis-kesme::after {
-  content: '';
+.fis-kesme-cizgi span {
   display: block;
   border-top: 1px dashed #555;
 }
@@ -2449,9 +2454,10 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
   top: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
-  padding: 0 2mm;
-  font-size: 10pt;
+  padding: 0 1.5mm;
+  font-size: 11pt;
   line-height: 1;
+  z-index: 1;
 }
 
 /* Hak sahibi bölümü */
@@ -2544,6 +2550,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
   .btn-yazdir, .btn-kapat, .bilgi-bar { display:none !important; }
   .sayfa { page-break-after: always; page-break-inside: avoid; }
   body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  @page { margin: 0; size: A4; }
 }
 </style></head><body>
 <button class="btn-yazdir" onclick="window.print()">🖨️ Yazdır</button>
@@ -2571,7 +2578,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 
         <table class="fis-tablo">
           <tr><th>Cinsi</th><th>Miktarı</th></tr>
-          <tr><td>KÖMÜR</td><td>50 TORBA</td></tr>
+          <tr><td>KÖMÜR</td><td style="text-align:left">50 TORBA</td></tr>
         </table>
 
         <div class="fis-alindi">Yukarıda ( 1 ) kalem olarak yazılı bulunan kömür fişini teslim aldım.</div>
@@ -2587,6 +2594,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
         </div>
 
         <div class="fis-kesme">
+          <div class="fis-kesme-cizgi"><span></span><span></span></div>
           <div class="fis-kesme-ikon">✂</div>
         </div>
 
