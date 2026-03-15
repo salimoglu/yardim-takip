@@ -6,10 +6,11 @@
 <title>Yardım Takip</title>
 <meta name="version" content="202603151924">
 <meta name="theme-color" content="#f5a623">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="YardımTakip">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';document.head.appendChild(s)"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';document.head.appendChild(s)"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';document.head.appendChild(s)"></script>
@@ -2332,6 +2333,20 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
   gap: 0;
   page-break-after: always;
   page-break-inside: avoid;
+  position: relative;
+}
+/* Yatay kesim çizgisi — sayfanın tam ortasında */
+.sayfa::before {
+  content: '✂';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14pt;
+  background: #fff;
+  padding: 0 2mm;
+  z-index: 10;
+  line-height: 1;
 }
 
 /* Tek fiş — A4'ün tam 1/4'ü */
@@ -2578,7 +2593,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 
         <table class="fis-tablo">
           <tr><th>Cinsi</th><th>Miktarı</th></tr>
-          <tr><td>KÖMÜR</td><td style="text-align:left">50 TORBA</td></tr>
+          <tr><td>KÖMÜR</td><td style="text-align:right;font-weight:900">50 TORBA</td></tr>
         </table>
 
         <div class="fis-alindi">Yukarıda ( 1 ) kalem olarak yazılı bulunan kömür fişini teslim aldım.</div>
@@ -2595,7 +2610,6 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 
         <div class="fis-kesme">
           <div class="fis-kesme-cizgi"><span></span><span></span></div>
-          <div class="fis-kesme-ikon">✂</div>
         </div>
 
         <div class="fis-hak">HAK SAHİBİ :</div>
