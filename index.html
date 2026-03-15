@@ -704,6 +704,10 @@
     <div class="card-title">Günlük Özet</div>
     <div id="rapor-gunluk" style="display:grid;gap:0.6rem;"></div>
   </div>
+  <div class="card" id="personel-ozet-card">
+    <div class="card-title">👤 Personel Bazlı Özet</div>
+    <div id="rapor-personel" style="display:grid;gap:0.5rem;"></div>
+  </div>
   <div class="card">
     <div class="card-title">Dışa Aktar</div>
     <div class="flex gap-1 flex-wrap">
@@ -2146,6 +2150,57 @@ function updateRaporlar(){
         </div>`).join('');
 
   raporFiltrele();
+  raporPersonelOzeti();
+}
+
+function raporPersonelOzeti() {
+  const k = Object.values(_allKisiler).filter(x => x.teslimEdildi);
+  const bugun = new Date().toISOString().slice(0,10);
+
+  // Personele göre grupla
+  const personeller = {};
+  k.forEach(x => {
+    const ad = x.teslimEden || 'Bilinmiyor';
+    if (!personeller[ad]) personeller[ad] = { bugun: [], toplam: [] };
+    personeller[ad].toplam.push(x);
+    if (x.teslimTarihi && x.teslimTarihi.slice(0,10) === bugun) {
+      personeller[ad].bugun.push(x);
+    }
+  });
+
+  const el = document.getElementById('rapor-personel');
+  if (!el) return;
+  const ids = Object.keys(personeller).sort();
+  if (ids.length === 0) { el.innerHTML = '<div class="text-muted">Henüz teslim yok</div>'; return; }
+
+  el.innerHTML = ids.map(function(ad) {
+    const p = personeller[ad];
+    const pid = 'pp-' + ad.replace(/[^a-zA-Z0-9]/g,'');
+    return '<div style="background:var(--surface2);border-radius:8px;overflow:hidden">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;cursor:pointer" onclick="document.getElementById(''+pid+'').style.display=document.getElementById(''+pid+'').style.display==='none'?'block':'none'">'
+        + '<div style="font-weight:700;font-size:0.9rem">👤 ' + ad + '</div>'
+        + '<div style="display:flex;gap:1rem;align-items:center">'
+          + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--accent);font-size:1.1rem">' + p.bugun.length + '</div><div style="font-size:0.6rem;color:var(--muted)">BUGÜN</div></div>'
+          + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--muted);font-size:1.1rem">' + p.toplam.length + '</div><div style="font-size:0.6rem;color:var(--muted)">TOPLAM</div></div>'
+          + '<span style="color:var(--muted);font-size:0.8rem">▼</span>'
+        + '</div>'
+      + '</div>'
+      + '<div id="' + pid + '" style="display:none;border-top:1px solid var(--border);max-height:300px;overflow-y:auto">'
+        + '<table style="width:100%;font-size:0.82rem">'
+          + '<thead><tr style="background:var(--surface)"><th style="padding:0.4rem 0.6rem">Ad Soyad</th><th>Mahalle</th><th>Saat</th></tr></thead>'
+          + '<tbody>'
+          + p.bugun.sort(function(a,b){ return new Date(b.teslimTarihi)-new Date(a.teslimTarihi); }).map(function(x){
+              const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
+              return '<tr><td style="padding:0.35rem 0.6rem"><b>' + x.adsoyad + '</b></td>'
+                + '<td style="font-size:0.78rem">' + (x.adres||'—') + '</td>'
+                + '<td style="font-family:var(--mono);font-size:0.78rem">' + (d ? d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '—') + '</td></tr>';
+            }).join('')
+          + (p.bugun.length === 0 ? '<tr><td colspan="3" style="padding:0.8rem;text-align:center;color:var(--muted)">Bugün teslim yok</td></tr>' : '')
+          + '</tbody>'
+        + '</table>'
+      + '</div>'
+    + '</div>';
+  }).join('');
 }
 
 // ===== EXPORT =====
