@@ -34,12 +34,14 @@
     .nav-btn{display:none !important;}
     .bottom-nav{display:block;}
     .page{padding-bottom:calc(4.5rem + env(safe-area-inset-bottom));}
-    /* Mobilde nav'ı 2 satıra böl */
-    nav{flex-wrap:wrap;padding:0.4rem 0.8rem;gap:0.3rem;}
-    .nav-brand{font-size:1rem;padding:0.3rem 0;border-right:none;margin-right:0;}
-    .nav-sag{flex-wrap:wrap;gap:0.3rem;justify-content:flex-end;}
-    #firebase-status{font-size:0.65rem;padding:0.2rem 0.4rem;}
-    #donem-select{max-width:130px;font-size:0.7rem;}
+    nav{padding:0.5rem 0.8rem;flex-wrap:nowrap;justify-content:space-between;}
+    .nav-brand{font-size:1.1rem;padding:0;border-right:none;margin-right:0;flex-shrink:0;}
+    .nav-sag{flex-direction:column;align-items:flex-end;gap:0.2rem;flex-wrap:nowrap;}
+    .nav-sag-ust{display:flex;align-items:center;gap:0.3rem;}
+    #donem-select{max-width:130px;font-size:0.68rem;padding:0.2rem 0.4rem;}
+    #firebase-status{font-size:0.65rem;padding:0.2rem 0.35rem;}
+    #nav-kullanici{font-size:0.68rem;padding:0.2rem 0.4rem;}
+    .ayar-btn-mob{padding:0.2rem 0.4rem !important;font-size:0.75rem !important;}
   }
   .nav-brand{font-size:1.1rem;font-weight:800;color:var(--accent);padding:1rem 1.5rem 1rem 0;white-space:nowrap;border-right:1px solid var(--border);margin-right:0.5rem;letter-spacing:-0.02em;}
   .nav-brand span{color:var(--text);}
@@ -202,18 +204,20 @@
   <button class="nav-btn" onclick="showPage('kisiler',this)">👥 Kişiler</button>
   <button class="nav-btn" onclick="showPage('raporlar',this)">📈 Raporlar</button>
   <div class="nav-sag" style="margin-left:auto;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end">
-    <select id="donem-select" onchange="window.donemSec(this.value)" style="font-size:0.75rem;padding:0.3rem 0.5rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-weight:600;cursor:pointer;max-width:160px">
-      <option>Yükleniyor...</option>
-    </select>
-    <button onclick="donemYonetModal()" title="Dönem Yönetimi" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.8rem">⚙️</button>
-    <div id="firebase-status" style="padding:0.25rem 0.5rem;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳</div>
-    <div style="position:relative">
-      <div id="nav-kullanici" onclick="document.getElementById('kullanici-menu').style.display=document.getElementById('kullanici-menu').style.display==='block'?'none':'block'"
-        style="font-size:0.75rem;color:var(--muted);font-weight:600;white-space:nowrap;cursor:pointer;padding:0.3rem 0.6rem;border-radius:6px;border:1px solid var(--border)"
-        title="Hesap menüsü"></div>
-      <div id="kullanici-menu" style="display:none;position:fixed;right:1rem;top:3.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;min-width:180px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.5)">
-        <div style="padding:0.6rem 0.9rem;font-size:0.75rem;color:var(--muted);border-bottom:1px solid var(--border)" id="kullanici-menu-bilgi"></div>
-        <button onclick="window.cikisYap()" style="width:100%;padding:0.6rem 0.9rem;background:none;border:none;color:var(--danger);font-size:0.85rem;font-weight:700;cursor:pointer;text-align:left">🚪 Çıkış Yap</button>
+    <div class="nav-sag-ust" style="display:flex;align-items:center;gap:0.4rem">
+      <select id="donem-select" onchange="window.donemSec(this.value)" style="font-size:0.75rem;padding:0.3rem 0.5rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-weight:600;cursor:pointer;max-width:160px">
+        <option>Yükleniyor...</option>
+      </select>
+      <button onclick="donemYonetModal()" class="ayar-btn-mob" title="Dönem Yönetimi" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.8rem">⚙️</button>
+      <div id="firebase-status" style="padding:0.25rem 0.5rem;font-size:0.72rem;font-weight:600;white-space:nowrap;">⏳</div>
+      <div style="position:relative">
+        <div id="nav-kullanici" onclick="document.getElementById('kullanici-menu').style.display=document.getElementById('kullanici-menu').style.display==='block'?'none':'block'"
+          style="font-size:0.75rem;color:var(--muted);font-weight:600;white-space:nowrap;cursor:pointer;padding:0.3rem 0.6rem;border-radius:6px;border:1px solid var(--border)"
+          title="Hesap menüsü"></div>
+        <div id="kullanici-menu" style="display:none;position:fixed;right:1rem;top:3.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;min-width:180px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.5)">
+          <div style="padding:0.6rem 0.9rem;font-size:0.75rem;color:var(--muted);border-bottom:1px solid var(--border)" id="kullanici-menu-bilgi"></div>
+          <button onclick="window.cikisYap()" style="width:100%;padding:0.6rem 0.9rem;background:none;border:none;color:var(--danger);font-size:0.85rem;font-weight:700;cursor:pointer;text-align:left">🚪 Çıkış Yap</button>
+        </div>
       </div>
     </div>
   </div>
