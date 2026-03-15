@@ -25,7 +25,7 @@
 
   nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;position:sticky;top:0;z-index:100;}
   /* ALT NAV — mobil */
-  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:99999;padding:0 0.25rem;padding-bottom:env(safe-area-inset-bottom);transform:translateZ(0);-webkit-transform:translateZ(0);}
+  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:99999;padding:0 0.25rem;padding-bottom:env(safe-area-inset-bottom);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);will-change:transform;}
   .bottom-nav-inner{display:flex;justify-content:space-around;align-items:stretch;}
   .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.45rem 0.1rem;gap:0.1rem;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:0.58rem;font-weight:600;cursor:pointer;border-top:3px solid transparent;transition:color 0.15s,border-color 0.15s;-webkit-tap-highlight-color:transparent;}
   .bnav-btn.active{color:var(--accent);border-top-color:var(--accent);}
@@ -83,6 +83,12 @@
   .mah-s{width:64px;text-align:right;padding-right:4px;}
   .mah-s-val{font-size:0.85rem;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;font-family:var(--mono);}
   .mah-s-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;}
+  @media(max-width:480px){
+    .mah-sayilar{padding-left:0.4rem;}
+    .mah-s{width:48px;padding-right:2px;}
+    .mah-s-val{font-size:0.78rem;}
+    .mah-s-lbl{font-size:0.52rem;}
+  }
   table{width:100%;border-collapse:collapse;font-size:0.85rem;}
   th{text-align:left;padding:0.6rem 0.8rem;color:var(--muted);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);}
   td{padding:0.6rem 0.8rem;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -687,7 +693,7 @@
     <div id="rapor-filtre-ozet" style="font-size:0.82rem;color:var(--accent2);margin-bottom:0.8rem;font-weight:600"></div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>TC No</th><th>Soyad</th><th>Ad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
+        <thead><tr><th>TC No</th><th>Soyad</th><th>Ad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Eden</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
         <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
     </div>
@@ -799,10 +805,12 @@
     return update(ref(db, dbYol('kisiler/'+tc)), {yardimturu: yeniTur});
   };
   window.dbTeslimEt = async function(tc, zorla) {
+    var teslimEden = window._aktifKullanici ? (window._aktifKullanici.ad || window._aktifKullanici.tel) : 'Bilinmiyor';
     return update(ref(db, dbYol('kisiler/'+tc)), {
       teslimEdildi: true,
       teslimTarihi: new Date().toISOString(),
-      zorlaIslendi: !!zorla
+      zorlaIslendi: !!zorla,
+      teslimEden: teslimEden
     });
   };
   window.dbTopluYaz = async function(kayitlar, onProgress) {
@@ -935,7 +943,9 @@
         var tel = user.email.replace('@yardim.com','');
         var rolSnap = await get(ref(db, 'kullanicilar/'+tel+'/rol'));
         var rol = rolSnap.val() || 'admin'; // varsayılan admin
-        window._aktifKullanici = { tel: tel, rol: rol, uid: user.uid };
+        var adSnap = await get(ref(db, 'kullanicilar/'+tel+'/ad'));
+        var kullaniciAd = adSnap.val() || tel;
+        window._aktifKullanici = { tel: tel, ad: kullaniciAd, rol: rol, uid: user.uid };
         window._aktifRol = rol;
         document.getElementById('giris-ekrani').style.display = 'none';
         document.getElementById('ana-uygulama').style.display = 'block';
@@ -1026,6 +1036,13 @@ function rolAyarla(rol) {
     var bnavYukleme = document.getElementById('bnav-yukleme');
     if (bnavYukleme) bnavYukleme.style.display = 'none';
     window._personelModu = true;
+    // Bottom nav'ı JS ile de zorla sabit yap
+    var bnav = document.querySelector('.bottom-nav');
+    if (bnav) {
+      bnav.style.position = 'fixed';
+      bnav.style.bottom = '0';
+      bnav.style.zIndex = '99999';
+    }
     showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   } else {
     // Admin: her şey görünsün
@@ -1433,6 +1450,7 @@ function islemYap(tc) {
     document.getElementById('kopya-teslim-bilgi').innerHTML = `
       📅 <b>İlk teslim tarihi:</b> ${tD.toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'})}<br>
       🕐 <b>İlk teslim saati:</b> ${tD.toLocaleTimeString('tr-TR')}<br>
+      👤 <b>Teslim eden:</b> ${kisi.teslimEden || 'Bilinmiyor'}<br>
       ${kisi.zorlaIslendi ? '⚠️ <b style="color:#ff7744">Not:</b> Bu kayıt daha önce zorla teslim edildi.' : ''}`;
     return;
   }
@@ -2030,7 +2048,15 @@ function raporTemizle() {
   raporFiltrele();
 }
 
+var _raporSayfa = 0;
+var _raporSayfaBoyutu = 15;
+
 function raporFiltrele() {
+  _raporSayfa = 0;
+  raporRender();
+}
+
+function raporRender() {
   const bas = document.getElementById('rapor-tarih-bas').value;
   const bit = document.getElementById('rapor-tarih-bit').value;
   const kisiler = Object.values(_allKisiler);
@@ -2040,32 +2066,52 @@ function raporFiltrele() {
   if (bas) liste = liste.filter(k => k.teslimTarihi && k.teslimTarihi.slice(0,10) >= bas);
   if (bit) liste = liste.filter(k => k.teslimTarihi && k.teslimTarihi.slice(0,10) <= bit);
 
+  // Personel kendi teslimatını görsün
+  if (window._aktifRol === 'personel' && window._aktifKullanici) {
+    var benimAd = window._aktifKullanici.ad || window._aktifKullanici.tel;
+    liste = liste.filter(k => k.teslimEden === benimAd || k.teslimEden === window._aktifKullanici.tel);
+  }
+
   _raporFiltreli = liste;
 
   const ozet = document.getElementById('rapor-filtre-ozet');
-  ozet.textContent = (bas || bit) ? '📅 Filtre: ' + (bas||'—') + ' → ' + (bit||'—') + ' | ' + liste.length + ' kayıt' : '';
+  var ozetMesaj = (bas || bit) ? '📅 ' + (bas||'—') + ' → ' + (bit||'—') + ' | ' : '';
+  if (window._aktifRol === 'personel') ozetMesaj += '👤 Kendi teslimatlarım | ';
+  ozet.textContent = ozetMesaj + liste.length + ' kayıt';
 
   const tbody = document.getElementById('rapor-teslim-table');
   document.getElementById('rapor-teslim-count').textContent = liste.length + ' kayıt listeleniyor';
-  tbody.innerHTML = liste.length === 0
-    ? '<tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>'
-    : liste.map(function(k) {
-        const d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
-        const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
-        const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
-        var soyad = _getSoyad(k);
-        var ad    = _getAd(k);
-        return '<tr>'
-          + '<td style="font-family:var(--mono);font-size:0.78rem">' + k.tc + '</td>'
-          + '<td><b>' + soyad + '</b></td>'
-          + '<td>' + ad + '</td>'
-          + '<td style="font-size:0.82rem">' + (k.adres||'—') + '</td>'
-          + '<td><span class="badge badge-green">✅ Teslim</span></td>'
-          + '<td style="font-size:0.82rem">' + tarih + '</td>'
-          + '<td style="font-family:var(--mono);font-size:0.8rem;color:var(--accent2)">' + saat + '</td>'
-          + '<td style="text-align:center">' + (k.zorlaIslendi ? '<span class="badge badge-red" title="Zorla teslim">⚠️</span>' : '') + '</td>'
-          + '</tr>';
-      }).join('');
+
+  if (liste.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>';
+    return;
+  }
+
+  const gosterilen = liste.slice(0, (_raporSayfa + 1) * _raporSayfaBoyutu);
+  const kalan = liste.length - gosterilen.length;
+
+  tbody.innerHTML = gosterilen.map(function(k) {
+    const d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
+    const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
+    const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
+    return '<tr>'
+      + '<td style="font-family:var(--mono);font-size:0.78rem">' + k.tc + '</td>'
+      + '<td><b>' + _getSoyad(k) + '</b></td>'
+      + '<td>' + _getAd(k) + '</td>'
+      + '<td style="font-size:0.82rem">' + (k.adres||'—') + '</td>'
+      + '<td><span class="badge badge-green">✅ Teslim</span></td>'
+      + '<td style="font-size:0.82rem;color:var(--accent2)">' + (k.teslimEden||'—') + '</td>'
+      + '<td style="font-size:0.82rem">' + tarih + '</td>'
+      + '<td style="font-family:var(--mono);font-size:0.8rem;color:var(--muted)">' + saat + '</td>'
+      + '<td style="text-align:center">' + (k.zorlaIslendi ? '<span class="badge badge-red">⚠️</span>' : '') + '</td>'
+      + '</tr>';
+  }).join('');
+
+  if (kalan > 0) {
+    tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;padding:0.8rem">'
+      + '<button onclick="_raporSayfa++;raporRender()" style="padding:0.4rem 1.2rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:0.82rem">'
+      + '▼ ' + kalan + ' kayıt daha göster</button></td></tr>';
+  }
 }
 
 function updateRaporlar(){
