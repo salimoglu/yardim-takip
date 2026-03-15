@@ -2437,7 +2437,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
 
 /* Hak sahibi bölümü */
 .fis-hak {
-  font-size: 9pt;
+  font-size: 9.9pt;
   font-weight: 700;
   margin-bottom: 2mm;
   text-decoration: underline;
@@ -2446,7 +2446,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
   display: flex;
   flex-direction: column;
   gap: 2mm;
-  font-size: 8.5pt;
+  font-size: 9.4pt;
   margin-bottom: 2mm;
 }
 .fis-alan .satir {
@@ -2460,10 +2460,10 @@ body { background:#fff; font-family: Arial, sans-serif; }
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
-  font-size: 8.5pt;
+  font-size: 9.4pt;
 }
 .fis-alan .deger {
-  font-size: 8.5pt;
+  font-size: 9.4pt;
   font-weight: 600;
   flex: 1;
   min-height: 4mm;
@@ -2493,7 +2493,7 @@ body { background:#fff; font-family: Arial, sans-serif; }
   gap: 1.5mm;
 }
 .fis-imza-bos {
-  text-align: center;
+  text-align: left;
   font-size: 10pt;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -2600,7 +2600,7 @@ window.onload = function() {
     var ki = gi%4;
     var el = document.getElementById('qr-'+si+'-'+ki);
     if (el && typeof QRCode !== 'undefined') {
-      new QRCode(el, {text:k.tc, width:60, height:60, correctLevel:QRCode.CorrectLevel.M});
+      new QRCode(el, {text:k.tc, width:72, height:72, correctLevel:QRCode.CorrectLevel.M});
       var lbl = document.createElement('div');
       lbl.className = 'fis-qr-tc';
       lbl.textContent = k.tc;
