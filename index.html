@@ -2335,41 +2335,50 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
   page-break-inside: avoid;
   position: relative;
 }
-/* Kesim çizgileri — sayfanın kavşak noktasında */
-/* Yatay çift çizgi */
-.sayfa::before {
-  content: '';
+.makas-kap {
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+/* Yatay üst çizgi */
+.makas-yatay-ust {
   position: absolute;
   left: 0; right: 0;
   top: calc(50% - 1.5mm);
-  height: 3mm;
-  border-top: 1px dashed #999;
-  border-bottom: 1px dashed #999;
-  z-index: 9;
-  pointer-events: none;
+  border-top: 1px dashed #888;
 }
-/* Dikey çift çizgi */
-.sayfa::after {
-  content: '';
+/* Yatay alt çizgi */
+.makas-yatay-alt {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(50% + 1.5mm);
+  border-top: 1px dashed #888;
+}
+/* Dikey sol çizgi */
+.makas-dikey-sol {
   position: absolute;
   top: 0; bottom: 0;
   left: calc(50% - 1.5mm);
-  width: 3mm;
-  border-left: 1px dashed #999;
-  border-right: 1px dashed #999;
-  z-index: 9;
-  pointer-events: none;
+  border-left: 1px dashed #888;
 }
-/* Makas ortada */
+/* Dikey sağ çizgi */
+.makas-dikey-sag {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: calc(50% + 1.5mm);
+  border-left: 1px dashed #888;
+}
+/* Makas ikon */
 .makas-ikon {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  font-size: 14pt;
+  font-size: 13pt;
   background: #fff;
-  padding: 1mm 2mm;
-  z-index: 11;
+  padding: 0.5mm 1.5mm;
   line-height: 1;
 }
 
@@ -2599,7 +2608,7 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
 
   for (let i = 0; i < kisiler.length; i += 4) {
     const grup = kisiler.slice(i, i + 4);
-    win.document.write('<div class="sayfa"><div class="makas-ikon">✂</div>');
+    win.document.write('<div class="sayfa"><div class="makas-kap"><div class="makas-yatay-ust"></div><div class="makas-yatay-alt"></div><div class="makas-dikey-sol"></div><div class="makas-dikey-sag"></div><div class="makas-ikon">✂</div></div>');
     grup.forEach((k, idx) => {
       win.document.write(`
       <div class="fis">
