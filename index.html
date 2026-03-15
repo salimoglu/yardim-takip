@@ -680,8 +680,8 @@
     <div id="rapor-filtre-ozet" style="font-size:0.82rem;color:var(--accent2);margin-bottom:0.8rem;font-weight:600"></div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Ad Soyad</th><th>TC</th><th>Yardım Türü</th><th>Teslim Tarihi</th><th>Teslim Saati</th></tr></thead>
-        <tbody id="rapor-teslim-table"><tr><td colspan="5" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
+        <thead><tr><th>TC No</th><th>Ad Soyad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
+        <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
     </div>
     <div id="rapor-teslim-count" class="text-muted" style="margin-top:0.8rem;font-size:0.8rem;"></div>
@@ -1926,34 +1926,34 @@ function raporFiltrele() {
   const bas = document.getElementById('rapor-tarih-bas').value;
   const bit = document.getElementById('rapor-tarih-bit').value;
   const kisiler = Object.values(_allKisiler);
-  let teslimler = kisiler.filter(k => k.teslimEdildi)
+  let liste = kisiler.filter(k => k.teslimEdildi)
     .sort((a,b) => new Date(b.teslimTarihi) - new Date(a.teslimTarihi));
 
-  if (bas) teslimler = teslimler.filter(k => k.teslimTarihi.slice(0,10) >= bas);
-  if (bit) teslimler = teslimler.filter(k => k.teslimTarihi.slice(0,10) <= bit);
+  if (bas) liste = liste.filter(k => k.teslimTarihi && k.teslimTarihi.slice(0,10) >= bas);
+  if (bit) liste = liste.filter(k => k.teslimTarihi && k.teslimTarihi.slice(0,10) <= bit);
 
-  _raporFiltreli = teslimler;
+  _raporFiltreli = liste;
 
   const ozet = document.getElementById('rapor-filtre-ozet');
-  if (bas || bit) {
-    ozet.textContent = `📅 Filtre: ${bas||'—'} → ${bit||'—'} | ${teslimler.length} teslim`;
-  } else {
-    ozet.textContent = '';
-  }
+  ozet.textContent = (bas || bit) ? '📅 Filtre: ' + (bas||'—') + ' → ' + (bit||'—') + ' | ' + liste.length + ' kayıt' : '';
 
   const tbody = document.getElementById('rapor-teslim-table');
-  document.getElementById('rapor-teslim-count').textContent = teslimler.length + ' teslim listeleniyor';
-  tbody.innerHTML = teslimler.length === 0
-    ? '<tr><td colspan="5" class="text-muted text-center" style="padding:2rem">Teslim kaydı bulunamadı</td></tr>'
-    : teslimler.map(k => {
-        const d = new Date(k.teslimTarihi);
-        return `<tr>
-          <td><b>${k.adsoyad}</b>${k.zorlaIslendi ? ' <span class="badge badge-red" title="Zorla teslim">⚠️</span>' : ''}</td>
-          <td style="font-family:var(--mono);font-size:0.8rem">${k.tc}</td>
-          <td><span class="badge badge-blue">${k.yardimturu}</span></td>
-          <td style="font-size:0.82rem">${d.toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'})}</td>
-          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--accent2)">${d.toLocaleTimeString('tr-TR')}</td>
-        </tr>`;
+  document.getElementById('rapor-teslim-count').textContent = liste.length + ' kayıt listeleniyor';
+  tbody.innerHTML = liste.length === 0
+    ? '<tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>'
+    : liste.map(function(k) {
+        const d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
+        const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
+        const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
+        return '<tr>'
+          + '<td style="font-family:var(--mono);font-size:0.78rem">' + k.tc + '</td>'
+          + '<td><b>' + k.adsoyad + '</b></td>'
+          + '<td style="font-size:0.82rem">' + (k.adres||'—') + '</td>'
+          + '<td><span class="badge badge-green">✅ Teslim</span></td>'
+          + '<td style="font-size:0.82rem">' + tarih + '</td>'
+          + '<td style="font-family:var(--mono);font-size:0.8rem;color:var(--accent2)">' + saat + '</td>'
+          + '<td style="text-align:center">' + (k.zorlaIslendi ? '<span class="badge badge-red" title="Zorla teslim">⚠️</span>' : '') + '</td>'
+          + '</tr>';
       }).join('');
 }
 
@@ -2003,16 +2003,17 @@ function exportCSVFiltreli() {
 }
 
 function _csvIndir(k, isim) {
-  const rows=[['Ad Soyad','TC No','Adres','Yardım Türü','Kayıt Tarihi','Durum','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  const rows=[['TC No','Ad Soyad','Mahalle','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   k.forEach(x => {
     const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
-      x.adsoyad, x.tc, x.adres||'', x.yardimturu,
-      new Date(x.kayitTarihi).toLocaleDateString('tr-TR'),
+      x.tc,
+      x.adsoyad,
+      x.adres||'',
       x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
       d ? d.toLocaleDateString('tr-TR') : '',
-      d ? d.toLocaleTimeString('tr-TR') : '',
-      x.zorlaIslendi ? 'Evet' : ''
+      d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
+      x.zorlaIslendi ? 'Evet' : 'Hayır'
     ]);
   });
   const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
