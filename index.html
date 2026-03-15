@@ -447,7 +447,7 @@
     <div class="card-title">👁 Adım 3 — Önizleme &amp; Doğrulama</div>
     <div id="onizleme-ozet" class="mb-2"></div>
     <div class="preview-table-wrap">
-      <table><thead><tr><th>#</th><th>Ad Soyad</th><th>TC No</th><th>Adres</th><th>Yardım Türü</th><th>Durum</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Ad Soyad</th><th>TC No</th><th>Adres</th><th>Yardım Türü</th><th>Gündem</th><th>Durum</th></tr></thead>
       <tbody id="onizleme-tbody"></tbody></table>
     </div>
     <div class="flex gap-1 flex-wrap" style="margin-top:1rem">
@@ -605,6 +605,12 @@
             <th style="padding:0.4rem 0.6rem 0.3rem">
               <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">YARDIM TÜRÜ</div>
               <select id="filtre-tur" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
+                <option value="">Tümü</option>
+              </select>
+            </th>
+            <th style="padding:0.4rem 0.6rem 0.3rem">
+              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">GÜNDEM</div>
+              <select id="filtre-gundem" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
                 <option value="">Tümü</option>
               </select>
             </th>
@@ -1168,6 +1174,7 @@ const SYS_FIELDS = [
   { key:'tc',      label:'TC Kimlik No *', required:true },
   { key:'adres',   label:'Adres / Mahalle', required:false },
   { key:'yardimturu', label:'Yardım Türü', required:false },
+  { key:'gundem',  label:'Gündem No *', required:true },
 ];
 
 function autoGuess(fieldKey) {
@@ -1176,7 +1183,8 @@ function autoGuess(fieldKey) {
     soyad:['soyad','soyadı','surname'],
     tc:['t.c','tc k','kimlik','tckn','tc no'], 
     adres:['adres','adress','sokak','mahalle','cadde','il ','ilçe'], 
-    yardimturu:['yardım','tür','tur','tip','karar'] 
+    yardimturu:['yardım','tür','tur','tip','karar'],
+    gundem:['gündem','gundem','karar no','gündem no','karar']
   };
   const hints = map[fieldKey] || [];
   let best = 0;
@@ -1207,10 +1215,12 @@ function colMapOnayla() {
   const soyadCol = parseInt(document.getElementById('map-soyad').value) - 1;
   const adresCol = parseInt(document.getElementById('map-adres').value) - 1;
   const turCol   = parseInt(document.getElementById('map-yardimturu').value) - 1;
+  const gundemCol = parseInt(document.getElementById('map-gundem').value) - 1;
   const varsayilanTur = document.getElementById('yukle-yardim-turu').value;
 
   if (tcCol < 0) { alert('TC Kimlik No sütununu seçmelisiniz!'); return; }
   if (adCol < 0) { alert('Ad sütununu seçmelisiniz!'); return; }
+  if (gundemCol < 0) { alert('Gündem No sütununu seçmelisiniz!'); return; }
 
   const yukleModu = document.getElementById('yukleme-modu-input')?.value || 'yeni';
   const mevcutTCler = new Set(Object.keys(_allKisiler));
@@ -1225,14 +1235,16 @@ function colMapOnayla() {
     const adsoyad = soyad ? (ad + ' ' + soyad).trim() : ad;
     if (!tc || tc.length !== 11 || !adsoyad) { gecersiz++; return; }
     const adres = adresCol >= 0 ? String(row[adresCol] || '').trim() : '';
-    const yardimturu = varsayilanTur; // Her zaman seçilen yardım türü kullanılır
+    const yardimturu = varsayilanTur;
+    const gundemRaw = gundemCol >= 0 ? String(row[gundemCol] || '').trim() : '';
+    const gundem = gundemRaw ? gundemRaw + '. Gündem' : '';
+    if (!gundem) { gecersiz++; return; }
 
     if (mevcutTCler.has(tc)) {
       if (yukleModu === 'guncelle') {
-        // Mevcut kaydı güncelle — teslim durumunu koru
         const eskiKayit = _allKisiler[tc];
         _mappedRows.push({ 
-          tc, adsoyad, adres, yardimturu,
+          tc, adsoyad, adres, yardimturu, gundem,
           kayitTarihi: eskiKayit.kayitTarihi || now,
           teslimEdildi: eskiKayit.teslimEdildi || false,
           teslimTarihi: eskiKayit.teslimTarihi || null,
@@ -1245,7 +1257,7 @@ function colMapOnayla() {
       }
       return;
     }
-    _mappedRows.push({ tc, adsoyad, adres, yardimturu, kayitTarihi:now, teslimEdildi:false, teslimTarihi:null });
+    _mappedRows.push({ tc, adsoyad, adres, yardimturu, gundem, kayitTarihi:now, teslimEdildi:false, teslimTarihi:null });
   });
   window._guncellenecekSayisi = guncellenecek;
 
@@ -1278,6 +1290,7 @@ function buildOnizleme(atlanan, gecersiz) {
       <td style="font-family:var(--mono);font-size:0.78rem">${r.tc}</td>
       <td style="font-size:0.78rem">${r.adres||'—'}</td>
       <td><span class="badge badge-blue">${r.yardimturu}</span></td>
+      <td style="font-size:0.78rem;color:var(--accent2)">${r.gundem||'—'}</td>
       <td><span class="badge badge-green">Yeni</span></td>
     </tr>`).join('') + (_mappedRows.length > 200 ? `<tr><td colspan="6" class="text-muted text-center" style="padding:0.8rem">...ve ${_mappedRows.length-200} kayıt daha</td></tr>` : '');
 }
@@ -1886,6 +1899,7 @@ function renderKisilerTable(f){
   <td style="font-family:var(--mono);font-size:0.82rem">${x.tc}</td>
   <td style="font-size:0.82rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.adres||''}">${x.adres||'—'}</td>
   <td><span class="badge badge-blue">${x.yardimturu}</span></td>
+  <td style="font-size:0.78rem;color:var(--accent2);white-space:nowrap">${x.gundem||'—'}</td>
   <td>${x.teslimEdildi?'<span class="badge badge-green">✅ Teslim</span>':'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
   <td style="display:flex;gap:4px">
     <button class="btn btn-outline btn-sm" onclick="showDetayByTC('${x.tc}')">Detay</button>
@@ -1900,6 +1914,7 @@ function aramaYap(){
   const tur = document.getElementById('filtre-tur').value.trim();
   const dur = document.getElementById('filtre-durum').value;
   const mah = document.getElementById('filtre-mahalle').value.trim();
+  const gundemF = document.getElementById('filtre-gundem') ? document.getElementById('filtre-gundem').value.trim() : '';
   let k = Object.values(_allKisiler);
   if(q)   k = k.filter(x=>(x.adsoyad||'').toLowerCase().includes(q));
   if(qtc) k = k.filter(x=>(x.tc||'').includes(qtc));
@@ -1907,6 +1922,7 @@ function aramaYap(){
   if(dur==='teslim')   k = k.filter(x=>x.teslimEdildi);
   if(dur==='bekliyor') k = k.filter(x=>!x.teslimEdildi);
   if(mah) k = k.filter(x=>(x.adres||'').trim() === mah);
+  if(gundemF) k = k.filter(x=>(x.gundem||'').trim() === gundemF);
   renderKisilerTable(k);
 }
 
@@ -1928,6 +1944,20 @@ function mahalleFiltreGuncelle() {
   )].sort(function(a,b){ return trSort(a,b); });
   selTur.innerHTML = '<option value="">Tümü</option>' +
     turler.map(t => `<option value="${t}" ${t===seciliTur?'selected':''}>${t}</option>`).join('');
+
+  // Gündem dropdown
+  const selGundem = document.getElementById('filtre-gundem');
+  if (selGundem) {
+    const seciliGundem = selGundem.value;
+    const gundemler = [...new Set(
+      Object.values(_allKisiler).map(x => (x.gundem||'').trim()).filter(a => a)
+    )].sort(function(a,b){
+      const na = parseInt(a), nb = parseInt(b);
+      return isNaN(na)||isNaN(nb) ? trSort(a,b) : na-nb;
+    });
+    selGundem.innerHTML = '<option value="">Tümü</option>' +
+      gundemler.map(g => `<option value="${g}" ${g===seciliGundem?'selected':''}>${g}</option>`).join('');
+  }
 }
 
 function showDetayByTC(tc) {
@@ -1945,6 +1975,7 @@ function showDetay(k){
   document.getElementById('detay-icerik').innerHTML =
     '<div class="person-info" style="margin-bottom:1rem">'
     + buildPersonInfo(k)
+    + '<div class="person-row"><span class="person-key">Gündem</span><span class="person-val" style="color:var(--accent2);font-weight:700">' + (k.gundem||'—') + '</span></div>'
     + '<div class="person-row"><span class="person-key">Durum</span><span class="person-val">' + (k.teslimEdildi ? '✅ Teslim Edildi' : '⏳ Bekliyor') + '</span></div>'
     + teslimSatir
     + '</div>';
@@ -2051,13 +2082,14 @@ function exportCSVFiltreli() {
 }
 
 function _csvIndir(k, isim) {
-  const rows=[['TC No','Ad Soyad','Mahalle','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  const rows=[['TC No','Ad Soyad','Mahalle','Gündem','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   k.forEach(x => {
     const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
       x.tc,
       x.adsoyad,
       x.adres||'',
+      x.gundem||'',
       x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
       d ? d.toLocaleDateString('tr-TR') : '',
       d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
