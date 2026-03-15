@@ -697,6 +697,7 @@
       <button class="btn btn-outline" onclick="exportCSV('teslim')">📄 Teslim Edilenler</button>
       <button class="btn btn-outline" onclick="exportCSV('bekliyor')">📄 Bekleyenler</button>
       <button class="btn btn-outline" onclick="exportCSVFiltreli()">📄 Filtrelenmiş Liste</button>
+      <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 Günlük Rapor</button>
     </div>
   </div>
 </div>
@@ -2016,11 +2017,52 @@ function _csvIndir(k, isim) {
       x.zorlaIslendi ? 'Evet' : 'Hayır'
     ]);
   });
-  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download=`${isim}-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  a.download=isim+'-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
   toast('CSV indirildi!');
+}
+
+function exportCSVGunluk() {
+  // Hangi gün raporu isteniyor — tarih filtresi varsa o gün, yoksa bugün
+  const bas = document.getElementById('rapor-tarih-bas').value;
+  const bit = document.getElementById('rapor-tarih-bit').value;
+  const kisiler = Object.values(_allKisiler).filter(function(k){ return k.teslimEdildi; });
+
+  var liste = kisiler;
+  if (bas) liste = liste.filter(function(k){ return k.teslimTarihi && k.teslimTarihi.slice(0,10) >= bas; });
+  if (bit) liste = liste.filter(function(k){ return k.teslimTarihi && k.teslimTarihi.slice(0,10) <= bit; });
+  if (!bas && !bit) {
+    var bugun = new Date().toISOString().slice(0,10);
+    liste = kisiler.filter(function(k){ return k.teslimTarihi && k.teslimTarihi.slice(0,10) === bugun; });
+  }
+
+  liste.sort(function(a,b){ return new Date(a.teslimTarihi)-new Date(b.teslimTarihi); });
+
+  var rows = [['TC No','Ad Soyad','Mahalle','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  liste.forEach(function(x) {
+    var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
+    rows.push([
+      x.tc,
+      x.adsoyad,
+      x.adres||'',
+      d ? d.toLocaleDateString('tr-TR') : '',
+      d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
+      x.zorlaIslendi ? 'Evet' : 'Hayır'
+    ]);
+  });
+
+  var tarihAdi = bas ? bas : new Date().toISOString().slice(0,10);
+  _csvIndir2(rows, 'gunluk-rapor-'+tarihAdi);
+}
+
+function _csvIndir2(rows, isim) {
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(';'); }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'}));
+  a.download = isim+'.csv'; a.click();
+  toast('Günlük rapor indirildi!');
 }
 
 // ===== TOPLU QR BASDIR =====
