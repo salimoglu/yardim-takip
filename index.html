@@ -1040,6 +1040,12 @@ function rolAyarla(rol) {
     // Alt navda yükleme butonunu gizle
     var bnavYukleme = document.getElementById('bnav-yukleme');
     if (bnavYukleme) bnavYukleme.style.display = 'none';
+    // Alt navda kişiler butonunu gizle
+    var bnavKisiler = document.getElementById('bnav-kisiler');
+    if (bnavKisiler) bnavKisiler.style.display = 'none';
+    // Kişiler sayfasını gizle
+    var kisilerSayfasi = document.getElementById('page-kisiler');
+    if (kisilerSayfasi) kisilerSayfasi.style.display = 'none';
     window._personelModu = true;
     // Bottom nav'ı JS ile de zorla sabit yap
     var bnav = document.querySelector('.bottom-nav');
@@ -1059,6 +1065,10 @@ function rolAyarla(rol) {
     if (yuklemeSayfasi) yuklemeSayfasi.style.display = '';
     var bnavYukleme = document.getElementById('bnav-yukleme');
     if (bnavYukleme) bnavYukleme.style.display = '';
+    var bnavKisiler = document.getElementById('bnav-kisiler');
+    if (bnavKisiler) bnavKisiler.style.display = '';
+    var kisilerSayfasi = document.getElementById('page-kisiler');
+    if (kisilerSayfasi) kisilerSayfasi.style.display = '';
     showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   }
 
@@ -1084,7 +1094,7 @@ function rolAyarla(rol) {
 
 function showPage(p, btn) {
   // Personel modu — yükleme sayfasına erişim engeli
-  if (window._personelModu && (p === 'yukle' || p === 'kayit' || p === 'yukleme')) {
+  if (window._personelModu && (p === 'yukle' || p === 'kayit' || p === 'yukleme' || p === 'kisiler')) {
     toast('Bu sayfaya erişim yetkiniz yok!', 'error');
     return;
   }
