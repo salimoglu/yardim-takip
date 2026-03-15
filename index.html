@@ -1236,8 +1236,7 @@ function colMapOnayla() {
     if (!tc || tc.length !== 11 || !adsoyad) { gecersiz++; return; }
     const adres = adresCol >= 0 ? String(row[adresCol] || '').trim() : '';
     const yardimturu = varsayilanTur;
-    const gundemRaw = gundemCol >= 0 ? String(row[gundemCol] || '').trim() : '';
-    const gundem = gundemRaw ? gundemRaw + '. Gündem' : '';
+    const gundem = gundemCol >= 0 ? String(row[gundemCol] || '').trim() : '';
     if (!gundem) { gecersiz++; return; }
 
     if (mevcutTCler.has(tc)) {
