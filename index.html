@@ -2213,7 +2213,7 @@ function exportCSVFiltreli() {
 }
 
 function _csvIndir(k, isim) {
-  const rows=[['TC No','Soyad','Ad','Mahalle','Gündem','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  const rows=[['TC No','Soyad','Ad','Mahalle','Gündem','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   k.forEach(x => {
     const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
@@ -2223,6 +2223,7 @@ function _csvIndir(k, isim) {
       x.adres||'',
       x.gundem||'',
       x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
+      x.teslimEden||'',
       d ? d.toLocaleDateString('tr-TR') : '',
       d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
       x.zorlaIslendi ? 'Evet' : 'Hayır'
@@ -2251,7 +2252,7 @@ function exportCSVGunluk() {
 
   liste.sort(function(a,b){ return new Date(a.teslimTarihi)-new Date(b.teslimTarihi); });
 
-  var rows = [['TC No','Soyad','Ad','Mahalle','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  var rows = [['TC No','Soyad','Ad','Mahalle','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   liste.forEach(function(x) {
     var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
@@ -2259,6 +2260,8 @@ function exportCSVGunluk() {
       _getSoyad(x),
       _getAd(x),
       x.adres||'',
+      'Teslim Edildi',
+      x.teslimEden||'',
       d ? d.toLocaleDateString('tr-TR') : '',
       d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
       x.zorlaIslendi ? 'Evet' : 'Hayır'
