@@ -589,10 +589,7 @@
               <div id="secim-sayac" style="font-size:0.6rem;color:var(--muted);text-align:center;margin-top:2px;white-space:nowrap">0 seçili</div>
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('adsoyad')">
-                <span style="font-size:0.65rem;color:var(--muted)">AD SOYAD</span>
-                <span id="sort-icon-adsoyad" style="font-size:0.65rem;color:var(--muted)">↕</span>
-              </div>
+              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">AD SOYAD</div>
               <input type="text" id="arama" placeholder="Ara..." oninput="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
@@ -600,10 +597,7 @@
               <input type="text" id="arama-tc" placeholder="Ara..." oninput="aramaYap()" maxlength="11" style="width:100%;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('adres')">
-                <span style="font-size:0.65rem;color:var(--muted)">MAHALLE</span>
-                <span id="sort-icon-adres" style="font-size:0.65rem;color:var(--muted)">↕</span>
-              </div>
+              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">MAHALLE</div>
               <select id="filtre-mahalle" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
                 <option value="">Tümü</option>
               </select>
@@ -615,10 +609,7 @@
               </select>
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('gundem')">
-                <span style="font-size:0.65rem;color:var(--muted)">GÜNDEM</span>
-                <span id="sort-icon-gundem" style="font-size:0.65rem;color:var(--muted)">↕</span>
-              </div>
+              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">GÜNDEM</div>
               <select id="filtre-gundem" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
                 <option value="">Tümü</option>
               </select>
@@ -692,7 +683,7 @@
     <div id="rapor-filtre-ozet" style="font-size:0.82rem;color:var(--accent2);margin-bottom:0.8rem;font-weight:600"></div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>TC No</th><th>Ad Soyad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
+        <thead><tr><th>TC No</th><th>Soyad</th><th>Ad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
         <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
     </div>
@@ -1894,98 +1885,29 @@ async function yeniDonemOlustur() {
 }
 
 // ===== KİŞİLER =====
-// Sıralama state — çok kademeli (Excel gibi)
-// Varsayılan: mahalle → isim
-var _sortKademeler = [
-  { alan: 'adres',   yon: 'asc' },
-  { alan: '_soyad',  yon: 'asc' },
-  { alan: '_ad',     yon: 'asc' }
-];
-var _sortAlanlar = ['adsoyad','adres','gundem'];
-
-// Ad ve soyadı ayır — son kelime soyad, kalan ad
+// Ad/Soyad ayırma yardımcıları — son kelime soyad, kalan ad
 function _getSoyad(x) {
-  var parts = (x.adsoyad||'').trim().split(/\s+/);
-  return parts.length > 1 ? parts[parts.length-1] : parts[0] || '';
+  var p = (x.adsoyad||'').trim().split(' ');
+  return p.length > 1 ? p[p.length-1] : p[0]||'';
 }
 function _getAd(x) {
-  var parts = (x.adsoyad||'').trim().split(/\s+/);
-  return parts.length > 1 ? parts.slice(0,-1).join(' ') : '';
+  var p = (x.adsoyad||'').trim().split(' ');
+  return p.length > 1 ? p.slice(0,-1).join(' ') : '';
 }
 
-function siralamaYap(alan) {
-  if (alan === 'adsoyad') {
-    // AD SOYAD tıklaması → soyad + ad birlikte
-    var mevcutSoyad = _sortKademeler.find(function(k){ return k.alan === '_soyad'; });
-    var yon = mevcutSoyad ? (mevcutSoyad.yon === 'asc' ? 'desc' : 'asc') : 'asc';
-    _sortKademeler = _sortKademeler.filter(function(k){ return k.alan !== '_soyad' && k.alan !== '_ad'; });
-    _sortKademeler.unshift({ alan: '_ad',    yon: yon });
-    _sortKademeler.unshift({ alan: '_soyad', yon: yon });
-    if (_sortKademeler.length > 4) _sortKademeler = _sortKademeler.slice(0,4);
-  } else {
-    var mevcut = _sortKademeler.find(function(k){ return k.alan === alan; });
-    if (mevcut) {
-      mevcut.yon = mevcut.yon === 'asc' ? 'desc' : 'asc';
-      _sortKademeler = [mevcut].concat(_sortKademeler.filter(function(k){ return k.alan !== alan; }));
-    } else {
-      _sortKademeler.unshift({ alan: alan, yon: 'asc' });
-      if (_sortKademeler.length > 4) _sortKademeler.pop();
-    }
-  }
-  ikonlariGuncelle();
-  aramaYap();
-}
-
-function ikonlariGuncelle() {
-  var oncelikRenkleri = ['var(--accent)', 'var(--accent2)', '#888', '#666'];
-  // adsoyad ikonu için _soyad/_ad'a bak
-  var adEl = document.getElementById('sort-icon-adsoyad');
-  if (adEl) {
-    var soyadIdx = _sortKademeler.findIndex(function(k){ return k.alan === '_soyad'; });
-    if (soyadIdx >= 0) {
-      var k = _sortKademeler[soyadIdx];
-      adEl.textContent = (soyadIdx === 0 ? '' : (soyadIdx+1)+'') + (k.yon === 'asc' ? '↑' : '↓');
-      adEl.style.color = oncelikRenkleri[soyadIdx] || '#888';
-    } else {
-      adEl.textContent = '↕'; adEl.style.color = 'var(--muted)';
-    }
-  }
-  ['adres','gundem'].forEach(function(a) {
-    var el = document.getElementById('sort-icon-'+a);
-    if (!el) return;
-    var idx = _sortKademeler.findIndex(function(k){ return k.alan === a; });
-    if (idx >= 0) {
-      var k = _sortKademeler[idx];
-      el.textContent = (idx === 0 ? '' : (idx+1)+'') + (k.yon === 'asc' ? '↑' : '↓');
-      el.style.color = oncelikRenkleri[idx] || '#888';
-    } else {
-      el.textContent = '↕'; el.style.color = 'var(--muted)';
-    }
-  });
-}
-
+// Varsayılan sıralama: mahalle → soyad → ad
 function uygulaSimrala(liste) {
   return liste.slice().sort(function(a, b) {
-    for (var i = 0; i < _sortKademeler.length; i++) {
-      var k = _sortKademeler[i];
-      var va, vb, sonuc;
-      if (k.alan === '_soyad') {
-        va = _getSoyad(a); vb = _getSoyad(b);
-        sonuc = trSort(va, vb);
-      } else if (k.alan === '_ad') {
-        va = _getAd(a); vb = _getAd(b);
-        sonuc = trSort(va, vb);
-      } else if (k.alan === 'gundem') {
-        va = String(a[k.alan]||''); vb = String(b[k.alan]||'');
-        var na = parseInt(va), nb = parseInt(vb);
-        sonuc = (!isNaN(na) && !isNaN(nb)) ? na - nb : trSort(va, vb);
-      } else {
-        va = String(a[k.alan]||''); vb = String(b[k.alan]||'');
-        sonuc = trSort(va, vb);
-      }
-      if (sonuc !== 0) return k.yon === 'asc' ? sonuc : -sonuc;
-    }
-    return 0;
+    // 1. Mahalle
+    var mahA = (a.adres||'').trim();
+    var mahB = (b.adres||'').trim();
+    var s = trSort(mahA, mahB);
+    if (s !== 0) return s;
+    // 2. Soyad
+    s = trSort(_getSoyad(a), _getSoyad(b));
+    if (s !== 0) return s;
+    // 3. Ad
+    return trSort(_getAd(a), _getAd(b));
   });
 }
 
@@ -2128,9 +2050,12 @@ function raporFiltrele() {
         const d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
         const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
         const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
+        var soyad = _getSoyad(k);
+        var ad    = _getAd(k);
         return '<tr>'
           + '<td style="font-family:var(--mono);font-size:0.78rem">' + k.tc + '</td>'
-          + '<td><b>' + k.adsoyad + '</b></td>'
+          + '<td><b>' + soyad + '</b></td>'
+          + '<td>' + ad + '</td>'
           + '<td style="font-size:0.82rem">' + (k.adres||'—') + '</td>'
           + '<td><span class="badge badge-green">✅ Teslim</span></td>'
           + '<td style="font-size:0.82rem">' + tarih + '</td>'
@@ -2186,12 +2111,13 @@ function exportCSVFiltreli() {
 }
 
 function _csvIndir(k, isim) {
-  const rows=[['TC No','Ad Soyad','Mahalle','Gündem','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  const rows=[['TC No','Soyad','Ad','Mahalle','Gündem','Teslim Durumu','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   k.forEach(x => {
     const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
       x.tc,
-      x.adsoyad,
+      _getSoyad(x),
+      _getAd(x),
       x.adres||'',
       x.gundem||'',
       x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
@@ -2223,12 +2149,13 @@ function exportCSVGunluk() {
 
   liste.sort(function(a,b){ return new Date(a.teslimTarihi)-new Date(b.teslimTarihi); });
 
-  var rows = [['TC No','Ad Soyad','Mahalle','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  var rows = [['TC No','Soyad','Ad','Mahalle','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   liste.forEach(function(x) {
     var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
       x.tc,
-      x.adsoyad,
+      _getSoyad(x),
+      _getAd(x),
       x.adres||'',
       d ? d.toLocaleDateString('tr-TR') : '',
       d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
