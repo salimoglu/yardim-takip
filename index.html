@@ -2153,31 +2153,38 @@ function updateRaporlar(){
   raporPersonelOzeti();
 }
 
-function raporPersonelOzeti() {
-  const k = Object.values(_allKisiler).filter(x => x.teslimEdildi);
-  const bugun = new Date().toISOString().slice(0,10);
+function personelDetayAc(pid) {
+  var el = document.getElementById(pid);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
 
-  // Personele göre grupla
-  const personeller = {};
-  k.forEach(x => {
-    const ad = x.teslimEden || 'Bilinmiyor';
+function raporPersonelOzeti() {
+  var k = Object.values(_allKisiler).filter(function(x){ return x.teslimEdildi; });
+  var bugun = new Date().toISOString().slice(0,10);
+  var personeller = {};
+  k.forEach(function(x) {
+    var ad = x.teslimEden || 'Bilinmiyor';
     if (!personeller[ad]) personeller[ad] = { bugun: [], toplam: [] };
     personeller[ad].toplam.push(x);
-    if (x.teslimTarihi && x.teslimTarihi.slice(0,10) === bugun) {
-      personeller[ad].bugun.push(x);
-    }
+    if (x.teslimTarihi && x.teslimTarihi.slice(0,10) === bugun) personeller[ad].bugun.push(x);
   });
-
-  const el = document.getElementById('rapor-personel');
+  var el = document.getElementById('rapor-personel');
   if (!el) return;
-  const ids = Object.keys(personeller).sort();
+  var ids = Object.keys(personeller).sort();
   if (ids.length === 0) { el.innerHTML = '<div class="text-muted">Henüz teslim yok</div>'; return; }
-
   el.innerHTML = ids.map(function(ad) {
-    const p = personeller[ad];
-    const pid = 'pp-' + ad.replace(/[^a-zA-Z0-9]/g,'');
-    return '<div style="background:var(--surface2);border-radius:8px;overflow:hidden">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;cursor:pointer" onclick="document.getElementById(''+pid+'').style.display=document.getElementById(''+pid+'').style.display==='none'?'block':'none'">'
+    var p = personeller[ad];
+    var pid = 'pp' + Math.abs(ad.split('').reduce(function(a,c){ return (a<<5)-a+c.charCodeAt(0)|0; }, 0));
+    var satirlar = p.bugun.length === 0
+      ? '<tr><td colspan="3" style="padding:0.8rem;text-align:center;color:var(--muted)">Bugün teslim yok</td></tr>'
+      : p.bugun.sort(function(a,b){ return new Date(b.teslimTarihi)-new Date(a.teslimTarihi); }).map(function(x){
+          var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
+          return '<tr><td style="padding:0.35rem 0.6rem"><b>' + x.adsoyad + '</b></td>'
+            + '<td style="font-size:0.78rem">' + (x.adres||'—') + '</td>'
+            + '<td style="font-family:var(--mono);font-size:0.78rem">' + (d ? d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '—') + '</td></tr>';
+        }).join('');
+    return '<div style="background:var(--surface2);border-radius:8px;overflow:hidden;margin-bottom:2px">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;cursor:pointer" onclick="personelDetayAc('' + pid + '')">'
         + '<div style="font-weight:700;font-size:0.9rem">👤 ' + ad + '</div>'
         + '<div style="display:flex;gap:1rem;align-items:center">'
           + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--accent);font-size:1.1rem">' + p.bugun.length + '</div><div style="font-size:0.6rem;color:var(--muted)">BUGÜN</div></div>'
@@ -2186,18 +2193,8 @@ function raporPersonelOzeti() {
         + '</div>'
       + '</div>'
       + '<div id="' + pid + '" style="display:none;border-top:1px solid var(--border);max-height:300px;overflow-y:auto">'
-        + '<table style="width:100%;font-size:0.82rem">'
-          + '<thead><tr style="background:var(--surface)"><th style="padding:0.4rem 0.6rem">Ad Soyad</th><th>Mahalle</th><th>Saat</th></tr></thead>'
-          + '<tbody>'
-          + p.bugun.sort(function(a,b){ return new Date(b.teslimTarihi)-new Date(a.teslimTarihi); }).map(function(x){
-              const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
-              return '<tr><td style="padding:0.35rem 0.6rem"><b>' + x.adsoyad + '</b></td>'
-                + '<td style="font-size:0.78rem">' + (x.adres||'—') + '</td>'
-                + '<td style="font-family:var(--mono);font-size:0.78rem">' + (d ? d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '—') + '</td></tr>';
-            }).join('')
-          + (p.bugun.length === 0 ? '<tr><td colspan="3" style="padding:0.8rem;text-align:center;color:var(--muted)">Bugün teslim yok</td></tr>' : '')
-          + '</tbody>'
-        + '</table>'
+        + '<table style="width:100%"><thead><tr style="background:var(--surface)"><th style="padding:0.4rem 0.6rem;font-size:0.75rem">Ad Soyad</th><th style="font-size:0.75rem">Mahalle</th><th style="font-size:0.75rem">Saat</th></tr></thead>'
+        + '<tbody>' + satirlar + '</tbody></table>'
       + '</div>'
     + '</div>';
   }).join('');
