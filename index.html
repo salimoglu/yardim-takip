@@ -1888,7 +1888,7 @@ function renderKisilerTable(f){
   <td><span class="badge badge-blue">${x.yardimturu}</span></td>
   <td>${x.teslimEdildi?'<span class="badge badge-green">✅ Teslim</span>':'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
   <td style="display:flex;gap:4px">
-    <button class="btn btn-outline btn-sm" onclick="showDetay(${JSON.stringify(x).replace(/'/g,'&#39;')})">Detay</button>
+    <button class="btn btn-outline btn-sm" onclick="showDetayByTC('${x.tc}')">Detay</button>
     <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="silBaslat('${x.tc}')">🗑️</button>
   </td>
 </tr>`).join('');
@@ -1930,12 +1930,27 @@ function mahalleFiltreGuncelle() {
     turler.map(t => `<option value="${t}" ${t===seciliTur?'selected':''}>${t}</option>`).join('');
 }
 
+function showDetayByTC(tc) {
+  var k = _allKisiler[tc];
+  if (!k) { toast('Kişi bulunamadı!', 'error'); return; }
+  showDetay(k);
+}
+
 function showDetay(k){
   document.getElementById('detay-modal').classList.add('show');
-  document.getElementById('detay-icerik').innerHTML=`<div class="person-info" style="margin-bottom:1rem">${buildPersonInfo(k)}<div class="person-row"><span class="person-key">Durum</span><span class="person-val">${k.teslimEdildi?'✅ Teslim Edildi':'⏳ Bekliyor'}</span></div>${k.teslimEdildi?`<div class="person-row"><span class="person-key">Teslim</span><span class="person-val" style="font-size:0.85rem">${new Date(k.teslimTarihi).toLocaleString('tr-TR')}</span></div>`:''}</div>`;
-  const qrEl=document.getElementById('detay-qr');
-  qrEl.innerHTML=`<div class="qr-box"><div id="detay-qr-inner"></div><div class="qr-name">${k.adsoyad}</div><div style="color:#555;font-size:0.75rem;font-family:monospace">TC: ${k.tc}</div></div>`;
-  new QRCode(document.getElementById('detay-qr-inner'),{text:k.tc,width:150,height:150,colorDark:'#111',colorLight:'#fff'});
+  var teslimSatir = k.teslimEdildi && k.teslimTarihi
+    ? '<div class="person-row"><span class="person-key">Teslim Tarihi</span><span class="person-val">' + new Date(k.teslimTarihi).toLocaleString('tr-TR') + '</span></div>'
+    + '<div class="person-row"><span class="person-key">Zorla Teslim</span><span class="person-val">' + (k.zorlaIslendi ? '⚠️ Evet' : 'Hayır') + '</span></div>'
+    : '';
+  document.getElementById('detay-icerik').innerHTML =
+    '<div class="person-info" style="margin-bottom:1rem">'
+    + buildPersonInfo(k)
+    + '<div class="person-row"><span class="person-key">Durum</span><span class="person-val">' + (k.teslimEdildi ? '✅ Teslim Edildi' : '⏳ Bekliyor') + '</span></div>'
+    + teslimSatir
+    + '</div>';
+  var qrEl = document.getElementById('detay-qr');
+  qrEl.innerHTML = '<div class="qr-box"><div id="detay-qr-inner"></div><div class="qr-name">' + k.adsoyad + '</div><div style="color:#555;font-size:0.75rem;font-family:monospace">TC: ' + k.tc + '</div></div>';
+  try { new QRCode(document.getElementById('detay-qr-inner'),{text:k.tc,width:150,height:150,colorDark:'#111',colorLight:'#fff'}); } catch(e){}
 }
 function closeDetay(){document.getElementById('detay-modal').classList.remove('show');}
 
