@@ -326,10 +326,7 @@
       <tbody id="son-teslimler"><tr><td colspan="4" class="text-muted text-center" style="padding:2rem">Henüz teslim yok</td></tr></tbody></table>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Yardım Türü Dağılımı</div>
-    <div id="dagilim-list" style="display:grid;gap:0.8rem;"></div>
-  </div>
+
 
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem">
@@ -990,6 +987,14 @@ let _excelRows = [];
 let _mappedRows = [];
 
 // ===== NAV =====
+// ===== TÜRKÇE SIRALAMA =====
+function trSort(a, b) {
+  return a.localeCompare(b, 'tr', {sensitivity: 'base'});
+}
+function trSortKey(fn) {
+  return function(a, b) { return trSort(fn(a), fn(b)); };
+}
+
 var _SAYFALAR = ['dashboard','yukleme','tara','kisiler','raporlar'];
 
 function rolAyarla(rol) {
@@ -1481,7 +1486,7 @@ function updateDashboard(){
     :son.map(x=>`<tr><td>${x.adsoyad}</td><td><span class="badge badge-blue">${x.yardimturu}</span></td><td style="font-family:var(--mono);font-size:0.8rem">${new Date(x.teslimTarihi).toLocaleString('tr-TR')}</td><td><span class="badge badge-green">✅ Teslim</span></td></tr>`).join('');
 
   const tur={};k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
-  document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
+  if(document.getElementById('dagilim-list')) document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
     ?'<div class="text-muted">Henüz kayıt yok</div>'
     :Object.entries(tur).map(([n,v])=>{
       const pct = v.t>0 ? Math.round(v.te/v.t*100) : 0;
@@ -1520,7 +1525,7 @@ function updateDashboard(){
     mah[m].toplam++;
     if(x.teslimEdildi) mah[m].teslim++;
   });
-  const mahSirali = Object.entries(mah).sort((a,b)=>b[1].toplam-a[1].toplam);
+  const mahSirali = Object.entries(mah).sort(function(a,b){ return trSort(a[0], b[0]); });
   const ozEl = document.getElementById('mahalle-ozet-list');
   if(mahSirali.length===0){ ozEl.innerHTML='<div class="text-muted">Henüz kayıt yok</div>'; return; }
   ozEl.innerHTML = mahSirali.map(([m,d])=>{
@@ -1573,7 +1578,7 @@ function mahalleTab(tab) {
   document.getElementById('tab-teslim-btn').className   = tab==='teslim'   ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
 
   const tumKisiler = Object.values(_allKisiler).filter(x=>(x.adres||'Belirtilmemiş').trim()===_mahalleDetayAdi);
-  const filtre = tab==='teslim' ? tumKisiler.filter(x=>x.teslimEdildi) : tumKisiler.filter(x=>!x.teslimEdildi);
+  const filtre = (tab==='teslim' ? tumKisiler.filter(x=>x.teslimEdildi) : tumKisiler.filter(x=>!x.teslimEdildi)).sort(trSortKey(function(x){ return x.adsoyad||''; }));
   const total = tumKisiler.length;
   const teslim = tumKisiler.filter(x=>x.teslimEdildi).length;
 
@@ -1868,7 +1873,7 @@ async function yeniDonemOlustur() {
 
 // ===== KİŞİLER =====
 function renderKisilerTable(f){
-  const k=f!==undefined?f:Object.values(_allKisiler);
+  const k=(f!==undefined?f:Object.values(_allKisiler)).sort(trSortKey(function(x){ return x.adsoyad||''; }));
   const countEl = document.getElementById('kisiler-count');
   if(countEl) countEl.textContent = k.length + ' kişi';
   const tcEl = document.getElementById('kisiler-toolbar-count');
@@ -1911,7 +1916,7 @@ function mahalleFiltreGuncelle() {
   const seciliMah = selMah.value;
   const mahalleler = [...new Set(
     Object.values(_allKisiler).map(x => (x.adres||'').trim()).filter(a => a)
-  )].sort();
+  )].sort(function(a,b){ return trSort(a,b); });
   selMah.innerHTML = '<option value="">Tümü</option>' +
     mahalleler.map(m => `<option value="${m}" ${m===seciliMah?'selected':''}>${m}</option>`).join('');
 
@@ -1920,7 +1925,7 @@ function mahalleFiltreGuncelle() {
   const seciliTur = selTur.value;
   const turler = [...new Set(
     Object.values(_allKisiler).map(x => (x.yardimturu||'').trim()).filter(a => a)
-  )].sort();
+  )].sort(function(a,b){ return trSort(a,b); });
   selTur.innerHTML = '<option value="">Tümü</option>' +
     turler.map(t => `<option value="${t}" ${t===seciliTur?'selected':''}>${t}</option>`).join('');
 }
