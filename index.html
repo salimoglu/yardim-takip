@@ -589,7 +589,10 @@
               <div id="secim-sayac" style="font-size:0.6rem;color:var(--muted);text-align:center;margin-top:2px;white-space:nowrap">0 seçili</div>
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">AD SOYAD</div>
+              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('adsoyad')">
+                <span style="font-size:0.65rem;color:var(--muted)">AD SOYAD</span>
+                <span id="sort-icon-adsoyad" style="font-size:0.65rem;color:var(--muted)">↕</span>
+              </div>
               <input type="text" id="arama" placeholder="Ara..." oninput="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
@@ -597,7 +600,10 @@
               <input type="text" id="arama-tc" placeholder="Ara..." oninput="aramaYap()" maxlength="11" style="width:100%;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">MAHALLE</div>
+              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('adres')">
+                <span style="font-size:0.65rem;color:var(--muted)">MAHALLE</span>
+                <span id="sort-icon-adres" style="font-size:0.65rem;color:var(--muted)">↕</span>
+              </div>
               <select id="filtre-mahalle" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
                 <option value="">Tümü</option>
               </select>
@@ -609,7 +615,10 @@
               </select>
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
-              <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">GÜNDEM</div>
+              <div style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none" onclick="siralamaYap('gundem')">
+                <span style="font-size:0.65rem;color:var(--muted)">GÜNDEM</span>
+                <span id="sort-icon-gundem" style="font-size:0.65rem;color:var(--muted)">↕</span>
+              </div>
               <select id="filtre-gundem" onchange="aramaYap()" style="width:100%;font-size:0.75rem;padding:0.2rem 0.3rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">
                 <option value="">Tümü</option>
               </select>
@@ -1885,8 +1894,50 @@ async function yeniDonemOlustur() {
 }
 
 // ===== KİŞİLER =====
+// Sıralama state
+var _sortAlan = 'adsoyad';
+var _sortYon  = 'asc'; // 'asc' | 'desc'
+
+function siralamaYap(alan) {
+  if (_sortAlan === alan) {
+    _sortYon = _sortYon === 'asc' ? 'desc' : 'asc';
+  } else {
+    _sortAlan = alan;
+    _sortYon = 'asc';
+  }
+  // İkon güncelle
+  ['adsoyad','adres','gundem'].forEach(function(a) {
+    var el = document.getElementById('sort-icon-'+a);
+    if (!el) return;
+    if (a === _sortAlan) {
+      el.textContent = _sortYon === 'asc' ? '↑' : '↓';
+      el.style.color = 'var(--accent)';
+    } else {
+      el.textContent = '↕';
+      el.style.color = 'var(--muted)';
+    }
+  });
+  aramaYap();
+}
+
+function uygulaSimrala(liste) {
+  var alan = _sortAlan;
+  var yon  = _sortYon;
+  return liste.slice().sort(function(a, b) {
+    var va = String(a[alan] || '');
+    var vb = String(b[alan] || '');
+    // Gündem için sayısal sıralama
+    if (alan === 'gundem') {
+      var na = parseInt(va), nb = parseInt(vb);
+      if (!isNaN(na) && !isNaN(nb)) return yon === 'asc' ? na - nb : nb - na;
+    }
+    var sonuc = trSort(va, vb);
+    return yon === 'asc' ? sonuc : -sonuc;
+  });
+}
+
 function renderKisilerTable(f){
-  const k=(f!==undefined?f:Object.values(_allKisiler)).sort(trSortKey(function(x){ return x.adsoyad||''; }));
+  const k = uygulaSimrala(f !== undefined ? f : Object.values(_allKisiler));
   const countEl = document.getElementById('kisiler-count');
   if(countEl) countEl.textContent = k.length + ' kişi';
   const tcEl = document.getElementById('kisiler-toolbar-count');
