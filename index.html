@@ -1480,10 +1480,37 @@ function updateDashboard(){
     ?'<tr><td colspan="4" class="text-muted text-center" style="padding:2rem">Henüz teslim yok</td></tr>'
     :son.map(x=>`<tr><td>${x.adsoyad}</td><td><span class="badge badge-blue">${x.yardimturu}</span></td><td style="font-family:var(--mono);font-size:0.8rem">${new Date(x.teslimTarihi).toLocaleString('tr-TR')}</td><td><span class="badge badge-green">✅ Teslim</span></td></tr>`).join('');
 
-  const tur={};k.forEach(x=>{tur[x.yardimturu]=(tur[x.yardimturu]||0)+1;});
+  const tur={};k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
   document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
     ?'<div class="text-muted">Henüz kayıt yok</div>'
-    :Object.entries(tur).map(([n,s])=>`<div><div class="flex justify-between mb-1"><span style="font-size:0.85rem;font-weight:600">${n}</span><span style="font-family:var(--mono);font-size:0.85rem;color:var(--muted)">${s} kişi</span></div><div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${Math.round(s/t*100)}%;background:var(--accent);border-radius:3px;"></div></div></div>`).join('');
+    :Object.entries(tur).map(([n,v])=>{
+      const pct = v.t>0 ? Math.round(v.te/v.t*100) : 0;
+      const renk = pct===100?'var(--success)':pct>50?'var(--accent)':'var(--danger)';
+      const bekliyor = v.t - v.te;
+      return `<div style="background:var(--surface2);border-radius:10px;padding:0.75rem 1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+          <span style="font-size:0.9rem;font-weight:700">${n}</span>
+          <span style="font-size:0.85rem;font-weight:800;color:${renk};font-family:var(--mono)">%${pct}</span>
+        </div>
+        <div style="height:7px;background:var(--surface);border-radius:4px;overflow:hidden;margin-bottom:0.5rem">
+          <div style="height:100%;width:${pct}%;background:${renk};border-radius:4px;transition:width 0.5s"></div>
+        </div>
+        <div style="display:flex;gap:1rem">
+          <div style="text-align:center">
+            <div style="font-size:0.95rem;font-weight:800;color:var(--text)">${v.t.toLocaleString('tr-TR')}</div>
+            <div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase">Toplam</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:0.95rem;font-weight:800;color:var(--success)">${v.te.toLocaleString('tr-TR')}</div>
+            <div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase">Teslim</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:0.95rem;font-weight:800;color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</div>
+            <div style="font-size:0.6rem;color:var(--muted);text-transform:uppercase">Bekliyor</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
 
   // Mahalle özeti
   const mah={};
