@@ -1554,18 +1554,18 @@ function updateDashboard(){
           <span style="font-size:0.7rem;font-weight:800;color:${renk};min-width:28px;text-align:right">%${pct}</span>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,60px);gap:0;flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;text-align:right">
-        <div title="Toplam kayıtlı kişi" style="padding:0 4px">
+      <div style="flex-shrink:0;border-left:1px solid var(--border);padding-left:0.75rem;display:flex;gap:0">
+        <div title="Toplam" style="width:52px;text-align:right;padding-right:4px">
           <div style="font-size:0.88rem;font-weight:700;color:var(--text)">${d.toplam.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase">toplam</div>
+          <div style="font-size:0.58rem;color:var(--muted)">toplam</div>
         </div>
-        <div title="Teslim alanlar" style="padding:0 4px">
+        <div title="Aldı" style="width:44px;text-align:right;padding-right:4px">
           <div style="font-size:0.88rem;font-weight:700;color:var(--success)">${d.teslim.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase">aldı</div>
+          <div style="font-size:0.58rem;color:var(--muted)">aldı</div>
         </div>
-        <div title="Henüz almamış" style="padding:0 4px">
+        <div title="Kaldı" style="width:48px;text-align:right">
           <div style="font-size:0.88rem;font-weight:700;color:${bekliyor>0?'var(--danger)':'var(--muted)'}">${bekliyor.toLocaleString('tr-TR')}</div>
-          <div style="font-size:0.58rem;color:var(--muted);text-transform:uppercase">kaldı</div>
+          <div style="font-size:0.58rem;color:var(--muted)">kaldı</div>
         </div>
       </div>
     </div>`;
