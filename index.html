@@ -14,6 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';document.head.appendChild(s)"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';document.head.appendChild(s)"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';document.head.appendChild(s)"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
   :root {
@@ -1803,23 +1804,25 @@ function teslimatListesiOlustur() {
     tcler.push(cb.getAttribute('data-tc'));
   });
   if (tcler.length === 0) { toast('Önce kişi seçin!', 'error'); return; }
-  if (typeof XLSX === 'undefined') { toast('Excel kütüphanesi hazır değil!', 'error'); return; }
 
   var kisiler = tcler.map(function(tc){ return _allKisiler[tc]; }).filter(Boolean);
-  var wb = XLSX.utils.book_new();
 
-  // Stil yardımcıları
-  function cellStyle(bold, sz, hz, wt) {
+  // XlsxStyle veya normal XLSX
+  var XS = window.XlsxStyle || window.XLSX;
+  if (!XS) { toast('Excel kütüphanesi yüklenmedi!', 'error'); return; }
+
+  var thin = {style:'thin', color:{rgb:'000000'}};
+  var border = {top:thin, bottom:thin, left:thin, right:thin};
+
+  function s(bold, sz, hz, wt, bb) {
     return {
-      font: {name:'Arial', bold:!!bold, sz: sz||10},
-      alignment: {horizontal: hz||'center', vertical:'center', wrapText:!!wt},
-      border: {
-        top:{style:'thin'}, bottom:{style:'thin'},
-        left:{style:'thin'}, right:{style:'thin'}
-      }
+      font: {name:'Arial', bold:!!bold, sz:sz||10},
+      alignment: {horizontal:hz||'center', vertical:'center', wrapText:!!wt},
+      border: bb ? border : {}
     };
   }
 
+  var wb = XS.utils.book_new();
   var wsData = [
     ['ÖZALP','','','','','','','','','','','',''],
     ['SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI','','','','','','','','','','','',''],
@@ -1841,11 +1844,15 @@ function teslimatListesiOlustur() {
     ]);
   });
 
-  var ws = XLSX.utils.aoa_to_sheet(wsData);
+  var ws = XS.utils.aoa_to_sheet(wsData);
 
   // Sütun genişlikleri
   ws['!cols'] = [{wch:5},{wch:22},{wch:12},{wch:10},{wch:8},
                  {wch:18},{wch:12},{wch:14},{wch:10},{wch:12},{wch:14},{wch:14},{wch:16}];
+
+  // Satır yükseklikleri
+  ws['!rows'] = [{hpt:18},{hpt:18},{hpt:18},{hpt:20},{hpt:18},{hpt:18},{hpt:52}];
+  for (var i=0; i<kisiler.length; i++) ws['!rows'].push({hpt:66});
 
   // Birleştirmeler
   ws['!merges'] = [
@@ -1854,51 +1861,45 @@ function teslimatListesiOlustur() {
     {s:{r:4,c:0},e:{r:4,c:12}},{s:{r:5,c:0},e:{r:5,c:12}}
   ];
 
-  // Satır yükseklikleri
-  ws['!rows'] = [
-    {hpt:18},{hpt:18},{hpt:18},{hpt:20},{hpt:18},{hpt:18},{hpt:52}
+  // Stiller uygula
+  var styleMap = [
+    {r:0, style: s(false,10,'center',false,false)},
+    {r:1, style: s(false,10,'center',false,false)},
+    {r:2, style: s(false,10,'center',false,false)},
+    {r:3, style: s(true,11,'center',false,false)},
+    {r:4, style: s(true,10,'left',false,false)},
+    {r:5, style: s(true,10,'left',false,false)},
   ];
-  for (var i=0; i<kisiler.length; i++) ws['!rows'].push({hpt:66});
 
-  // Hücre stilleri
-  // Satır 1-3 normal ortalı
-  for (var r=0; r<3; r++) {
-    var addr = XLSX.utils.encode_cell({r:r,c:0});
-    if (!ws[addr]) ws[addr] = {t:'s'};
-    ws[addr].s = {font:{name:'Arial',sz:10}, alignment:{horizontal:'center',vertical:'center'}};
-  }
-  // Satır 4 (index 3) kalın büyük
-  var r4 = XLSX.utils.encode_cell({r:3,c:0});
-  if (ws[r4]) ws[r4].s = {font:{name:'Arial',bold:true,sz:11}, alignment:{horizontal:'center',vertical:'center'}};
-  // Satır 5-6 kalın sola
-  for (var r=4; r<6; r++) {
-    var addr = XLSX.utils.encode_cell({r:r,c:0});
-    if (ws[addr]) ws[addr].s = {font:{name:'Arial',bold:true,sz:10}, alignment:{horizontal:'left',vertical:'center'}};
-  }
-  // Satır 7 sütun başlıkları (index 6) kalın kenarlıklı
+  styleMap.forEach(function(item) {
+    var addr = XS.utils.encode_cell({r:item.r, c:0});
+    if (ws[addr]) ws[addr].s = item.style;
+  });
+
+  // Başlık sütunları (satır 6, index 6)
   for (var c=0; c<13; c++) {
-    var addr = XLSX.utils.encode_cell({r:6,c:c});
+    var addr = XS.utils.encode_cell({r:6,c:c});
     if (!ws[addr]) ws[addr] = {t:'s',v:''};
-    ws[addr].s = cellStyle(true,10,'center',true);
+    ws[addr].s = s(true,10,'center',true,true);
   }
+
   // Veri satırları
   for (var i=0; i<kisiler.length; i++) {
-    var row = 7 + i;
+    var row = 7+i;
     for (var c=0; c<13; c++) {
-      var addr = XLSX.utils.encode_cell({r:row,c:c});
+      var addr = XS.utils.encode_cell({r:row,c:c});
       if (!ws[addr]) ws[addr] = {t:'s',v:''};
-      ws[addr].s = cellStyle(false,10,'center',true);
+      ws[addr].s = s(false,10,'center',true,true);
     }
   }
 
   // Sayfa ayarları
-  ws['!pageSetup'] = {orientation:'landscape', fitToPage:true, fitToWidth:1};
+  ws['!pageSetup'] = {orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0};
   ws['!margins'] = {top:0.394, bottom:0.394, left:0.197, right:0.197, header:0, footer:0};
-  ws['!printTitles'] = {rows:{s:{r:6},e:{r:6}}};
 
-  XLSX.utils.book_append_sheet(wb, ws, 'Teslimat Listesi');
+  XS.utils.book_append_sheet(wb, ws, 'Teslimat Listesi');
   var tarih = new Date().toLocaleDateString('tr-TR').replace(/\./g,'-');
-  XLSX.writeFile(wb, 'Teslimat-Listesi-' + tarih + '.xlsx');
+  XS.writeFile(wb, 'Teslimat-Listesi-' + tarih + '.xlsx');
   toast('Teslimat listesi indirildi! (' + kisiler.length + ' kişi)');
 }
 
