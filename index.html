@@ -1798,61 +1798,45 @@ function mahalleDetayYazdir() {
 
 // ===== TESLİMAT İMZA LİSTESİ =====
 function teslimatListesiOlustur() {
-  var seciliTCler = seciliTCler ? seciliTCler() : [];
-  // seciliTCler fonksiyonu zaten var, onu kullanalım
   var tcler = [];
   document.querySelectorAll('.kisi-sec:checked').forEach(function(cb) {
     tcler.push(cb.getAttribute('data-tc'));
   });
-  
-  if (tcler.length === 0) {
-    toast('Önce kişi seçin!', 'error');
-    return;
-  }
+  if (tcler.length === 0) { toast('Önce kişi seçin!', 'error'); return; }
+  if (typeof XLSX === 'undefined') { toast('Excel kütüphanesi hazır değil!', 'error'); return; }
 
-  var kisiler = tcler.map(function(tc) { return _allKisiler[tc]; }).filter(Boolean);
-  
-  if (typeof XLSX === 'undefined') {
-    toast('Excel kütüphanesi yükleniyor...', 'error');
-    return;
-  }
-
-  // Workbook oluştur
+  var kisiler = tcler.map(function(tc){ return _allKisiler[tc]; }).filter(Boolean);
   var wb = XLSX.utils.book_new();
 
-  // --- SAYFA 1: BAŞLIK + VERİ ---
-  var wsData = [];
-  
-  // Başlık satırları
-  wsData.push(['ÖZALP', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['VAN', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['KÖMÜR (2025 KÖMÜR DÖNEMİ) TESLİMAT LİSTESİ', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['Mütevelli Heyeti Karar Tarihi :', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['Toplantı Yılı - Numarası', '', '', '', '', '', '', '', '', '', '', '', '']);
-  
-  // Sütun başlıkları
-  wsData.push([
-    '', 
-    "Teslim Alanın Adı Soyadı T.C. Kimlik No'su",
-    'Yardım', 'Dosya No', 'Bölge',
-    'Adres/ Teslim Yeri', 'Telefon',
-    'Teslimat Kalemi', 'Miktar',
-    'Teslim Tarihi', 'Teslim Eden',
-    'Teslim Eden İmza', 'Teslim Alan İmza'
-  ]);
+  // Stil yardımcıları
+  function cellStyle(bold, sz, hz, wt) {
+    return {
+      font: {name:'Arial', bold:!!bold, sz: sz||10},
+      alignment: {horizontal: hz||'center', vertical:'center', wrapText:!!wt},
+      border: {
+        top:{style:'thin'}, bottom:{style:'thin'},
+        left:{style:'thin'}, right:{style:'thin'}
+      }
+    };
+  }
 
-  // Kişi verileri
+  var wsData = [
+    ['ÖZALP','','','','','','','','','','','',''],
+    ['SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI','','','','','','','','','','','',''],
+    ['VAN','','','','','','','','','','','',''],
+    ['KÖMÜR (2025 KÖMÜR DÖNEMİ) TESLİMAT LİSTESİ','','','','','','','','','','','',''],
+    ['Mütevelli Heyeti Karar Tarihi :','','','','','','','','','','','',''],
+    ['Toplantı Yılı - Numarası :','','','','','','','','','','','',''],
+    ['', "Teslim Alanın\nAdı Soyadı\nT.C. Kimlik No'su", 'Yardım', 'Dosya No', 'Bölge',
+     'Adres/\nTeslim Yeri', 'Telefon', 'Teslimat\nKalemi', 'Miktar',
+     'Teslim\nTarihi', 'Teslim Eden', 'Teslim Eden\nİmza', 'Teslim Alan\nİmza']
+  ];
+
   kisiler.forEach(function(k, i) {
     wsData.push([
-      i + 1,
-      (k.adsoyad || '') + ' / ' + (k.tc || ''),
-      'TKİ Kömür Yardımı',
-      '', '', 
-      k.adres || '',
-      '',
-      '2025 Kömür Dönemi',
-      '1600 (Binaltıyüz) Kg',
+      i+1, (k.adsoyad||'') + '\n' + (k.tc||''),
+      'TKİ Kömür Yardımı', '', '', k.adres||'', '',
+      '2025 Kömür Dönemi', '1600 (Binaltıyüz) Kg',
       '', '', '', ''
     ]);
   });
@@ -1860,36 +1844,62 @@ function teslimatListesiOlustur() {
   var ws = XLSX.utils.aoa_to_sheet(wsData);
 
   // Sütun genişlikleri
-  ws['!cols'] = [
-    {wch:5},  // A - Sıra No
-    {wch:30}, // B - Ad Soyad TC
-    {wch:18}, // C - Yardım
-    {wch:10}, // D - Dosya No
-    {wch:8},  // E - Bölge
-    {wch:20}, // F - Adres
-    {wch:12}, // G - Telefon
-    {wch:18}, // H - Teslimat Kalemi
-    {wch:22}, // I - Miktar
-    {wch:12}, // J - Teslim Tarihi
-    {wch:15}, // K - Teslim Eden
-    {wch:18}, // L - Teslim Eden İmza
-    {wch:18}, // M - Teslim Alan İmza
+  ws['!cols'] = [{wch:5},{wch:22},{wch:12},{wch:10},{wch:8},
+                 {wch:18},{wch:12},{wch:14},{wch:10},{wch:12},{wch:14},{wch:14},{wch:16}];
+
+  // Birleştirmeler
+  ws['!merges'] = [
+    {s:{r:0,c:0},e:{r:0,c:12}},{s:{r:1,c:0},e:{r:1,c:12}},
+    {s:{r:2,c:0},e:{r:2,c:12}},{s:{r:3,c:0},e:{r:3,c:12}},
+    {s:{r:4,c:0},e:{r:4,c:12}},{s:{r:5,c:0},e:{r:5,c:12}}
   ];
 
-  // Birleştirmeler (başlık satırları A-M birleşik)
-  ws['!merges'] = [
-    {s:{r:0,c:0}, e:{r:0,c:12}},
-    {s:{r:1,c:0}, e:{r:1,c:12}},
-    {s:{r:2,c:0}, e:{r:2,c:12}},
-    {s:{r:3,c:0}, e:{r:3,c:12}},
+  // Satır yükseklikleri
+  ws['!rows'] = [
+    {hpt:18},{hpt:18},{hpt:18},{hpt:20},{hpt:18},{hpt:18},{hpt:52}
   ];
+  for (var i=0; i<kisiler.length; i++) ws['!rows'].push({hpt:66});
+
+  // Hücre stilleri
+  // Satır 1-3 normal ortalı
+  for (var r=0; r<3; r++) {
+    var addr = XLSX.utils.encode_cell({r:r,c:0});
+    if (!ws[addr]) ws[addr] = {t:'s'};
+    ws[addr].s = {font:{name:'Arial',sz:10}, alignment:{horizontal:'center',vertical:'center'}};
+  }
+  // Satır 4 (index 3) kalın büyük
+  var r4 = XLSX.utils.encode_cell({r:3,c:0});
+  if (ws[r4]) ws[r4].s = {font:{name:'Arial',bold:true,sz:11}, alignment:{horizontal:'center',vertical:'center'}};
+  // Satır 5-6 kalın sola
+  for (var r=4; r<6; r++) {
+    var addr = XLSX.utils.encode_cell({r:r,c:0});
+    if (ws[addr]) ws[addr].s = {font:{name:'Arial',bold:true,sz:10}, alignment:{horizontal:'left',vertical:'center'}};
+  }
+  // Satır 7 sütun başlıkları (index 6) kalın kenarlıklı
+  for (var c=0; c<13; c++) {
+    var addr = XLSX.utils.encode_cell({r:6,c:c});
+    if (!ws[addr]) ws[addr] = {t:'s',v:''};
+    ws[addr].s = cellStyle(true,10,'center',true);
+  }
+  // Veri satırları
+  for (var i=0; i<kisiler.length; i++) {
+    var row = 7 + i;
+    for (var c=0; c<13; c++) {
+      var addr = XLSX.utils.encode_cell({r:row,c:c});
+      if (!ws[addr]) ws[addr] = {t:'s',v:''};
+      ws[addr].s = cellStyle(false,10,'center',true);
+    }
+  }
+
+  // Sayfa ayarları
+  ws['!pageSetup'] = {orientation:'landscape', fitToPage:true, fitToWidth:1};
+  ws['!margins'] = {top:0.394, bottom:0.394, left:0.197, right:0.197, header:0, footer:0};
+  ws['!printTitles'] = {rows:{s:{r:6},e:{r:6}}};
 
   XLSX.utils.book_append_sheet(wb, ws, 'Teslimat Listesi');
-
-  // İndir
   var tarih = new Date().toLocaleDateString('tr-TR').replace(/\./g,'-');
   XLSX.writeFile(wb, 'Teslimat-Listesi-' + tarih + '.xlsx');
-  toast('✅ Teslimat listesi indirildi! (' + kisiler.length + ' kişi)');
+  toast('Teslimat listesi indirildi! (' + kisiler.length + ' kişi)');
 }
 
 // ===== DÖNEM YÖNETİM UI =====
