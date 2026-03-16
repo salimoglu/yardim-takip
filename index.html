@@ -636,7 +636,10 @@
             </th>
             <th style="padding:0.4rem 0.6rem 0.3rem">
               <div style="font-size:0.65rem;color:var(--muted);margin-bottom:3px">İŞLEM</div>
-              <button onclick="secilenlereQRBas()" style="font-size:0.72rem;padding:0.2rem 0.5rem;border-radius:4px;border:none;color:#000;background:var(--accent2);cursor:pointer;white-space:nowrap;font-weight:700;width:100%">🖨️ Fiş Bas</button>
+              <div style="display:flex;flex-direction:column;gap:3px">
+              <button onclick="secilenlereQRBas()" style="font-size:0.7rem;padding:0.2rem 0.4rem;border-radius:4px;border:none;color:#000;background:var(--accent2);cursor:pointer;white-space:nowrap;font-weight:700;width:100%">🖨️ Fiş Bas</button>
+              <button onclick="teslimatListesiOlustur()" style="font-size:0.7rem;padding:0.2rem 0.4rem;border-radius:4px;border:none;color:#fff;background:#2980b9;cursor:pointer;white-space:nowrap;font-weight:700;width:100%">📋 Teslimat</button>
+            </div>
             </th>
           </tr>
         </thead>
@@ -1791,6 +1794,102 @@ function mahalleDetayYazdir() {
 <script>window.onload=()=>window.print()<\/script>
 </body></html>`);
   win.document.close();
+}
+
+// ===== TESLİMAT İMZA LİSTESİ =====
+function teslimatListesiOlustur() {
+  var seciliTCler = seciliTCler ? seciliTCler() : [];
+  // seciliTCler fonksiyonu zaten var, onu kullanalım
+  var tcler = [];
+  document.querySelectorAll('.kisi-sec:checked').forEach(function(cb) {
+    tcler.push(cb.getAttribute('data-tc'));
+  });
+  
+  if (tcler.length === 0) {
+    toast('Önce kişi seçin!', 'error');
+    return;
+  }
+
+  var kisiler = tcler.map(function(tc) { return _allKisiler[tc]; }).filter(Boolean);
+  
+  if (typeof XLSX === 'undefined') {
+    toast('Excel kütüphanesi yükleniyor...', 'error');
+    return;
+  }
+
+  // Workbook oluştur
+  var wb = XLSX.utils.book_new();
+
+  // --- SAYFA 1: BAŞLIK + VERİ ---
+  var wsData = [];
+  
+  // Başlık satırları
+  wsData.push(['ÖZALP', '', '', '', '', '', '', '', '', '', '', '', '']);
+  wsData.push(['SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI', '', '', '', '', '', '', '', '', '', '', '', '']);
+  wsData.push(['VAN', '', '', '', '', '', '', '', '', '', '', '', '']);
+  wsData.push(['KÖMÜR (2025 KÖMÜR DÖNEMİ) TESLİMAT LİSTESİ', '', '', '', '', '', '', '', '', '', '', '', '']);
+  wsData.push(['Mütevelli Heyeti Karar Tarihi :', '', '', '', '', '', '', '', '', '', '', '', '']);
+  wsData.push(['Toplantı Yılı - Numarası', '', '', '', '', '', '', '', '', '', '', '', '']);
+  
+  // Sütun başlıkları
+  wsData.push([
+    '', 
+    "Teslim Alanın Adı Soyadı T.C. Kimlik No'su",
+    'Yardım', 'Dosya No', 'Bölge',
+    'Adres/ Teslim Yeri', 'Telefon',
+    'Teslimat Kalemi', 'Miktar',
+    'Teslim Tarihi', 'Teslim Eden',
+    'Teslim Eden İmza', 'Teslim Alan İmza'
+  ]);
+
+  // Kişi verileri
+  kisiler.forEach(function(k, i) {
+    wsData.push([
+      i + 1,
+      (k.adsoyad || '') + ' / ' + (k.tc || ''),
+      'TKİ Kömür Yardımı',
+      '', '', 
+      k.adres || '',
+      '',
+      '2025 Kömür Dönemi',
+      '1600 (Binaltıyüz) Kg',
+      '', '', '', ''
+    ]);
+  });
+
+  var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  // Sütun genişlikleri
+  ws['!cols'] = [
+    {wch:5},  // A - Sıra No
+    {wch:30}, // B - Ad Soyad TC
+    {wch:18}, // C - Yardım
+    {wch:10}, // D - Dosya No
+    {wch:8},  // E - Bölge
+    {wch:20}, // F - Adres
+    {wch:12}, // G - Telefon
+    {wch:18}, // H - Teslimat Kalemi
+    {wch:22}, // I - Miktar
+    {wch:12}, // J - Teslim Tarihi
+    {wch:15}, // K - Teslim Eden
+    {wch:18}, // L - Teslim Eden İmza
+    {wch:18}, // M - Teslim Alan İmza
+  ];
+
+  // Birleştirmeler (başlık satırları A-M birleşik)
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:12}},
+    {s:{r:1,c:0}, e:{r:1,c:12}},
+    {s:{r:2,c:0}, e:{r:2,c:12}},
+    {s:{r:3,c:0}, e:{r:3,c:12}},
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Teslimat Listesi');
+
+  // İndir
+  var tarih = new Date().toLocaleDateString('tr-TR').replace(/\./g,'-');
+  XLSX.writeFile(wb, 'Teslimat-Listesi-' + tarih + '.xlsx');
+  toast('✅ Teslimat listesi indirildi! (' + kisiler.length + ' kişi)');
 }
 
 // ===== DÖNEM YÖNETİM UI =====
