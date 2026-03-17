@@ -2058,27 +2058,59 @@ function uygulaSimrala(liste) {
   });
 }
 
-function renderKisilerTable(f){
-  const k = uygulaSimrala(f !== undefined ? f : Object.values(_allKisiler));
-  const countEl = document.getElementById('kisiler-count');
-  if(countEl) countEl.textContent = k.length + ' kişi';
-  const tcEl = document.getElementById('kisiler-toolbar-count');
-  if(tcEl) tcEl.textContent = k.length + ' kayıt';
-  document.getElementById('kisiler-table').innerHTML=k.length===0
-    ?'<tr><td colspan="5" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>'
-    :k.map(x=>`<tr data-tc="${x.tc}">
-  <td style="text-align:center"><input type="checkbox" class="kisi-sec" data-tc="${x.tc}" onchange="secimGuncelle()" style="width:15px;height:15px;cursor:pointer"></td>
-  <td><b>${x.adsoyad}</b></td>
-  <td style="font-family:var(--mono);font-size:0.85rem">${x.tc}</td>
-  <td style="font-size:0.85rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.adres||''}">${x.adres||'—'}</td>
-  <td><span class="badge badge-blue">${x.yardimturu}</span></td>
-  <td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">${x.gundem||'—'}</td>
-  <td>${x.teslimEdildi?'<span class="badge badge-green">✅ Teslim</span>':'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
-  <td style="white-space:nowrap">
-    <button style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-right:3px" onclick="showDetayByTC('${x.tc}')">Detay</button>
-    <button style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer" onclick="silBaslat('${x.tc}')">🗑</button>
-  </td>
-</tr>`).join('');
+// Kişiler sayfalama
+var _kisilerSayfa = 0;
+var _kisilerSayfaBoyutu = 50;
+var _kisilerFiltreli = [];
+
+function kisilerSatirHtml(x) {
+  return '<tr data-tc="' + x.tc + '">'
+    + '<td style="text-align:center"><input type="checkbox" class="kisi-sec" data-tc="' + x.tc + '" onchange="secimGuncelle()" style="width:15px;height:15px;cursor:pointer"></td>'
+    + '<td><b>' + x.adsoyad + '</b></td>'
+    + '<td style="font-family:var(--mono);font-size:0.85rem">' + x.tc + '</td>'
+    + '<td style="font-size:0.85rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + (x.adres||'') + '">' + (x.adres||'—') + '</td>'
+    + '<td><span class="badge badge-blue">' + x.yardimturu + '</span></td>'
+    + '<td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">' + (x.gundem||'—') + '</td>'
+    + '<td>' + (x.teslimEdildi ? '<span class="badge badge-green">✅ Teslim</span>' : '<span class="badge badge-red">⏳ Bekliyor</span>') + '</td>'
+    + '<td style="white-space:nowrap">'
+    + '<button style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-right:3px" onclick="showDetayByTC('' + x.tc + '')">Detay</button>'
+    + '<button style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer" onclick="silBaslat('' + x.tc + '')">🗑</button>'
+    + '</td></tr>';
+}
+
+function renderKisilerTable(f) {
+  _kisilerSayfa = 0;
+  _kisilerFiltreli = uygulaSimrala(f !== undefined ? f : Object.values(_allKisiler));
+  _kisilerRenderSayfa();
+}
+
+function _kisilerRenderSayfa() {
+  var k = _kisilerFiltreli;
+  var countEl = document.getElementById('kisiler-count');
+  if (countEl) countEl.textContent = k.length + ' kişi';
+  var tcEl = document.getElementById('kisiler-toolbar-count');
+  if (tcEl) tcEl.textContent = k.length + ' kayıt';
+
+  if (k.length === 0) {
+    document.getElementById('kisiler-table').innerHTML =
+      '<tr><td colspan="8" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>';
+    return;
+  }
+
+  var gosterilen = k.slice(0, (_kisilerSayfa + 1) * _kisilerSayfaBoyutu);
+  var kalan = k.length - gosterilen.length;
+
+  var html = gosterilen.map(kisilerSatirHtml).join('');
+
+  if (kalan > 0) {
+    html += '<tr><td colspan="8" style="text-align:center;padding:0.7rem">'
+      + '<button onclick="_kisilerSayfa++;_kisilerRenderSayfa()" '
+      + 'style="padding:0.4rem 1.4rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:0.82rem;font-weight:600">'
+      + '▼ ' + kalan.toLocaleString("tr-TR") + ' kişi daha göster</button>'
+      + '</td></tr>';
+  }
+
+  document.getElementById('kisiler-table').innerHTML = html;
 }
 
 function aramaYap(){
