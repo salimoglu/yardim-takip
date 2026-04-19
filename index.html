@@ -952,7 +952,7 @@
       try {
         var tel = user.email.replace('@yardim.com','');
         var rolSnap = await get(ref(db, 'kullanicilar/'+tel+'/rol'));
-        var rol = rolSnap.val() || 'admin'; // varsayılan admin
+        var rol = rolSnap.val() || 'personel'; // varsayılan personel (güvenli)
         var adSnap = await get(ref(db, 'kullanicilar/'+tel+'/ad'));
         var kullaniciAd = adSnap.val() || tel;
         window._aktifKullanici = { tel: tel, ad: kullaniciAd, rol: rol, uid: user.uid };
@@ -963,10 +963,12 @@
         donemlerYukle();
       } catch(e) {
         console.error('Rol okuma hatası:', e);
-        // Hata olsa bile uygulamayı aç
-        window._aktifRol = 'admin';
+        // Hata durumunda güvenli mod — personel yetkisi ver, admin değil
+        window._aktifKullanici = { tel: tel, ad: tel, rol: 'personel', uid: user.uid };
+        window._aktifRol = 'personel';
         document.getElementById('giris-ekrani').style.display = 'none';
         document.getElementById('ana-uygulama').style.display = 'block';
+        rolAyarla('personel');
         donemlerYukle();
       }
     } else {
@@ -996,7 +998,7 @@
       } else if (e.code === 'auth/too-many-requests') {
         hata.textContent = 'Çok fazla deneme! Lütfen bekleyin.';
       } else {
-        hata.textContent = 'Hata: ' + e.message;
+        hata.textContent = 'Hata: Giriş yapılamadı. Lütfen tekrar deneyin.';
       }
       btn.disabled = false;
       btn.textContent = 'Giriş Yap';
@@ -1015,6 +1017,32 @@ let _allKisiler = {};
 let _excelHeaders = [];
 let _excelRows = [];
 let _mappedRows = [];
+
+// ===== GÜVENLİK: XSS Koruması =====
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ===== GÜVENLİK: TC Kimlik No Doğrulama =====
+function tcGecerliMi(tc) {
+  if (!tc || tc.length !== 11 || tc[0] === '0') return false;
+  if (!/^\d{11}$/.test(tc)) return false;
+  var d = tc.split('').map(Number);
+  // 10. hane kontrolü
+  var t1 = ((d[0]+d[2]+d[4]+d[6]+d[8])*7 - (d[1]+d[3]+d[5]+d[7])) % 10;
+  if (t1 < 0) t1 += 10;
+  if (t1 !== d[9]) return false;
+  // 11. hane kontrolü
+  var t2 = (d[0]+d[1]+d[2]+d[3]+d[4]+d[5]+d[6]+d[7]+d[8]+d[9]) % 10;
+  if (t2 !== d[10]) return false;
+  return true;
+}
 
 // ===== NAV =====
 // ===== TÜRKÇE SIRALAMA =====
@@ -1326,11 +1354,11 @@ function buildOnizleme(atlanan, gecersiz) {
   tbody.innerHTML = _mappedRows.slice(0, 200).map((r,i) => `
     <tr>
       <td style="color:var(--muted);font-family:var(--mono)">${i+1}</td>
-      <td>${r.adsoyad}</td>
-      <td style="font-family:var(--mono);font-size:0.78rem">${r.tc}</td>
-      <td style="font-size:0.78rem">${r.adres||'—'}</td>
-      <td><span class="badge badge-blue">${r.yardimturu}</span></td>
-      <td style="font-size:0.78rem;color:var(--accent2)">${r.gundem||'—'}</td>
+      <td>${escapeHtml(r.adsoyad)}</td>
+      <td style="font-family:var(--mono);font-size:0.78rem">${escapeHtml(r.tc)}</td>
+      <td style="font-size:0.78rem">${escapeHtml(r.adres)||'—'}</td>
+      <td><span class="badge badge-blue">${escapeHtml(r.yardimturu)}</span></td>
+      <td style="font-size:0.78rem;color:var(--accent2)">${escapeHtml(r.gundem)||'—'}</td>
       <td><span class="badge badge-green">Yeni</span></td>
     </tr>`).join('') + (_mappedRows.length > 200 ? `<tr><td colspan="6" class="text-muted text-center" style="padding:0.8rem">...ve ${_mappedRows.length-200} kayıt daha</td></tr>` : '');
 }
@@ -1357,7 +1385,7 @@ async function yuklemeBaslat() {
   } catch(err) {
     document.getElementById('yukle-progress-text').textContent = '❌ Hata!';
     document.getElementById('yukle-sonuc').style.display = 'block';
-    document.getElementById('yukle-sonuc-detay').innerHTML = `<div style="color:var(--danger)">Hata: ${err.message}</div>`;
+    document.getElementById('yukle-sonuc-detay').innerHTML = `<div style="color:var(--danger)">Hata: ${escapeHtml(err.message)}</div>`;
   }
 }
 
@@ -1387,6 +1415,7 @@ async function kayitEkle() {
   const alertEl=document.getElementById('kayit-alert');
   const sa=(msg,t)=>{alertEl.textContent=msg;alertEl.className='alert show alert-'+t;};
   if(!tc||tc.length!==11) return sa('TC 11 haneli olmalıdır.','error');
+  if(!tcGecerliMi(tc)) return sa('Geçersiz TC Kimlik No! Kontrol ediniz.','error');
   if(!adsoyad) return sa('Ad Soyad giriniz.','error');
   if(!yardimturu) return sa('Yardım türü seçiniz.','error');
   if(_allKisiler[tc]) return sa('Bu TC ile kayıt zaten mevcut!','error');
@@ -1441,6 +1470,7 @@ function manuelAra() {
   const tc = document.getElementById('manuel-tc').value.trim();
   if (!tc) { toast('TC giriniz','error'); return; }
   if (tc.length !== 11) { toast('TC 11 hane olmalıdır','error'); return; }
+  if (!tcGecerliMi(tc)) { toast('Geçersiz TC Kimlik No!','error'); return; }
   islemYap(tc);
 }
 
@@ -1470,7 +1500,7 @@ function islemYap(tc) {
     document.getElementById('kopya-teslim-bilgi').innerHTML = `
       📅 <b>İlk teslim tarihi:</b> ${tD.toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'})}<br>
       🕐 <b>İlk teslim saati:</b> ${tD.toLocaleTimeString('tr-TR')}<br>
-      👤 <b>Teslim eden:</b> ${kisi.teslimEden || 'Bilinmiyor'}<br>
+      👤 <b>Teslim eden:</b> ${escapeHtml(kisi.teslimEden) || 'Bilinmiyor'}<br>
       ${kisi.zorlaIslendi ? '⚠️ <b style="color:#ff7744">Not:</b> Bu kayıt daha önce zorla teslim edildi.' : ''}`;
     return;
   }
@@ -1494,7 +1524,7 @@ async function teslimOnayla() {
   try {
     await window.dbTeslimEt(_currentTC, false);
     const kisi = _allKisiler[_currentTC] || {};
-    toast(`✅ ${kisi.adsoyad || _currentTC} teslim edildi!`);
+    toast(`✅ ${escapeHtml(kisi.adsoyad) || _currentTC} teslim edildi!`);
     scanTemizle();
   } catch(e) { toast('Hata: '+e.message,'error'); }
 }
@@ -1502,20 +1532,21 @@ async function teslimOnayla() {
 async function zorlaDevam() {
   if (!_currentTC) return;
   if (!window._firebaseHazir) { toast('Veritabanı bağlanıyor...','error'); return; }
+  if (window._aktifRol !== 'admin') { toast('Zorla teslim için admin yetkisi gerekli!', 'error'); return; }
   try {
     await window.dbTeslimEt(_currentTC, true);
     const kisi = _allKisiler[_currentTC] || {};
-    toast(`⚠️ ${kisi.adsoyad || _currentTC} zorla teslim edildi!`, 'error');
+    toast(`⚠️ ${escapeHtml(kisi.adsoyad) || _currentTC} zorla teslim edildi!`, 'error');
     scanTemizle();
   } catch(e) { toast('Hata: '+e.message,'error'); }
 }
 
 function buildPersonInfo(k){
   return `
-    <div class="person-row"><span class="person-key">Ad Soyad</span><span class="person-val">${k.adsoyad}</span></div>
-    <div class="person-row"><span class="person-key">TC No</span><span class="person-val" style="font-family:var(--mono)">${k.tc}</span></div>
-    <div class="person-row"><span class="person-key">Yardım</span><span class="person-val">${k.yardimturu}</span></div>
-    <div class="person-row"><span class="person-key">Adres</span><span class="person-val">${k.adres||'—'}</span></div>
+    <div class="person-row"><span class="person-key">Ad Soyad</span><span class="person-val">${escapeHtml(k.adsoyad)}</span></div>
+    <div class="person-row"><span class="person-key">TC No</span><span class="person-val" style="font-family:var(--mono)">${escapeHtml(k.tc)}</span></div>
+    <div class="person-row"><span class="person-key">Yardım</span><span class="person-val">${escapeHtml(k.yardimturu)}</span></div>
+    <div class="person-row"><span class="person-key">Adres</span><span class="person-val">${escapeHtml(k.adres)||'—'}</span></div>
     <div class="person-row"><span class="person-key">Kayıt</span><span class="person-val">${new Date(k.kayitTarihi).toLocaleDateString('tr-TR')}</span></div>`;
 }
 
@@ -1537,7 +1568,7 @@ function updateDashboard(){
   const son=k.filter(x=>x.teslimEdildi).sort((a,b)=>new Date(b.teslimTarihi)-new Date(a.teslimTarihi)).slice(0,10);
   document.getElementById('son-teslimler').innerHTML=son.length===0
     ?'<tr><td colspan="4" class="text-muted text-center" style="padding:2rem">Henüz teslim yok</td></tr>'
-    :son.map(x=>`<tr><td>${x.adsoyad}</td><td><span class="badge badge-blue">${x.yardimturu}</span></td><td style="font-family:var(--mono);font-size:0.8rem">${new Date(x.teslimTarihi).toLocaleString('tr-TR')}</td><td><span class="badge badge-green">✅ Teslim</span></td></tr>`).join('');
+    :son.map(x=>`<tr><td>${escapeHtml(x.adsoyad)}</td><td><span class="badge badge-blue">${escapeHtml(x.yardimturu)}</span></td><td style="font-family:var(--mono);font-size:0.8rem">${new Date(x.teslimTarihi).toLocaleString('tr-TR')}</td><td><span class="badge badge-green">✅ Teslim</span></td></tr>`).join('');
 
   const tur={};k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
   if(document.getElementById('dagilim-list')) document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
@@ -1586,9 +1617,10 @@ function updateDashboard(){
     const bekliyor = d.toplam - d.teslim;
     const pct = Math.round(d.teslim/d.toplam*100);
     const renk = pct===100?'var(--success)':pct>50?'var(--accent)':'var(--danger)';
-    return `<div onclick="mahalleDeta('${m.replace(/'/g,"&#39;")}')" style="cursor:pointer;background:var(--surface2);border-radius:8px;padding:0.55rem 0.9rem;display:flex;align-items:center;gap:0.9rem;transition:opacity 0.15s" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+    const safeM = escapeHtml(m);
+    return `<div onclick="mahalleDeta('${safeM.replace(/'/g,"&#39;")}')" style="cursor:pointer;background:var(--surface2);border-radius:8px;padding:0.55rem 0.9rem;display:flex;align-items:center;gap:0.9rem;transition:opacity 0.15s" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
       <div style="flex:1;min-width:0">
-        <div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">${m}</div>
+        <div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">${safeM}</div>
         <div style="display:flex;align-items:center;gap:6px">
           <div style="flex:1;height:5px;background:var(--surface);border-radius:3px;overflow:hidden">
             <div style="height:100%;width:${pct}%;background:${renk};border-radius:3px"></div>
@@ -1643,10 +1675,10 @@ function mahalleTab(tab) {
 
   document.getElementById('mahalle-modal-liste').innerHTML = filtre.length===0
     ? `<tr><td colspan="4" class="text-muted text-center" style="padding:1.5rem">${tab==='bekliyor'?'Herkes aldı! 🎉':'Henüz kimse almadı'}</td></tr>`
-    : filtre.map((x,i)=>`<tr style="cursor:pointer" onclick="closeMahalleModal();setTimeout(()=>{showPage('kisiler',document.querySelector('[onclick*=kisiler]'));document.getElementById('arama').value='${x.adsoyad.replace(/'/g,"\'")}';aramaYap();},200)">
+    : filtre.map((x,i)=>`<tr style="cursor:pointer" onclick="closeMahalleModal();setTimeout(()=>{showPage('kisiler',document.querySelector('[onclick*=kisiler]'));document.getElementById('arama').value='${escapeHtml(x.adsoyad).replace(/'/g,"\\'")}';aramaYap();},200)">
         <td style="color:var(--muted);font-size:0.78rem;width:28px">${i+1}</td>
-        <td><b>${x.adsoyad}</b></td>
-        <td style="font-family:var(--mono);font-size:0.8rem">${x.tc}</td>
+        <td><b>${escapeHtml(x.adsoyad)}</b></td>
+        <td style="font-family:var(--mono);font-size:0.8rem">${escapeHtml(x.tc)}</td>
         <td>${x.teslimEdildi?`<span class="badge badge-green">✅ ${new Date(x.teslimTarihi).toLocaleDateString('tr-TR')}</span>`:'<span class="badge badge-red">⏳ Bekliyor</span>'}</td>
       </tr>`).join('');
 }
@@ -1952,13 +1984,16 @@ async function personelListeYukle() {
       var p = personeller[tel] || {};
       var rolRenk = p.rol === 'admin' ? 'var(--accent)' : 'var(--muted)';
       var rolIkon = p.rol === 'admin' ? '👑' : '👤';
+      var safeTel = escapeHtml(tel);
+      var safeAd = escapeHtml(p.ad || tel);
+      var safeRol = escapeHtml(p.rol || 'personel');
       return '<div style="background:var(--surface2);border-radius:8px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
         + '<div style="flex:1">'
-        + '<div style="font-weight:700;font-size:0.85rem">' + (p.ad || tel) + '</div>'
-        + '<div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono)">' + tel + '</div>'
+        + '<div style="font-weight:700;font-size:0.85rem">' + safeAd + '</div>'
+        + '<div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono)">' + safeTel + '</div>'
         + '</div>'
-        + '<span style="font-size:0.72rem;font-weight:700;color:' + rolRenk + '">' + rolIkon + ' ' + (p.rol||'personel') + '</span>'
-        + '<button onclick="personelSil(\'' + tel + '\')" style="font-size:0.72rem;padding:0.2rem 0.45rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer;margin-left:0.3rem">🗑</button>'
+        + '<span style="font-size:0.72rem;font-weight:700;color:' + rolRenk + '">' + rolIkon + ' ' + safeRol + '</span>'
+        + '<button onclick="personelSil(\'' + safeTel + '\')" style="font-size:0.72rem;padding:0.2rem 0.45rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer;margin-left:0.3rem">🗑</button>'
         + '</div>';
     }).join('');
   } catch(e) {
@@ -1967,6 +2002,7 @@ async function personelListeYukle() {
 }
 
 async function personelSil(tel) {
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
   if (!confirm(tel + ' personelini silmek istediğinizden emin misiniz?')) return;
   try {
     await window._dbRemove('kullanicilar/' + tel);
@@ -2008,10 +2044,18 @@ async function yeniPersonelEkle() {
   }
 }
 
-function donemKapatOnay(donemId) {
-  var sifre = prompt('Dönemi kapatmak için admin şifresini girin:');
+async function donemKapatOnay(donemId) {
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
+  var sifre = prompt('Dönemi kapatmak için şifrenizi girin:');
   if (!sifre) return;
-  if (sifre !== ADMIN_SIFRE) { toast('Yanlış şifre!', 'error'); return; }
+  // Firebase Auth ile doğrula
+  try {
+    const { EmailAuthProvider, reauthenticateWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const user = window._auth.currentUser;
+    if (!user) { toast('Oturum bulunamadı!', 'error'); return; }
+    const credential = EmailAuthProvider.credential(user.email, sifre);
+    await reauthenticateWithCredential(user, credential);
+  } catch(e) { toast('Yanlış şifre!', 'error'); return; }
   var meta = (window._tumDonemler[donemId] && window._tumDonemler[donemId].meta) || {};
   if (!confirm((meta.ad || donemId) + ' dönemi kapatılacak. Devam?')) return;
   window.donemKapat(donemId);
@@ -2024,7 +2068,15 @@ async function yeniDonemOlustur() {
   var ad      = document.getElementById('yeni-donem-ad').value.trim();
   var sifre   = document.getElementById('yeni-donem-sifre').value;
   if (!donemId || !ad) { toast('Dönem ID ve adı zorunlu!', 'error'); return; }
-  if (sifre !== ADMIN_SIFRE) { toast('Yanlış şifre!', 'error'); return; }
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
+  // Firebase Auth ile doğrula
+  try {
+    const { EmailAuthProvider, reauthenticateWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const user = window._auth.currentUser;
+    if (!user) { toast('Oturum bulunamadı!', 'error'); return; }
+    const credential = EmailAuthProvider.credential(user.email, sifre);
+    await reauthenticateWithCredential(user, credential);
+  } catch(e) { toast('Yanlış şifre!', 'error'); return; }
   if (window._tumDonemler[donemId]) { toast('Bu dönem zaten mevcut!', 'error'); return; }
   await window.donemOlustur(donemId, ad);
   document.getElementById('donem-modal').style.display = 'none';
@@ -2064,17 +2116,22 @@ var _kisilerSayfaBoyutu = 50;
 var _kisilerFiltreli = [];
 
 function kisilerSatirHtml(x) {
-  return '<tr data-tc="' + x.tc + '">'
-    + '<td style="text-align:center"><input type="checkbox" class="kisi-sec" data-tc="' + x.tc + '" onchange="secimGuncelle()" style="width:15px;height:15px;cursor:pointer"></td>'
-    + '<td><b>' + x.adsoyad + '</b></td>'
-    + '<td style="font-family:var(--mono);font-size:0.85rem">' + x.tc + '</td>'
-    + '<td style="font-size:0.85rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + (x.adres||'') + '">' + (x.adres||'—') + '</td>'
-    + '<td><span class="badge badge-blue">' + x.yardimturu + '</span></td>'
-    + '<td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">' + (x.gundem||'—') + '</td>'
+  var safeAd = escapeHtml(x.adsoyad);
+  var safeTc = escapeHtml(x.tc);
+  var safeAdres = escapeHtml(x.adres) || '—';
+  var safeTur = escapeHtml(x.yardimturu);
+  var safeGundem = escapeHtml(x.gundem) || '—';
+  return '<tr data-tc="' + safeTc + '">'
+    + '<td style="text-align:center"><input type="checkbox" class="kisi-sec" data-tc="' + safeTc + '" onchange="secimGuncelle()" style="width:15px;height:15px;cursor:pointer"></td>'
+    + '<td><b>' + safeAd + '</b></td>'
+    + '<td style="font-family:var(--mono);font-size:0.85rem">' + safeTc + '</td>'
+    + '<td style="font-size:0.85rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + safeAdres + '">' + safeAdres + '</td>'
+    + '<td><span class="badge badge-blue">' + safeTur + '</span></td>'
+    + '<td style="font-size:0.85rem;color:var(--accent2);white-space:nowrap">' + safeGundem + '</td>'
     + '<td>' + (x.teslimEdildi ? '<span class="badge badge-green">✅ Teslim</span>' : '<span class="badge badge-red">⏳ Bekliyor</span>') + '</td>'
     + '<td style="white-space:nowrap">'
-    + '<button style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-right:3px" onclick="showDetayByTC(\'' + x.tc + '\')">Detay</button>'
-    + '<button style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer" onclick="silBaslat(\'' + x.tc + '\')">🗑</button>'
+    + '<button style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;margin-right:3px" onclick="showDetayByTC(\'' + safeTc + '\')">Detay</button>'
+    + '<button style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer" onclick="silBaslat(\'' + safeTc + '\')">🗑</button>'
     + '</td></tr>';
 }
 
@@ -2180,12 +2237,12 @@ function showDetay(k){
   document.getElementById('detay-icerik').innerHTML =
     '<div class="person-info" style="margin-bottom:1rem">'
     + buildPersonInfo(k)
-    + '<div class="person-row"><span class="person-key">Gündem</span><span class="person-val" style="color:var(--accent2);font-weight:700">' + (k.gundem||'—') + '</span></div>'
+    + '<div class="person-row"><span class="person-key">Gündem</span><span class="person-val" style="color:var(--accent2);font-weight:700">' + (escapeHtml(k.gundem)||'—') + '</span></div>'
     + '<div class="person-row"><span class="person-key">Durum</span><span class="person-val">' + (k.teslimEdildi ? '✅ Teslim Edildi' : '⏳ Bekliyor') + '</span></div>'
     + teslimSatir
     + '</div>';
   var qrEl = document.getElementById('detay-qr');
-  qrEl.innerHTML = '<div class="qr-box"><div id="detay-qr-inner"></div><div class="qr-name">' + k.adsoyad + '</div><div style="color:#555;font-size:0.75rem;font-family:monospace">TC: ' + k.tc + '</div></div>';
+  qrEl.innerHTML = '<div class="qr-box"><div id="detay-qr-inner"></div><div class="qr-name">' + escapeHtml(k.adsoyad) + '</div><div style="color:#555;font-size:0.75rem;font-family:monospace">TC: ' + escapeHtml(k.tc) + '</div></div>';
   try { new QRCode(document.getElementById('detay-qr-inner'),{text:k.tc,width:150,height:150,colorDark:'#111',colorLight:'#fff'}); } catch(e){}
 }
 function closeDetay(){document.getElementById('detay-modal').classList.remove('show');}
@@ -2253,12 +2310,12 @@ function raporRender() {
     const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
     const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
     return '<tr>'
-      + '<td style="font-family:var(--mono);font-size:0.78rem">' + k.tc + '</td>'
-      + '<td><b>' + _getSoyad(k) + '</b></td>'
-      + '<td>' + _getAd(k) + '</td>'
-      + '<td style="font-size:0.82rem">' + (k.adres||'—') + '</td>'
+      + '<td style="font-family:var(--mono);font-size:0.78rem">' + escapeHtml(k.tc) + '</td>'
+      + '<td><b>' + escapeHtml(_getSoyad(k)) + '</b></td>'
+      + '<td>' + escapeHtml(_getAd(k)) + '</td>'
+      + '<td style="font-size:0.82rem">' + (escapeHtml(k.adres)||'—') + '</td>'
       + '<td><span class="badge badge-green">✅ Teslim</span></td>'
-      + '<td style="font-size:0.82rem;color:var(--accent2)">' + (k.teslimEden||'—') + '</td>'
+      + '<td style="font-size:0.82rem;color:var(--accent2)">' + (escapeHtml(k.teslimEden)||'—') + '</td>'
       + '<td style="font-size:0.82rem">' + tarih + '</td>'
       + '<td style="font-family:var(--mono);font-size:0.8rem;color:var(--muted)">' + saat + '</td>'
       + '<td style="text-align:center">' + (k.zorlaIslendi ? '<span class="badge badge-red">⚠️</span>' : '') + '</td>'
@@ -2328,17 +2385,18 @@ function raporPersonelOzeti() {
   el.innerHTML = ids.map(function(ad) {
     var p = personeller[ad];
     var pid = 'pp' + Math.abs(ad.split('').reduce(function(a,c){ return (a<<5)-a+c.charCodeAt(0)|0; }, 0));
+    var safeAd = escapeHtml(ad);
     var satirlar = p.bugun.length === 0
       ? '<tr><td colspan="3" style="padding:0.8rem;text-align:center;color:var(--muted)">Bugün teslim yok</td></tr>'
       : p.bugun.sort(function(a,b){ return new Date(b.teslimTarihi)-new Date(a.teslimTarihi); }).map(function(x){
           var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
-          return '<tr><td style="padding:0.35rem 0.6rem"><b>' + x.adsoyad + '</b></td>'
-            + '<td style="font-size:0.78rem">' + (x.adres||'—') + '</td>'
+          return '<tr><td style="padding:0.35rem 0.6rem"><b>' + escapeHtml(x.adsoyad) + '</b></td>'
+            + '<td style="font-size:0.78rem">' + (escapeHtml(x.adres)||'—') + '</td>'
             + '<td style="font-family:var(--mono);font-size:0.78rem">' + (d ? d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '—') + '</td></tr>';
         }).join('');
     return '<div style="background:var(--surface2);border-radius:8px;overflow:hidden;margin-bottom:2px">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;cursor:pointer" onclick="personelDetayAc(\'' + pid + '\')">'
-        + '<div style="font-weight:700;font-size:0.9rem">👤 ' + ad + '</div>'
+        + '<div style="font-weight:700;font-size:0.9rem">👤 ' + safeAd + '</div>'
         + '<div style="display:flex;gap:1rem;align-items:center">'
           + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--accent);font-size:1.1rem">' + p.bugun.length + '</div><div style="font-size:0.6rem;color:var(--muted)">BUGÜN</div></div>'
           + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--muted);font-size:1.1rem">' + p.toplam.length + '</div><div style="font-size:0.6rem;color:var(--muted)">TOPLAM</div></div>'
@@ -2832,15 +2890,17 @@ window.onload = function() {
 }
 
 // ===== SİLME İŞLEMLERİ =====
-const ADMIN_SIFRE = '1234'; // Admin şifresini buradan değiştirin
+// Admin şifresi artık Firebase Auth ile doğrulanıyor (client-side hardcoded şifre kaldırıldı)
 let _silTC = null; // Silinecek kişinin TC'si
 
 function silBaslat(tc) {
   const kisi = _allKisiler[tc];
   if (!kisi) { toast('Kişi bulunamadı!', 'error'); return; }
+  // Admin kontrolü
+  if (window._aktifRol !== 'admin') { toast('Bu işlem için admin yetkisi gerekli!', 'error'); return; }
   _silTC = tc;
   document.getElementById('sil-kisi-bilgi').innerHTML = 
-    `<b>${kisi.adsoyad}</b><br>TC: ${kisi.tc}<br>Yardım: ${kisi.yardimturu}<br>Durum: ${kisi.teslimEdildi ? '✅ Teslim Edildi' : '⏳ Bekliyor'}`;
+    `<b>${escapeHtml(kisi.adsoyad)}</b><br>TC: ${escapeHtml(kisi.tc)}<br>Yardım: ${escapeHtml(kisi.yardimturu)}<br>Durum: ${kisi.teslimEdildi ? '✅ Teslim Edildi' : '⏳ Bekliyor'}`;
   document.getElementById('admin-sifre-input').value = '';
   document.getElementById('admin-sil-hata').style.display = 'none';
   document.getElementById('admin-sil-modal').classList.add('show');
@@ -2874,21 +2934,38 @@ function silAra() {
     sonuc.innerHTML = '<div style="color:var(--danger);padding:0.8rem;background:var(--surface2);border-radius:8px">❌ Bu TC ile kayıt bulunamadı.</div>';
     return;
   }
+  var safeTc = escapeHtml(kisi.tc);
   sonuc.innerHTML = `
     <div style="background:var(--surface2);border-radius:8px;padding:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
       <div>
-        <b style="font-size:1rem">${kisi.adsoyad}</b><br>
-        <span style="font-family:var(--mono);font-size:0.82rem;color:var(--muted)">${kisi.tc}</span> · 
-        <span class="badge badge-blue">${kisi.yardimturu}</span> · 
+        <b style="font-size:1rem">${escapeHtml(kisi.adsoyad)}</b><br>
+        <span style="font-family:var(--mono);font-size:0.82rem;color:var(--muted)">${safeTc}</span> · 
+        <span class="badge badge-blue">${escapeHtml(kisi.yardimturu)}</span> · 
         ${kisi.teslimEdildi ? '<span class="badge badge-green">✅ Teslim</span>' : '<span class="badge badge-red">⏳ Bekliyor</span>'}
       </div>
-      <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger)" onclick="silBaslat('${kisi.tc}')">🗑️ Bu Kaydı Sil</button>
+      <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger)" onclick="silBaslat('${safeTc}')">🗑️ Bu Kaydı Sil</button>
     </div>`;
 }
 
 async function silOnaylaAdmin() {
   const sifre = document.getElementById('admin-sifre-input').value;
-  if (sifre !== ADMIN_SIFRE) {
+  if (!sifre) {
+    document.getElementById('admin-sil-hata').style.display = 'block';
+    return;
+  }
+  // Admin rolü kontrolü
+  if (window._aktifRol !== 'admin') {
+    toast('Bu işlem için admin yetkisi gerekli!', 'error');
+    return;
+  }
+  // Firebase Auth ile şifre doğrulama
+  try {
+    const { EmailAuthProvider, reauthenticateWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const user = window._auth.currentUser;
+    if (!user) { toast('Oturum bulunamadı!', 'error'); return; }
+    const credential = EmailAuthProvider.credential(user.email, sifre);
+    await reauthenticateWithCredential(user, credential);
+  } catch(authErr) {
     document.getElementById('admin-sil-hata').style.display = 'block';
     document.getElementById('admin-sifre-input').value = '';
     document.getElementById('admin-sifre-input').focus();
