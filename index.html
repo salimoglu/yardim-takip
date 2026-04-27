@@ -23,6 +23,36 @@
     --text:#e8eaf0; --muted:#8891a8;
     --font:'Syne',sans-serif; --mono:'IBM Plex Mono',monospace;
   }
+  /* ===== AÇIK TEMA ===== */
+  [data-theme="light"] {
+    --bg:#f5f0e8; --surface:#fffdf7; --surface2:#f0ebe0; --border:#d9d0c0;
+    --accent:#c8850f; --accent2:#2a9d8f; --danger:#c0392b; --success:#27ae60;
+    --text:#2c2416; --muted:#7a7060;
+  }
+  [data-theme="light"] .badge-green{background:#d5f5e3;color:#1a7a3a;}
+  [data-theme="light"] .badge-red{background:#fde8e8;color:#c0392b;}
+  [data-theme="light"] .badge-yellow{background:#fef3d5;color:#b8760a;}
+  [data-theme="light"] .badge-blue{background:#d5f0ed;color:#1a7a6e;}
+  [data-theme="light"] .alert-success{background:#d5f5e3;color:#1a7a3a;border-color:#27ae6040;}
+  [data-theme="light"] .alert-error{background:#fde8e8;color:#c0392b;border-color:#c0392b40;}
+  [data-theme="light"] .alert-info{background:#d5f0ed;color:#1a7a6e;border-color:#2a9d8f40;}
+  [data-theme="light"] #panel-kopya{background:#fff0e0 !important;border-color:#c0392b !important;}
+  [data-theme="light"] #panel-kopya *{color:#7a2000 !important;}
+  [data-theme="light"] #panel-kopya .badge-green *{color:#1a7a3a !important;}
+  [data-theme="light"] #panel-bulunamadi{background:#fde8e8 !important;border-color:#c0392b !important;}
+  [data-theme="light"] #panel-normal{border-color:#27ae60 !important;}
+  [data-theme="light"] #toast{box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+  [data-theme="light"] .drop-zone{background:#f0ebe0;border-color:#d0c8b8;}
+  [data-theme="light"] .drop-zone:hover,[data-theme="light"] .drop-zone.dragover{background:#fef8e8;border-color:var(--accent);}
+  [data-theme="light"] .ytur-kart:hover,[data-theme="light"] .ytur-kart.selected{background:#fef8e8;border-color:var(--accent);color:var(--accent);}
+  [data-theme="light"] .ymod-kart:hover,[data-theme="light"] .ymod-kart.selected{background:#e8f5f2;border-color:var(--accent2);}
+  [data-theme="light"] .modal{box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+  [data-theme="light"] #kullanici-menu{box-shadow:0 4px 16px rgba(0,0,0,0.12) !important;}
+  [data-theme="light"] .modal-overlay{background:rgba(0,0,0,0.4);}
+  [data-theme="light"] tr:hover td{background:#f0ebe0;}
+  /* Tema geçiş butonu */
+  .tema-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.25rem 0.45rem;cursor:pointer;font-size:0.95rem;line-height:1;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+  .tema-btn:hover{border-color:var(--accent);color:var(--accent);}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
 
@@ -176,6 +206,7 @@
 
 <!-- ===== GİRİŞ EKRANI ===== -->
 <div id="giris-ekrani" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center">
+  <button id="tema-btn-giris" class="tema-btn" onclick="temaToggle()" title="Tema Değiştir" style="position:fixed;top:1rem;right:1rem;z-index:10000;font-size:1.2rem;padding:0.4rem 0.55rem">🌙</button>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:360px;margin:1rem">
     <div style="text-align:center;margin-bottom:2rem">
       <div style="font-size:2rem;margin-bottom:0.5rem">⬡</div>
@@ -230,6 +261,7 @@
         </div>
       </div>
       <button onclick="donemYonetModal()" class="ayar-btn-mob" title="Dönem Yönetimi" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.8rem">⚙️</button>
+      <button id="tema-btn" class="tema-btn" onclick="temaToggle()" title="Tema Değiştir">🌙</button>
     </div>
     <!-- Alt satır: dönem + bağlantı -->
     <div class="nav-sag-ust" style="display:flex;align-items:center;gap:0.35rem;width:100%;justify-content:flex-end">
@@ -1031,6 +1063,31 @@ function escapeHtml(str) {
 
 // ===== GÜVENLİK: TC Kimlik No Doğrulama =====
 function tcGecerliMi(tc) {
+
+// ===== TEMA DEĞİŞTİRME =====
+function temaToggle() {
+  var html = document.documentElement;
+  var tema = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', tema === 'light' ? 'light' : '');
+  if (tema === 'dark') html.removeAttribute('data-theme');
+  var ikon = tema === 'light' ? '☀️' : '🌙';
+  var b1 = document.getElementById('tema-btn'); if(b1) b1.textContent = ikon;
+  var b2 = document.getElementById('tema-btn-giris'); if(b2) b2.textContent = ikon;
+  try { localStorage.setItem('yardim-takip-tema', tema); } catch(e){}
+}
+// Sayfa yüklendiğinde kayıtlı temayı uygula
+(function() {
+  try {
+    var t = localStorage.getItem('yardim-takip-tema');
+    if (t === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      setTimeout(function(){
+        var b1 = document.getElementById('tema-btn'); if(b1) b1.textContent = '☀️';
+        var b2 = document.getElementById('tema-btn-giris'); if(b2) b2.textContent = '☀️';
+      }, 100);
+    }
+  } catch(e){}
+})();
   if (!tc || tc.length !== 11 || tc[0] === '0') return false;
   if (!/^\d{11}$/.test(tc)) return false;
   var d = tc.split('').map(Number);
