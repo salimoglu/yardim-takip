@@ -699,7 +699,7 @@
     <div id="rapor-filtre-ozet" style="font-size:0.82rem;color:var(--accent2);margin-bottom:0.8rem;font-weight:600"></div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>TC No</th><th>Soyad</th><th>Ad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Eden</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
+        <thead><tr><th>TC No</th><th>Ad</th><th>Soyad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Eden</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
         <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
     </div>
@@ -2311,8 +2311,8 @@ function raporRender() {
     const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
     return '<tr>'
       + '<td style="font-family:var(--mono);font-size:0.78rem">' + escapeHtml(k.tc) + '</td>'
-      + '<td><b>' + escapeHtml(_getSoyad(k)) + '</b></td>'
-      + '<td>' + escapeHtml(_getAd(k)) + '</td>'
+      + '<td><b>' + escapeHtml(_getAd(k)) + '</b></td>'
+      + '<td>' + escapeHtml(_getSoyad(k)) + '</td>'
       + '<td style="font-size:0.82rem">' + (escapeHtml(k.adres)||'—') + '</td>'
       + '<td><span class="badge badge-green">✅ Teslim</span></td>'
       + '<td style="font-size:0.82rem;color:var(--accent2)">' + (escapeHtml(k.teslimEden)||'—') + '</td>'
@@ -2424,13 +2424,13 @@ function exportCSVFiltreli() {
 }
 
 function _csvIndir(k, isim) {
-  const rows=[['TC No','Soyad','Ad','Mahalle','Gündem','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  const rows=[['TC No','Ad','Soyad','Mahalle','Gündem','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   k.forEach(x => {
     const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
       x.tc,
-      _getSoyad(x),
       _getAd(x),
+      _getSoyad(x),
       x.adres||'',
       x.gundem||'',
       x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
@@ -2463,13 +2463,13 @@ function exportCSVGunluk() {
 
   liste.sort(function(a,b){ return new Date(a.teslimTarihi)-new Date(b.teslimTarihi); });
 
-  var rows = [['TC No','Soyad','Ad','Mahalle','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
+  var rows = [['TC No','Ad','Soyad','Mahalle','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
   liste.forEach(function(x) {
     var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
     rows.push([
       x.tc,
-      _getSoyad(x),
       _getAd(x),
+      _getSoyad(x),
       x.adres||'',
       'Teslim Edildi',
       x.teslimEden||'',
