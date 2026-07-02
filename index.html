@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260702193000">
+<meta name="version" content="20260702215000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -113,38 +113,42 @@
 
   .table-wrap{overflow-x:auto;}
 
-  /* ===== MAHALLE ÖZETİ KARTLARI ===== */
-  .mah-ozet-card{cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.7rem 0.85rem;display:flex;flex-direction:column;gap:0.55rem;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+  /* ===== MAHALLE ÖZETİ KARTLARI — tek satır ===== */
+  .mah-ozet-card{cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.7rem;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
   .mah-ozet-card:hover{border-color:var(--accent);background:var(--surface);}
-  .mah-ozet-top{display:flex;align-items:center;gap:0.7rem;min-width:0;}
-  .mah-ozet-ad{flex:1;min-width:0;font-size:0.92rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.01em;color:var(--text);}
+  .mah-ozet-ad{flex:0 0 auto;min-width:0;max-width:200px;font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.01em;color:var(--text);}
+  .mah-ozet-bar-wrap{flex:1;min-width:50px;display:flex;align-items:center;gap:0.55rem;}
+  .mah-ozet-bar{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;position:relative;min-width:30px;}
+  .mah-ozet-fill{height:100%;border-radius:100px;transition:width 0.4s ease;}
+  .mah-ozet-pct{font-family:var(--mono);font-size:0.88rem;font-weight:800;min-width:44px;text-align:right;letter-spacing:0.02em;line-height:1;flex-shrink:0;}
+  .mah-ozet-pct.zero{opacity:0.55;}
   .mah-ozet-badges{display:flex;gap:0.35rem;flex-shrink:0;}
-  .mah-b{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px;padding:0.28rem 0.5rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);line-height:1.05;}
-  .mah-b b{font-family:var(--mono);font-size:0.98rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);}
-  .mah-b i{font-size:0.6rem;font-style:normal;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px;}
+  .mah-b{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:48px;padding:0.24rem 0.45rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);line-height:1.05;}
+  .mah-b b{font-family:var(--mono);font-size:0.9rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);}
+  .mah-b i{font-size:0.55rem;font-style:normal;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px;}
   .mah-b-a b{color:var(--success);}
   .mah-b-k b{color:var(--danger);}
   .mah-b-k.zero b{color:var(--muted);}
-  .mah-ozet-bar-row{display:flex;align-items:center;gap:0.6rem;}
-  .mah-ozet-bar{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;position:relative;}
-  .mah-ozet-fill{height:100%;border-radius:100px;transition:width 0.4s ease;}
-  .mah-ozet-pct{font-family:var(--mono);font-size:0.9rem;font-weight:800;min-width:48px;text-align:right;letter-spacing:0.02em;line-height:1;}
-  .mah-ozet-pct.zero{color:var(--muted) !important;opacity:0.55;}
-  @media(max-width:520px){
-    .mah-ozet-card{padding:0.62rem 0.7rem;gap:0.45rem;}
-    .mah-ozet-ad{font-size:0.85rem;}
-    .mah-b{min-width:44px;padding:0.22rem 0.38rem;border-radius:7px;}
-    .mah-b b{font-size:0.88rem;}
-    .mah-b i{font-size:0.55rem;}
-    .mah-ozet-pct{font-size:0.82rem;min-width:42px;}
-    .mah-ozet-bar{height:7px;}
-    .mah-ozet-badges{gap:0.28rem;}
+  @media(max-width:640px){
+    .mah-ozet-card{padding:0.48rem 0.6rem;gap:0.5rem;}
+    .mah-ozet-ad{max-width:108px;font-size:0.8rem;}
+    .mah-ozet-bar-wrap{gap:0.4rem;min-width:40px;}
+    .mah-ozet-bar{height:6px;}
+    .mah-ozet-pct{font-size:0.76rem;min-width:36px;}
+    .mah-b{min-width:38px;padding:0.2rem 0.3rem;border-radius:6px;}
+    .mah-b b{font-size:0.8rem;}
+    .mah-b i{font-size:0.5rem;letter-spacing:0.04em;}
+    .mah-ozet-badges{gap:0.24rem;}
   }
-  @media(max-width:380px){
-    .mah-ozet-top{flex-wrap:wrap;}
-    .mah-ozet-ad{flex-basis:100%;margin-bottom:0.15rem;}
-    .mah-ozet-badges{width:100%;justify-content:space-between;}
-    .mah-b{flex:1;min-width:0;}
+  @media(max-width:420px){
+    .mah-ozet-card{padding:0.42rem 0.5rem;gap:0.38rem;}
+    .mah-ozet-ad{max-width:88px;font-size:0.72rem;}
+    .mah-ozet-bar-wrap{gap:0.3rem;min-width:34px;}
+    .mah-ozet-pct{font-size:0.7rem;min-width:32px;}
+    .mah-b{min-width:32px;padding:0.16rem 0.22rem;}
+    .mah-b b{font-size:0.72rem;}
+    .mah-b i{font-size:0.45rem;letter-spacing:0.02em;}
+    .mah-ozet-badges{gap:0.18rem;}
   }
   table{width:100%;border-collapse:collapse;font-size:0.85rem;}
   th{text-align:left;padding:0.6rem 0.8rem;color:var(--muted);font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);}
@@ -2127,17 +2131,15 @@ function updateDashboard(){
     const pctCls = pct === 0 ? ' zero' : '';
     const kaldiCls = bekliyor === 0 ? ' zero' : '';
     return `<div class="mah-ozet-card" onclick="mahalleDeta('${attr}')">
-      <div class="mah-ozet-top">
-        <div class="mah-ozet-ad" title="${safeM}">${safeM}</div>
-        <div class="mah-ozet-badges">
-          <span class="mah-b mah-b-t"><b>${d.toplam.toLocaleString('tr-TR')}</b><i>toplam</i></span>
-          <span class="mah-b mah-b-a"><b>${d.teslim.toLocaleString('tr-TR')}</b><i>aldı</i></span>
-          <span class="mah-b mah-b-k${kaldiCls}"><b>${bekliyor.toLocaleString('tr-TR')}</b><i>kaldı</i></span>
-        </div>
-      </div>
-      <div class="mah-ozet-bar-row">
+      <div class="mah-ozet-ad" title="${safeM}">${safeM}</div>
+      <div class="mah-ozet-bar-wrap">
         <div class="mah-ozet-bar"><div class="mah-ozet-fill" style="width:${pct}%;background:${renk}"></div></div>
         <span class="mah-ozet-pct${pctCls}" style="color:${renk}">%${pct}</span>
+      </div>
+      <div class="mah-ozet-badges">
+        <span class="mah-b mah-b-t"><b>${d.toplam.toLocaleString('tr-TR')}</b><i>toplam</i></span>
+        <span class="mah-b mah-b-a"><b>${d.teslim.toLocaleString('tr-TR')}</b><i>aldı</i></span>
+        <span class="mah-b mah-b-k${kaldiCls}"><b>${bekliyor.toLocaleString('tr-TR')}</b><i>kaldı</i></span>
       </div>
     </div>`;
   }).join('');
