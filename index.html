@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260427180000">
+<meta name="version" content="20260702192000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -136,6 +136,54 @@
   #qr-reader{border-radius:10px;overflow:hidden;}
   .qr-box{display:flex;flex-direction:column;align-items:center;gap:0.8rem;padding:1.2rem;background:#fff;border-radius:12px;width:fit-content;}
   .qr-name{color:#111;font-weight:700;font-size:0.9rem;text-align:center;font-family:var(--font);}
+
+  /* ===== HIZLI QR TARAYICI ===== */
+  #scan-stage{position:relative;width:100%;aspect-ratio:1/1;max-height:70vh;background:#000;border-radius:14px;overflow:hidden;display:none;box-shadow:0 8px 28px rgba(0,0,0,0.35);}
+  #scan-stage.on{display:block;}
+  #scan-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;transform:translateZ(0);}
+  #scan-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;}
+  .scan-frame{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+  .scan-frame::before,.scan-frame::after{content:"";position:absolute;left:50%;top:50%;width:min(72vw,68%);aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:16px;pointer-events:none;}
+  .scan-frame::before{box-shadow:0 0 0 9999px rgba(0,0,0,0.45);}
+  .scan-frame::after{border:2px solid rgba(255,255,255,0.15);}
+  .scan-corner{position:absolute;left:50%;top:50%;width:min(72vw,68%);aspect-ratio:1/1;transform:translate(-50%,-50%);pointer-events:none;}
+  .scan-corner i{position:absolute;width:26px;height:26px;border:3px solid var(--accent);border-radius:4px;}
+  .scan-corner i.tl{top:-2px;left:-2px;border-right:none;border-bottom:none;}
+  .scan-corner i.tr{top:-2px;right:-2px;border-left:none;border-bottom:none;}
+  .scan-corner i.bl{bottom:-2px;left:-2px;border-right:none;border-top:none;}
+  .scan-corner i.br{bottom:-2px;right:-2px;border-left:none;border-top:none;}
+  .scan-line{position:absolute;left:50%;top:50%;width:min(72vw,68%);aspect-ratio:1/1;transform:translate(-50%,-50%);pointer-events:none;overflow:hidden;border-radius:14px;}
+  .scan-line::before{content:"";position:absolute;left:6%;right:6%;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent) 40%,var(--accent) 60%,transparent);box-shadow:0 0 12px var(--accent);animation:scanmove 2.1s ease-in-out infinite;}
+  @keyframes scanmove{0%{top:8%;opacity:0.2;}20%{opacity:1;}50%{top:88%;opacity:1;}80%{opacity:1;}100%{top:8%;opacity:0.2;}}
+  #scan-stage.hit .scan-corner i{border-color:var(--success);box-shadow:0 0 14px var(--success);transition:all 0.15s;}
+  #scan-stage.hit .scan-line::before{opacity:0;}
+  .scan-hint{position:absolute;left:0;right:0;bottom:0.6rem;text-align:center;color:#fff;font-size:0.72rem;font-weight:600;letter-spacing:0.04em;text-shadow:0 1px 3px rgba(0,0,0,0.7);padding:0 1rem;pointer-events:none;}
+  .scan-hint b{color:var(--accent);}
+  .scan-topbar{position:absolute;top:0.5rem;left:0.5rem;right:0.5rem;display:flex;justify-content:space-between;gap:0.4rem;pointer-events:none;z-index:2;}
+  .scan-toolbar{position:absolute;top:0.5rem;right:0.5rem;display:flex;flex-direction:column;gap:0.4rem;z-index:3;}
+  .scan-tool{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.55);color:#fff;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
+  .scan-tool:hover,.scan-tool.on{background:var(--accent);color:#111;border-color:var(--accent);}
+  .scan-tool[hidden]{display:none;}
+  #scan-status{position:absolute;top:0.5rem;left:0.5rem;background:rgba(0,0,0,0.55);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:100px;padding:0.28rem 0.7rem;font-size:0.7rem;font-weight:700;letter-spacing:0.04em;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;gap:0.35rem;z-index:3;}
+  #scan-status .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;box-shadow:0 0 0 2px rgba(255,255,255,0.15);}
+  #scan-status.live .dot{background:var(--success);animation:pulseDot 1.2s ease-in-out infinite;}
+  #scan-status.err .dot{background:var(--danger);}
+  @keyframes pulseDot{0%,100%{transform:scale(1);}50%{transform:scale(1.5);}}
+  #scan-zoom{position:absolute;left:1rem;right:1rem;bottom:2.2rem;height:26px;display:none;align-items:center;gap:0.5rem;z-index:3;}
+  #scan-zoom.on{display:flex;}
+  #scan-zoom input[type=range]{flex:1;accent-color:var(--accent);}
+  #scan-zoom .zlab{color:#fff;font-size:0.7rem;font-weight:700;background:rgba(0,0,0,0.55);border-radius:100px;padding:0.15rem 0.5rem;min-width:38px;text-align:center;}
+  .scan-err{position:absolute;inset:0;display:none;background:rgba(0,0,0,0.85);color:#fff;padding:1.5rem;text-align:center;flex-direction:column;align-items:center;justify-content:center;gap:0.8rem;z-index:4;}
+  .scan-err.on{display:flex;}
+  .scan-err .ei{font-size:2.2rem;}
+  .scan-err .et{font-weight:800;font-size:1.05rem;color:var(--danger);}
+  .scan-err .em{font-size:0.85rem;line-height:1.5;color:#ddd;max-width:340px;}
+  .scan-err .btn{margin-top:0.4rem;}
+  @media(max-width:480px){
+    #scan-stage{aspect-ratio:3/4;max-height:78vh;}
+    .scan-tool{width:36px;height:36px;font-size:1rem;}
+    .scan-frame::before,.scan-frame::after,.scan-corner,.scan-line{width:80vw;}
+  }
 
   .alert{padding:0.9rem 1.2rem;border-radius:8px;font-size:0.9rem;font-weight:600;margin-bottom:1rem;display:none;}
   .alert.show{display:block;}
@@ -567,9 +615,33 @@
 <div id="page-tara" class="page">
   <div class="card">
     <div class="card-title">📷 QR / Barkod Tara</div>
-    <p class="text-muted mb-2">Vatandaşın fişindeki kodu okutun. Kod okunamıyorsa TC ile manuel giriş yapın.</p>
-    <div id="qr-reader" style="max-width:100%;margin-bottom:1rem;"></div>
-    <div class="flex gap-1 flex-wrap mb-2">
+    <p class="text-muted mb-2">Vatandaşın fişindeki kodu kutu içine tutun. Cihazınız desteklerse fener/zoom kullanabilirsiniz. Kod okunamıyorsa TC ile manuel giriş yapın.</p>
+    <div id="scan-stage" aria-live="polite">
+      <video id="scan-video" playsinline muted autoplay></video>
+      <canvas id="scan-canvas"></canvas>
+      <div class="scan-frame"></div>
+      <div class="scan-corner"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i></div>
+      <div class="scan-line"></div>
+      <div id="scan-status" class="live"><span class="dot"></span><span id="scan-status-text">Hazırlanıyor…</span></div>
+      <div class="scan-toolbar">
+        <button class="scan-tool" id="scan-torch" title="Fener" hidden onclick="scanTorchToggle()">🔦</button>
+        <button class="scan-tool" id="scan-flip" title="Kamera Değiştir" hidden onclick="scanFlipCamera()">🔄</button>
+        <button class="scan-tool" id="scan-close" title="Kapat" onclick="kameraKapat()">✕</button>
+      </div>
+      <div id="scan-zoom">
+        <span class="zlab" id="scan-zoom-lab">1x</span>
+        <input type="range" id="scan-zoom-range" min="1" max="4" step="0.1" value="1" oninput="scanZoomChange(this.value)">
+      </div>
+      <div class="scan-hint">QR kodu <b>ışıklı</b> ve <b>kutu içinde</b> tutun</div>
+      <div class="scan-err" id="scan-err">
+        <div class="ei">⚠️</div>
+        <div class="et" id="scan-err-title">Kamera açılamadı</div>
+        <div class="em" id="scan-err-msg"></div>
+        <button class="btn btn-primary btn-sm" onclick="kameraAc()">🔁 Tekrar Dene</button>
+      </div>
+    </div>
+    <div id="qr-reader" style="max-width:100%;display:none;"></div>
+    <div class="flex gap-1 flex-wrap mb-2" style="margin-top:0.9rem">
       <button class="btn btn-primary" id="btn-kamera-ac" onclick="kameraAc()">📷 Kamerayı Aç</button>
       <button class="btn btn-outline" id="btn-kamera-kapat" onclick="kameraKapat()" style="display:none">⏹ Kapat</button>
     </div>
@@ -577,7 +649,8 @@
       <label>✏️ TC Kimlik No ile Manuel Giriş</label>
       <div class="flex gap-1">
         <input type="text" id="manuel-tc" placeholder="TC Kimlik No girin (11 hane)"
-               maxlength="11" style="flex:1;font-family:var(--mono);letter-spacing:0.08em;font-size:1rem"
+               maxlength="11" inputmode="numeric" pattern="[0-9]*"
+               style="flex:1;font-family:var(--mono);letter-spacing:0.08em;font-size:1rem"
                oninput="this.value=this.value.replace(/\D/g,'')"
                onkeydown="if(event.key==='Enter') manuelAra()">
         <button class="btn btn-primary" onclick="manuelAra()">🔍 Sorgula</button>
@@ -1186,6 +1259,14 @@ function showPage(p, btn) {
     toast('Bu sayfaya erişim yetkiniz yok!', 'error');
     return;
   }
+  // Tara sayfasından ayrılırken kamerayı otomatik kapat
+  if (p !== 'tara') {
+    try {
+      if (typeof kameraKapat === 'function' && _scan && (_scan.running || _scan.stream || _scan.html5)) {
+        kameraKapat();
+      }
+    } catch(_) {}
+  }
   _SAYFALAR.forEach(function(id) {
     var el = document.getElementById('page-'+id);
     if (el) el.classList.remove('active');
@@ -1493,33 +1574,378 @@ function showQRModal(veri) {
 }
 function closeQRModal(){document.getElementById('qr-modal').classList.remove('show');}
 
-// ===== KAMERA & TARA =====
-let _scanner = null;
+// ===== HIZLI QR TARAYICI =====
+// Öncelik: yerel BarcodeDetector API (Android Chrome, Edge, Samsung Internet, iOS 17+ Safari)
+// Fallback: html5-qrcode (@2.3.8) — desteklenmeyen tarayıcılar için
+const _scan = {
+  stream: null, video: null, canvas: null, cctx: null,
+  detector: null, useNative: false, running: false, rafId: null,
+  html5: null, deviceIds: [], activeDeviceIdx: 0, lastHit: 0, lastCode: '',
+  torch: false, track: null, caps: null, zoom: 1, page: 'unknown',
+  audioCtx: null
+};
 let _currentTC = null;
 let _zamanInterval = null;
 
-function kameraAc() {
-  if (typeof Html5Qrcode === 'undefined') {
-    toast('Kamera kütüphanesi yükleniyor, lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.', 'error');
-    return;
-  }
-  document.getElementById('btn-kamera-ac').style.display='none';
-  document.getElementById('btn-kamera-kapat').style.display='inline-flex';
-  _scanner = new Html5Qrcode("qr-reader");
-  _scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:260}},
-    t => { kameraKapat(); islemYap(t.trim()); }, () => {})
-  .catch(err => {
-    document.getElementById('btn-kamera-ac').style.display='inline-flex';
-    document.getElementById('btn-kamera-kapat').style.display='none';
-    toast('Kamera açılamadı: '+err, 'error');
-  });
+const LS_CAM_KEY = 'yt_cam_deviceId';
+
+function _scanSetStatus(text, cls) {
+  const el = document.getElementById('scan-status');
+  const tx = document.getElementById('scan-status-text');
+  if (!el || !tx) return;
+  tx.textContent = text || '';
+  el.classList.remove('live','err');
+  if (cls) el.classList.add(cls);
 }
 
-function kameraKapat() {
-  if (_scanner) { _scanner.stop().catch(()=>{}); _scanner=null; }
-  document.getElementById('btn-kamera-ac').style.display='inline-flex';
-  document.getElementById('btn-kamera-kapat').style.display='none';
+function _scanShowError(title, msg) {
+  const box = document.getElementById('scan-err');
+  const t = document.getElementById('scan-err-title');
+  const m = document.getElementById('scan-err-msg');
+  if (t) t.textContent = title || 'Hata';
+  if (m) m.textContent = msg || '';
+  if (box) box.classList.add('on');
+  _scanSetStatus('Hata', 'err');
 }
+function _scanHideError() {
+  const box = document.getElementById('scan-err');
+  if (box) box.classList.remove('on');
+}
+
+function _scanBeep() {
+  try {
+    if (!_scan.audioCtx) _scan.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const ctx = _scan.audioCtx;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
+    o.connect(g).connect(ctx.destination);
+    o.start(); o.stop(ctx.currentTime + 0.16);
+  } catch(_) {}
+  try { navigator.vibrate && navigator.vibrate(60); } catch(_) {}
+}
+
+function _scanFlashHit() {
+  const st = document.getElementById('scan-stage');
+  if (!st) return;
+  st.classList.add('hit');
+  setTimeout(()=>st.classList.remove('hit'), 250);
+}
+
+async function _scanEnumerateCameras() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return [];
+    const list = await navigator.mediaDevices.enumerateDevices();
+    return list.filter(d => d.kind === 'videoinput');
+  } catch(_) { return []; }
+}
+
+// Kamera seçimi: arkadaki ana kamerayı bul, ultra-wide/tele değil.
+function _scanPickBackCamera(cams) {
+  if (!cams.length) return null;
+  const pref = localStorage.getItem(LS_CAM_KEY);
+  if (pref && cams.find(c => c.deviceId === pref)) return pref;
+  const backs = cams.filter(c => /back|rear|environment|arka|arkadaki/i.test(c.label || ''));
+  const pool = backs.length ? backs : cams;
+  // Ultra-geniş / tele / macro değil, "0" veya isimsiz olan ana kamera olsun
+  const main = pool.find(c => !/wide|ultra|tele|zoom|depth|macro|monokrom/i.test(c.label || ''));
+  return (main || pool[pool.length - 1]).deviceId;
+}
+
+async function _scanGetStream(deviceId) {
+  const base = {
+    audio: false,
+    video: {
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+      frameRate: { ideal: 30, max: 60 },
+      resizeMode: 'crop-and-scale'
+    }
+  };
+  if (deviceId) base.video.deviceId = { exact: deviceId };
+  else base.video.facingMode = { ideal: 'environment' };
+  // Advanced focus (destek yoksa yok sayılır)
+  base.video.advanced = [{ focusMode: 'continuous' }, { focusMode: 'auto' }];
+
+  try {
+    return await navigator.mediaDevices.getUserMedia(base);
+  } catch (e1) {
+    // Aşamalı geri düşüş — bazı Android cihazlarda advanced/deviceId reddedilebilir
+    try {
+      const relax = { audio: false, video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: 'environment' } } };
+      return await navigator.mediaDevices.getUserMedia(relax);
+    } catch (e2) {
+      // En son çare: sadece facingMode
+      return await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: 'environment' } });
+    }
+  }
+}
+
+function _scanApplyCapabilities() {
+  try {
+    if (!_scan.track) return;
+    _scan.caps = _scan.track.getCapabilities ? _scan.track.getCapabilities() : {};
+    const torchBtn = document.getElementById('scan-torch');
+    const flipBtn = document.getElementById('scan-flip');
+    const zoomBox = document.getElementById('scan-zoom');
+    const zoomInp = document.getElementById('scan-zoom-range');
+    if (torchBtn) torchBtn.hidden = !_scan.caps.torch;
+    if (flipBtn) flipBtn.hidden = _scan.deviceIds.length < 2;
+    if (_scan.caps.zoom && zoomBox && zoomInp) {
+      zoomBox.classList.add('on');
+      zoomInp.min = _scan.caps.zoom.min || 1;
+      zoomInp.max = _scan.caps.zoom.max || 4;
+      zoomInp.step = _scan.caps.zoom.step || 0.1;
+      zoomInp.value = _scan.track.getSettings && _scan.track.getSettings().zoom || zoomInp.min;
+      const lab = document.getElementById('scan-zoom-lab');
+      if (lab) lab.textContent = Number(zoomInp.value).toFixed(1)+'x';
+    } else if (zoomBox) {
+      zoomBox.classList.remove('on');
+    }
+  } catch(_) {}
+}
+
+async function scanTorchToggle() {
+  if (!_scan.track || !_scan.caps || !_scan.caps.torch) return;
+  _scan.torch = !_scan.torch;
+  try {
+    await _scan.track.applyConstraints({ advanced: [{ torch: _scan.torch }] });
+    const b = document.getElementById('scan-torch');
+    if (b) b.classList.toggle('on', _scan.torch);
+  } catch(e) { toast('Fener açılamadı', 'error'); }
+}
+
+async function scanFlipCamera() {
+  if (_scan.deviceIds.length < 2) return;
+  _scan.activeDeviceIdx = (_scan.activeDeviceIdx + 1) % _scan.deviceIds.length;
+  const id = _scan.deviceIds[_scan.activeDeviceIdx];
+  try { localStorage.setItem(LS_CAM_KEY, id); } catch(_) {}
+  await _scanStopStream();
+  await _scanStartWithDevice(id);
+}
+
+async function scanZoomChange(v) {
+  if (!_scan.track || !_scan.caps || !_scan.caps.zoom) return;
+  const z = Number(v);
+  try {
+    await _scan.track.applyConstraints({ advanced: [{ zoom: z }] });
+    _scan.zoom = z;
+    const lab = document.getElementById('scan-zoom-lab');
+    if (lab) lab.textContent = z.toFixed(1)+'x';
+  } catch(_) {}
+}
+
+function _validCodePayload(raw) {
+  // TC 11 hane rakam; QR farklı formatta olsa bile ilk 11 haneli rakam bloğunu al
+  if (!raw) return null;
+  const s = String(raw).trim();
+  const digits = s.replace(/\D/g, '');
+  if (digits.length >= 11) return digits.slice(0, 11);
+  return null;
+}
+
+function _handleCandidate(text) {
+  const tc = _validCodePayload(text);
+  if (!tc) return; // TC değilse görmezden gel — tarama devam etsin
+  const now = Date.now();
+  if (tc === _scan.lastCode && (now - _scan.lastHit) < 1500) return; // debounce
+  _scan.lastCode = tc; _scan.lastHit = now;
+  if (!tcGecerliMi(tc)) {
+    _scanSetStatus('Geçersiz TC', 'err');
+    setTimeout(()=>_scanSetStatus('Taranıyor…', 'live'), 900);
+    return;
+  }
+  _scanBeep();
+  _scanFlashHit();
+  kameraKapat();
+  islemYap(tc);
+}
+
+async function _scanNativeLoop() {
+  if (!_scan.running || !_scan.detector || !_scan.video) return;
+  try {
+    if (_scan.video.readyState >= 2) {
+      const codes = await _scan.detector.detect(_scan.video);
+      if (codes && codes.length) {
+        _handleCandidate(codes[0].rawValue);
+      }
+    }
+  } catch(_) {}
+  // requestVideoFrameCallback varsa kullan (daha verimli), yoksa rAF
+  if (_scan.video.requestVideoFrameCallback) {
+    _scan.rafId = _scan.video.requestVideoFrameCallback(() => _scanNativeLoop());
+  } else {
+    _scan.rafId = requestAnimationFrame(() => _scanNativeLoop());
+  }
+}
+
+async function _scanStartWithDevice(deviceId) {
+  _scanHideError();
+  _scanSetStatus('Kamera açılıyor…', 'live');
+  const stage = document.getElementById('scan-stage');
+  if (stage) stage.classList.add('on');
+  document.getElementById('btn-kamera-ac').style.display='none';
+  document.getElementById('btn-kamera-kapat').style.display='inline-flex';
+  try {
+    _scan.stream = await _scanGetStream(deviceId);
+  } catch (e) {
+    const stage2 = document.getElementById('scan-stage'); if (stage2) stage2.classList.remove('on');
+    document.getElementById('btn-kamera-ac').style.display='inline-flex';
+    document.getElementById('btn-kamera-kapat').style.display='none';
+    const msg = _scanExplainError(e);
+    _scanShowError(msg.title, msg.detail);
+    return;
+  }
+  _scan.track = _scan.stream.getVideoTracks && _scan.stream.getVideoTracks()[0] || null;
+  try {
+    if (_scan.track && _scan.track.getSettings) {
+      const s = _scan.track.getSettings();
+      if (s && s.deviceId) { try { localStorage.setItem(LS_CAM_KEY, s.deviceId); } catch(_) {} }
+    }
+  } catch(_) {}
+  _scan.video = document.getElementById('scan-video');
+  _scan.video.setAttribute('playsinline', '');
+  _scan.video.muted = true;
+  _scan.video.srcObject = _scan.stream;
+  await _scan.video.play().catch(()=>{});
+  _scan.running = true;
+  _scanSetStatus('Taranıyor…', 'live');
+  _scanApplyCapabilities();
+
+  if (_scan.useNative && _scan.detector) {
+    _scanNativeLoop();
+  } else {
+    await _scanStartHtml5Fallback(deviceId);
+  }
+}
+
+async function _scanStartHtml5Fallback(deviceId) {
+  // Yerel BarcodeDetector yok: html5-qrcode ile başlat
+  // Videoyu gizle, html5-qrcode kendi videosunu koyacak
+  const stage = document.getElementById('scan-stage');
+  const readerDiv = document.getElementById('qr-reader');
+  if (readerDiv) { readerDiv.style.display='block'; readerDiv.style.marginTop='0.75rem'; }
+  // Kendi videomuzu durdur (html5-qrcode kendi stream'ini alacak)
+  await _scanStopStream();
+  if (stage) stage.classList.remove('on');
+  if (typeof Html5Qrcode === 'undefined') {
+    _scanShowError('Kamera kütüphanesi yüklenmedi', 'İnternet bağlantınızı kontrol edip sayfayı yenileyin.');
+    return;
+  }
+  _scan.html5 = new Html5Qrcode('qr-reader');
+  const cfg = { fps: 25, qrbox: (w,h)=>{ const s = Math.floor(Math.min(w,h) * 0.72); return { width: s, height: s }; }, aspectRatio: 1.0, disableFlip: false, experimentalFeatures: { useBarCodeDetectorIfSupported: true } };
+  const source = deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'environment' };
+  try {
+    await _scan.html5.start(source, cfg, t => _handleCandidate(t), () => {});
+  } catch (e) {
+    const msg = _scanExplainError(e);
+    _scanShowError(msg.title, msg.detail);
+  }
+}
+
+function _scanExplainError(e) {
+  const name = (e && (e.name || e.code)) || '';
+  const raw = String(e && (e.message || e) || '');
+  if (/NotAllowedError|Permission|permission|denied/i.test(name+' '+raw)) {
+    return { title: 'Kamera izni verilmedi', detail: 'Tarayıcı çubuğundan / telefon ayarlarından bu siteye kamera izni verin, sonra tekrar deneyin.' };
+  }
+  if (/NotFoundError|OverconstrainedError|DevicesNotFoundError/i.test(name+' '+raw)) {
+    return { title: 'Kamera bulunamadı', detail: 'Cihazınızda uygun kamera bulunamadı ya da başka bir uygulama kamerayı kullanıyor olabilir.' };
+  }
+  if (/NotReadableError|TrackStartError|Busy/i.test(name+' '+raw)) {
+    return { title: 'Kamera meşgul', detail: 'Kamerayı başka bir uygulama (WhatsApp/Kamera vb.) kullanıyor olabilir. Onu kapatıp tekrar deneyin.' };
+  }
+  if (/Insecure|https|SecurityError/i.test(name+' '+raw)) {
+    return { title: 'HTTPS gerekiyor', detail: 'Kamera yalnızca güvenli (https://) bağlantıda çalışır.' };
+  }
+  return { title: 'Kamera açılamadı', detail: raw || 'Bilinmeyen hata. Sayfayı yenileyip tekrar deneyin.' };
+}
+
+async function _scanStopStream() {
+  _scan.running = false;
+  if (_scan.rafId) {
+    try {
+      if (_scan.video && _scan.video.cancelVideoFrameCallback) _scan.video.cancelVideoFrameCallback(_scan.rafId);
+      else cancelAnimationFrame(_scan.rafId);
+    } catch(_) {}
+    _scan.rafId = null;
+  }
+  if (_scan.stream) {
+    try { _scan.stream.getTracks().forEach(t => t.stop()); } catch(_) {}
+    _scan.stream = null;
+  }
+  if (_scan.video) { try { _scan.video.srcObject = null; } catch(_) {} }
+  _scan.track = null; _scan.caps = null; _scan.torch = false;
+  const tb = document.getElementById('scan-torch'); if (tb) tb.classList.remove('on');
+  if (_scan.html5) {
+    try { await _scan.html5.stop(); } catch(_) {}
+    try { _scan.html5.clear(); } catch(_) {}
+    _scan.html5 = null;
+    const readerDiv = document.getElementById('qr-reader');
+    if (readerDiv) readerDiv.style.display='none';
+  }
+}
+
+async function kameraAc() {
+  // Halihazırda çalışıyorsa çıkış
+  if (_scan.running || _scan.stream || _scan.html5) return;
+  // Yerel BarcodeDetector kontrolü (bir kez)
+  if (_scan.detector == null) {
+    try {
+      if ('BarcodeDetector' in window) {
+        let formats = ['qr_code'];
+        try {
+          const sup = await window.BarcodeDetector.getSupportedFormats();
+          if (Array.isArray(sup) && sup.length) {
+            formats = ['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','pdf417','aztec','data_matrix'].filter(f => sup.includes(f));
+            if (!formats.length) formats = sup;
+          }
+        } catch(_) {}
+        _scan.detector = new window.BarcodeDetector({ formats });
+        _scan.useNative = true;
+      } else {
+        _scan.detector = false;
+        _scan.useNative = false;
+      }
+    } catch(_) { _scan.detector = false; _scan.useNative = false; }
+  }
+  // Kameraları listele — labellar için önce izin gerekebilir; ilk açılışta boş olabilir
+  let cams = await _scanEnumerateCameras();
+  if (!cams.length || !cams.some(c => c.label)) {
+    // izin isterken deviceId olmasın diye önce boş bir stream alıp label'ları alalım
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      s.getTracks().forEach(t => t.stop());
+    } catch(_) {}
+    cams = await _scanEnumerateCameras();
+  }
+  _scan.deviceIds = cams.map(c => c.deviceId);
+  const pick = _scanPickBackCamera(cams);
+  _scan.activeDeviceIdx = Math.max(0, _scan.deviceIds.indexOf(pick));
+  await _scanStartWithDevice(pick);
+}
+
+async function kameraKapat() {
+  await _scanStopStream();
+  const stage = document.getElementById('scan-stage');
+  if (stage) { stage.classList.remove('on'); stage.classList.remove('hit'); }
+  const btnAc = document.getElementById('btn-kamera-ac');
+  const btnKp = document.getElementById('btn-kamera-kapat');
+  if (btnAc) btnAc.style.display='inline-flex';
+  if (btnKp) btnKp.style.display='none';
+  _scanHideError();
+}
+
+// Sayfa/sekme görünmez olunca / kilitlenince kamerayı kapat (batarya + gizlilik)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && (_scan.running || _scan.stream || _scan.html5)) {
+    kameraKapat();
+  }
+});
+window.addEventListener('pagehide', () => kameraKapat());
 
 function manuelAra() {
   const tc = document.getElementById('manuel-tc').value.trim();
