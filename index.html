@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260702221000">
+<meta name="version" content="20260702223000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -53,6 +53,41 @@
   /* Tema geçiş butonu */
   .tema-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.25rem 0.45rem;cursor:pointer;font-size:0.95rem;line-height:1;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
   .tema-btn:hover{border-color:var(--accent);color:var(--accent);}
+  /* Ayarlar butonu (nav sağ) */
+  .ayar-btn-nav{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-size:1.05rem;line-height:1;transition:all 0.15s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+  .ayar-btn-nav:hover,.ayar-btn-nav:focus{border-color:var(--accent);color:var(--accent);background:var(--surface);outline:none;}
+  .ayar-btn-nav:active{transform:scale(0.94);}
+  /* Ayarlar modalı sekmeleri */
+  .ayar-tabs{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;flex-shrink:0;}
+  .ayar-tab{flex:1 1 calc(20% - 0.3rem);min-width:70px;padding:0.42rem 0.35rem;border-radius:7px;font-family:var(--font);font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all 0.15s;text-align:center;line-height:1.2;-webkit-tap-highlight-color:transparent;}
+  .ayar-tab .ai{display:block;font-size:1.05rem;margin-bottom:2px;}
+  .ayar-tab.active{background:var(--accent);color:#111;border-color:var(--accent);}
+  .ayar-tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
+  .ayar-section{overflow-y:auto;flex:1;}
+  .ayar-h{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:0.9rem 0 0.5rem;}
+  .ayar-h:first-child{margin-top:0.15rem;}
+  .ayar-row{display:flex;align-items:center;gap:0.75rem;padding:0.55rem 0.75rem;background:var(--surface2);border-radius:8px;margin-bottom:0.4rem;border:1px solid var(--border);}
+  .ayar-row-info{flex:1;min-width:0;}
+  .ayar-row-title{font-size:0.86rem;font-weight:700;color:var(--text);line-height:1.2;}
+  .ayar-row-sub{font-size:0.72rem;color:var(--muted);margin-top:2px;line-height:1.3;}
+  .ayar-row .btn{flex-shrink:0;}
+  /* Toggle switch */
+  .ayar-sw{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer;}
+  .ayar-sw input{opacity:0;width:0;height:0;position:absolute;}
+  .ayar-sw span{position:absolute;inset:0;background:var(--border);border-radius:100px;transition:background 0.2s;}
+  .ayar-sw span::before{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.35);}
+  .ayar-sw input:checked + span{background:var(--accent);}
+  .ayar-sw input:checked + span::before{transform:translateX(20px);}
+  .tema-secim{display:flex;gap:0.4rem;flex-shrink:0;}
+  .tema-secim button{padding:0.4rem 0.7rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+  .tema-secim button.active{background:var(--accent);color:#111;border-color:var(--accent);}
+  .ver-badge{font-family:var(--mono);font-size:0.72rem;padding:0.15rem 0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--muted);}
+  @media(max-width:480px){
+    .ayar-tab{flex:1 1 calc(33.333% - 0.3rem);font-size:0.68rem;}
+    .ayar-row{padding:0.5rem 0.6rem;gap:0.55rem;}
+    .ayar-row-title{font-size:0.82rem;}
+    .ayar-row-sub{font-size:0.68rem;}
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
 
@@ -74,8 +109,8 @@
     .nav-sag-ust{display:flex;align-items:center;gap:0.25rem;}
     #donem-select{max-width:110px;font-size:0.65rem;padding:0.15rem 0.3rem;}
     #nav-kullanici{font-size:0.68rem;padding:0.18rem 0.4rem;}
-    .ayar-btn-mob{display:none !important;}
     #firebase-status{width:8px;height:8px;flex-shrink:0;}
+    .ayar-btn-nav{width:32px;height:32px;font-size:1rem;}
   }
   .nav-brand{font-size:1.1rem;font-weight:800;color:var(--accent);padding:1rem 1.5rem 1rem 0;white-space:nowrap;border-right:1px solid var(--border);margin-right:0.5rem;letter-spacing:-0.02em;}
   .nav-brand span{color:var(--text);}
@@ -353,8 +388,7 @@
           <button onclick="window.cikisYap()" style="width:100%;padding:0.6rem 0.9rem;background:none;border:none;color:var(--danger);font-size:0.85rem;font-weight:700;cursor:pointer;text-align:left">🚪 Çıkış Yap</button>
         </div>
       </div>
-      <button onclick="donemYonetModal()" class="ayar-btn-mob" title="Dönem Yönetimi" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.3rem 0.5rem;cursor:pointer;font-size:0.8rem">⚙️</button>
-      <button id="tema-btn" class="tema-btn" onclick="temaToggle()" title="Tema Değiştir">🌙</button>
+      <button id="ayar-btn-nav" onclick="ayarModalAc()" class="ayar-btn-nav" title="Ayarlar" aria-label="Ayarlar">⚙️</button>
     </div>
     <!-- Alt satır: dönem + bağlantı -->
     <div class="nav-sag-ust" style="display:flex;align-items:center;gap:0.35rem;width:100%;justify-content:flex-end">
@@ -399,13 +433,16 @@
       <button onclick="document.getElementById('donem-modal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">✕</button>
     </div>
     <!-- Sekmeler -->
-    <div style="display:flex;gap:0.4rem;margin-bottom:1rem;flex-shrink:0">
-      <button id="ayar-tab-donem" onclick="ayarTab('donem')" class="btn btn-primary btn-sm" style="flex:1">📅 Dönemler</button>
-      <button id="ayar-tab-personel" onclick="ayarTab('personel')" class="btn btn-outline btn-sm" style="flex:1">👥 Personel</button>
+    <div class="ayar-tabs">
+      <button id="ayar-tab-donem"    onclick="ayarTab('donem')"    class="ayar-tab active" data-tab="donem"><span class="ai">📅</span>Dönemler</button>
+      <button id="ayar-tab-personel" onclick="ayarTab('personel')" class="ayar-tab"        data-tab="personel"><span class="ai">👥</span>Personel</button>
+      <button id="ayar-tab-gorunum"  onclick="ayarTab('gorunum')"  class="ayar-tab"        data-tab="gorunum"><span class="ai">🎨</span>Görünüm</button>
+      <button id="ayar-tab-bildirim" onclick="ayarTab('bildirim')" class="ayar-tab"        data-tab="bildirim"><span class="ai">🔔</span>Bildirim</button>
+      <button id="ayar-tab-uygulama" onclick="ayarTab('uygulama')" class="ayar-tab"        data-tab="uygulama"><span class="ai">ℹ️</span>Hakkında</button>
     </div>
 
     <!-- DÖNEM SEKMESİ -->
-    <div id="ayar-donem" style="overflow-y:auto;flex:1">
+    <div id="ayar-donem" class="ayar-section">
       <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Mevcut Dönemler</div>
       <div id="donem-liste" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem"></div>
       <hr style="border-color:var(--border);margin-bottom:1rem">
@@ -419,7 +456,7 @@
     </div>
 
     <!-- PERSONEL SEKMESİ -->
-    <div id="ayar-personel" style="display:none;overflow-y:auto;flex:1">
+    <div id="ayar-personel" class="ayar-section" style="display:none">
       <div style="font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem">Kayıtlı Personel</div>
       <div id="personel-liste" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:1rem"></div>
       <hr style="border-color:var(--border);margin-bottom:1rem">
@@ -437,6 +474,102 @@
         </div>
         <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
         <button onclick="yeniPersonelEkle()" style="padding:0.45rem;border-radius:6px;background:var(--accent);color:#000;border:none;font-weight:700;font-size:0.85rem;cursor:pointer">➕ Personel Ekle</button>
+      </div>
+    </div>
+
+    <!-- GÖRÜNÜM SEKMESİ -->
+    <div id="ayar-gorunum" class="ayar-section" style="display:none">
+      <div class="ayar-h">Tema</div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Arayüz Teması</div>
+          <div class="ayar-row-sub">Uygulamanın koyu veya açık modunu seçin.</div>
+        </div>
+        <div class="tema-secim" id="tema-secim-grup">
+          <button onclick="temaSetir('dark')"  id="tema-btn-dark">🌙 Koyu</button>
+          <button onclick="temaSetir('light')" id="tema-btn-light">☀️ Açık</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BİLDİRİM SEKMESİ -->
+    <div id="ayar-bildirim" class="ayar-section" style="display:none">
+      <div class="ayar-h">QR / Barkod Tarama</div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Ses Efekti</div>
+          <div class="ayar-row-sub">Kod okunduğunda kısa bip sesi çalar.</div>
+        </div>
+        <label class="ayar-sw"><input type="checkbox" id="ayar-ses" onchange="ayarKaydet('ses',this.checked)"><span></span></label>
+      </div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Titreşim</div>
+          <div class="ayar-row-sub">Kod okunduğunda cihaz kısa titreşir (destekleyen telefonlarda).</div>
+        </div>
+        <label class="ayar-sw"><input type="checkbox" id="ayar-titresim" onchange="ayarKaydet('titresim',this.checked)"><span></span></label>
+      </div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Otomatik Kamera</div>
+          <div class="ayar-row-sub">Tara sayfasına gelince kamera kendiliğinden açılsın.</div>
+        </div>
+        <label class="ayar-sw"><input type="checkbox" id="ayar-otokamera" onchange="ayarKaydet('otokamera',this.checked)"><span></span></label>
+      </div>
+    </div>
+
+    <!-- UYGULAMA / HAKKINDA SEKMESİ -->
+    <div id="ayar-uygulama" class="ayar-section" style="display:none">
+      <div class="ayar-h">Hesap</div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title" id="ayar-kul-ad">—</div>
+          <div class="ayar-row-sub" id="ayar-kul-tel">—</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="window.cikisYap&&window.cikisYap()" style="color:var(--danger);border-color:var(--danger)">🚪 Çıkış</button>
+      </div>
+
+      <div class="ayar-h">Uygulama</div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Sürüm</div>
+          <div class="ayar-row-sub">Uygulama ve önbellek sürümü.</div>
+        </div>
+        <span class="ver-badge" id="ayar-ver">—</span>
+      </div>
+      <div class="ayar-row" id="ayar-install-row" style="display:none">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Ana Ekrana Ekle</div>
+          <div class="ayar-row-sub">Uygulamayı ana ekrana kurulu bir kısayol gibi yükleyin.</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="pwaInstall()">📲 Yükle</button>
+      </div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Önbelleği Temizle</div>
+          <div class="ayar-row-sub">Uygulama güncellenmiyorsa önbelleği silip sayfayı yeniler.</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="cacheTemizle()">🧹 Temizle</button>
+      </div>
+      <div class="ayar-row">
+        <div class="ayar-row-info">
+          <div class="ayar-row-title">Kamera Tercihini Sıfırla</div>
+          <div class="ayar-row-sub">Kayıtlı kamerayı unut; bir sonraki taramada yeniden seçilir.</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="kameraTercihSifirla()">🔄 Sıfırla</button>
+      </div>
+
+      <div class="ayar-h">Yardım</div>
+      <div class="ayar-row" style="align-items:flex-start;flex-direction:column;gap:0.35rem">
+        <div class="ayar-row-info" style="width:100%">
+          <div class="ayar-row-title">Hızlı Kullanım</div>
+          <div class="ayar-row-sub" style="line-height:1.6;margin-top:0.35rem">
+            • <b>📥 Yükleme:</b> Excel/CSV ile toplu veya tek kayıt.<br>
+            • <b>📷 Tara:</b> QR/barkod veya TC ile teslim işareti.<br>
+            • <b>👥 Kişiler:</b> Filtreleme, silme, fiş baskı.<br>
+            • <b>📈 Raporlar:</b> Günlük özet, personel istatistiği, dışa aktar.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1237,9 +1370,7 @@ function rolAyarla(rol) {
       var onclick = btn.getAttribute('onclick') || '';
       btn.style.display = onclick.indexOf('yukleme') !== -1 ? 'none' : '';
     });
-    // Ayarlar çarkını gizle
-    var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
-    if (ayarBtn) ayarBtn.style.display = 'none';
+    // Ayarlar butonu personel icin de goruncur, ancak admin sekmeleri modal icinde gizlenecek (ayarModalAc icinde ele alinir)
     // Yükleme sayfasını fiziksel olarak gizle
     var yuklemeSayfasi = document.getElementById('page-yukleme');
     if (yuklemeSayfasi) yuklemeSayfasi.style.display = 'none';
@@ -1265,8 +1396,6 @@ function rolAyarla(rol) {
     // Admin: her şey görünsün
     window._personelModu = false;
     navBtnler.forEach(function(btn) { btn.style.display = ''; });
-    var ayarBtn = document.querySelector('[onclick*="donemYonetModal"]');
-    if (ayarBtn) ayarBtn.style.display = '';
     var yuklemeSayfasi = document.getElementById('page-yukleme');
     if (yuklemeSayfasi) yuklemeSayfasi.style.display = '';
     var bnavYukleme = document.getElementById('bnav-yukleme');
@@ -1328,6 +1457,17 @@ function showPage(p, btn) {
   if (hedef) hedef.classList.add('active');
   if (btn) btn.classList.add('active');
   if (p === 'raporlar') updateRaporlar();
+  // Otomatik kamera (ayar açık ise)
+  if (p === 'tara') {
+    try {
+      var v = localStorage.getItem('yt_otokamera');
+      if (v === '1' || v === 'true') {
+        setTimeout(function(){
+          try { if (!_scan.running && !_scan.stream && !_scan.html5) kameraAc(); } catch(_){}
+        }, 250);
+      }
+    } catch(_){}
+  }
   // Alt nav güncelle
   document.querySelectorAll('.bnav-btn').forEach(function(b){ b.classList.remove('active'); });
   var bnavId = 'bnav-' + (p==='yukle'||p==='kayit'?'yukleme':p);
@@ -1658,19 +1798,28 @@ function _scanHideError() {
 }
 
 function _scanBeep() {
+  var sesAcik = true, titAcik = true;
   try {
-    if (!_scan.audioCtx) _scan.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    const ctx = _scan.audioCtx;
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.0001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
-    o.connect(g).connect(ctx.destination);
-    o.start(); o.stop(ctx.currentTime + 0.16);
-  } catch(_) {}
-  try { navigator.vibrate && navigator.vibrate(60); } catch(_) {}
+    var s = localStorage.getItem('yt_ses');       if (s !== null) sesAcik = (s === '1' || s === 'true');
+    var t = localStorage.getItem('yt_titresim');  if (t !== null) titAcik = (t === '1' || t === 'true');
+  } catch(_){}
+  if (sesAcik) {
+    try {
+      if (!_scan.audioCtx) _scan.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const ctx = _scan.audioCtx;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
+      o.connect(g).connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.16);
+    } catch(_) {}
+  }
+  if (titAcik) {
+    try { navigator.vibrate && navigator.vibrate(60); } catch(_) {}
+  }
 }
 
 function _scanFlashHit() {
@@ -2453,13 +2602,158 @@ function teslimatListesiOlustur() {
 
 // ===== DÖNEM YÖNETİM UI =====
 function ayarTab(tab) {
-  document.getElementById('ayar-donem').style.display    = tab==='donem'    ? 'block' : 'none';
-  document.getElementById('ayar-personel').style.display = tab==='personel' ? 'block' : 'none';
-  document.getElementById('ayar-tab-donem').className    = tab==='donem'    ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
-  document.getElementById('ayar-tab-personel').className = tab==='personel' ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
-  document.getElementById('ayar-tab-donem').style.flex = '1';
-  document.getElementById('ayar-tab-personel').style.flex = '1';
+  const tabs = ['donem','personel','gorunum','bildirim','uygulama'];
+  tabs.forEach(t => {
+    const sec = document.getElementById('ayar-' + t);
+    const btn = document.getElementById('ayar-tab-' + t);
+    if (sec) sec.style.display = (t === tab) ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
   if (tab === 'personel') personelListeYukle();
+  if (tab === 'gorunum')  ayarGorunumYukle();
+  if (tab === 'bildirim') ayarBildirimYukle();
+  if (tab === 'uygulama') ayarUygulamaYukle();
+}
+
+// Nav'daki ⚙️ butonundan gelen ana giriş
+function ayarModalAc() {
+  var personel = !!window._personelModu;
+  // Admin sekmelerini personel için gizle
+  var btnDonem    = document.getElementById('ayar-tab-donem');
+  var btnPersonel = document.getElementById('ayar-tab-personel');
+  if (btnDonem)    btnDonem.style.display    = personel ? 'none' : '';
+  if (btnPersonel) btnPersonel.style.display = personel ? 'none' : '';
+  if (personel) {
+    // Personel: modal aç, Görünüm sekmesinden başla
+    var m = document.getElementById('donem-modal');
+    if (m) m.style.display = 'flex';
+    ayarTab('gorunum');
+    return;
+  }
+  // Admin: mevcut davranış — Dönemler sekmesinden aç
+  try { donemYonetModal(); } catch(_) {
+    var m2 = document.getElementById('donem-modal'); if (m2) m2.style.display = 'flex';
+    ayarTab('gorunum');
+  }
+}
+
+// ===== AYARLAR — Görünüm =====
+function ayarGorunumYukle() {
+  var tema = (document.documentElement.getAttribute('data-theme') === 'light') ? 'light' : 'dark';
+  var bd = document.getElementById('tema-btn-dark');
+  var bl = document.getElementById('tema-btn-light');
+  if (bd) bd.classList.toggle('active', tema === 'dark');
+  if (bl) bl.classList.toggle('active', tema === 'light');
+}
+function temaSetir(t) {
+  if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  try { localStorage.setItem('yardim-takip-tema', t); } catch(_){}
+  // Giriş ekranındaki eski buton hala DOM'daysa ikon senkronize et
+  var b2 = document.getElementById('tema-btn-giris'); if (b2) b2.textContent = (t === 'light') ? '☀️' : '🌙';
+  ayarGorunumYukle();
+}
+
+// ===== AYARLAR — Bildirim / QR =====
+const LS_SES        = 'yt_ses';
+const LS_TITRESIM   = 'yt_titresim';
+const LS_OTOKAMERA  = 'yt_otokamera';
+function getAyar(key, def) {
+  try {
+    var v = localStorage.getItem(key === 'ses' ? LS_SES : key === 'titresim' ? LS_TITRESIM : key === 'otokamera' ? LS_OTOKAMERA : ('yt_' + key));
+    if (v === null) return def;
+    return v === '1' || v === 'true';
+  } catch(_) { return def; }
+}
+function ayarKaydet(key, val) {
+  var k = key === 'ses' ? LS_SES : key === 'titresim' ? LS_TITRESIM : key === 'otokamera' ? LS_OTOKAMERA : ('yt_' + key);
+  try { localStorage.setItem(k, val ? '1' : '0'); } catch(_){}
+}
+function ayarBildirimYukle() {
+  var s = document.getElementById('ayar-ses');       if (s) s.checked = getAyar('ses', true);
+  var t = document.getElementById('ayar-titresim');  if (t) t.checked = getAyar('titresim', true);
+  var o = document.getElementById('ayar-otokamera'); if (o) o.checked = getAyar('otokamera', false);
+}
+
+// ===== AYARLAR — Uygulama / Hakkında =====
+function ayarUygulamaYukle() {
+  // Sürüm
+  try {
+    var meta = document.querySelector('meta[name="version"]');
+    var ver  = meta ? meta.getAttribute('content') : '—';
+    var el   = document.getElementById('ayar-ver'); if (el) el.textContent = ver;
+  } catch(_){}
+  // Kullanıcı bilgisi (varsa)
+  try {
+    var kul = document.getElementById('kullanici-menu-bilgi');
+    var raw = (kul && kul.textContent || '').trim();
+    var adEl = document.getElementById('ayar-kul-ad');
+    var telEl = document.getElementById('ayar-kul-tel');
+    if (raw) {
+      var parts = raw.split(/\s+/);
+      var tel = (parts[0] || '').match(/^0?5\d{9,10}$/) ? parts[0] : (raw.match(/0?5\d{9,10}/)||[])[0] || '';
+      if (adEl)  adEl.textContent  = raw.replace(tel,'').trim() || 'Kullanıcı';
+      if (telEl) telEl.textContent = tel || '—';
+    } else {
+      if (adEl)  adEl.textContent = 'Kullanıcı';
+      if (telEl) telEl.textContent = '—';
+    }
+  } catch(_){}
+  // PWA install butonu — sadece prompt varsa göster
+  var row = document.getElementById('ayar-install-row');
+  if (row) row.style.display = window._installPrompt ? 'flex' : 'none';
+}
+
+// Önbellek temizle
+async function cacheTemizle() {
+  if (!confirm('Uygulama önbelleği silinip sayfa yeniden yüklenecek. Devam edelim mi?')) return;
+  try {
+    if ('caches' in window) {
+      var keys = await caches.keys();
+      await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    }
+    if (navigator.serviceWorker) {
+      var regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(function(r){ return r.unregister(); }));
+    }
+    toast('Önbellek temizlendi, yenileniyor…');
+    setTimeout(function(){ location.reload(); }, 400);
+  } catch(e) { toast('Hata: ' + e.message, 'error'); }
+}
+
+// Kamera tercihini sıfırla
+function kameraTercihSifirla() {
+  try { localStorage.removeItem(LS_CAM_KEY); } catch(_){}
+  try { _scan.deviceIds = []; _scan.activeDeviceIdx = 0; } catch(_){}
+  toast('Kamera tercihi sıfırlandı');
+}
+
+// PWA install
+window._installPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  window._installPrompt = e;
+  // Ayarlar modalı açık ise ve Uygulama sekmesi görünüyorsa satırı göster
+  var row = document.getElementById('ayar-install-row');
+  var open = document.getElementById('donem-modal');
+  if (row && open && open.style.display === 'flex') row.style.display = 'flex';
+});
+window.addEventListener('appinstalled', function(){
+  window._installPrompt = null;
+  var row = document.getElementById('ayar-install-row');
+  if (row) row.style.display = 'none';
+  toast('Uygulama yüklendi ✓');
+});
+async function pwaInstall() {
+  if (!window._installPrompt) { toast('Bu tarayıcı için tarayıcı menüsünden "Ana ekrana ekle" seçin.', 'error'); return; }
+  try {
+    window._installPrompt.prompt();
+    var choice = await window._installPrompt.userChoice;
+    if (choice && choice.outcome === 'accepted') toast('Kurulum başlatıldı');
+    window._installPrompt = null;
+    var row = document.getElementById('ayar-install-row');
+    if (row) row.style.display = 'none';
+  } catch(e) {}
 }
 
 function donemYonetModal() {
