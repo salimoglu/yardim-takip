@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260702223100">
+<meta name="version" content="20260703190800">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -67,13 +67,23 @@
   .ayar-modal-body{overflow-y:auto;padding:0.85rem 1rem 1.2rem;display:flex;flex-direction:column;gap:0.85rem;-webkit-overflow-scrolling:touch;}
 
   /* Hesap kartı */
-  .ayar-hesap{display:flex;align-items:center;gap:0.75rem;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid var(--border);border-radius:12px;padding:0.75rem 0.9rem;}
-  .ayar-hesap-avatar{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:800;flex-shrink:0;}
-  .ayar-hesap-info{flex:1;min-width:0;}
-  .ayar-hesap-ad{font-size:0.92rem;font-weight:800;color:var(--text);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .ayar-hesap-tel{font-size:0.75rem;color:var(--muted);font-family:var(--mono);margin-top:2px;}
-  .ayar-cikis-btn{background:var(--surface);border:1px solid var(--danger);color:var(--danger);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:0.95rem;flex-shrink:0;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+  .ayar-hesap{display:flex;align-items:center;gap:0.8rem;background:linear-gradient(135deg,rgba(212,167,44,0.10),rgba(46,196,182,0.06));border:1px solid var(--border);border-radius:14px;padding:0.85rem 0.95rem;position:relative;overflow:hidden;}
+  .ayar-hesap::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 100% 0%,rgba(212,167,44,0.14),transparent 55%);pointer-events:none;}
+  .ayar-hesap-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#f7c96b);color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0;box-shadow:0 4px 12px rgba(212,167,44,0.35);border:2px solid var(--surface);}
+  .ayar-hesap-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.25rem;}
+  .ayar-hesap-ad{font-size:1.02rem;font-weight:800;color:var(--text);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em;}
+  .ayar-hesap-alt{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;}
+  .ayar-rol-badge{font-size:0.68rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:100px;background:var(--accent);color:#111;letter-spacing:0.02em;flex-shrink:0;line-height:1.4;}
+  .ayar-rol-badge.personel{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+  .ayar-hesap-tel{font-size:0.78rem;color:var(--muted);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ayar-cikis-btn{background:transparent;border:1px solid var(--danger);color:var(--danger);height:36px;padding:0 0.7rem;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:700;flex-shrink:0;transition:all 0.15s;-webkit-tap-highlight-color:transparent;display:inline-flex;align-items:center;gap:0.35rem;}
   .ayar-cikis-btn:hover{background:var(--danger);color:#fff;}
+  .ayar-cikis-ico{font-size:0.95rem;line-height:1;}
+  @media(max-width:420px){
+    .ayar-cikis-txt{display:none;}
+    .ayar-cikis-btn{width:36px;padding:0;justify-content:center;}
+    .ayar-cikis-ico{font-size:1.05rem;}
+  }
 
   /* Grup kartı */
   .ayar-cluster{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.7rem 0.8rem;display:flex;flex-direction:column;gap:0.5rem;}
@@ -116,10 +126,16 @@
   .ayar-details[open] > summary{border-bottom:1px solid var(--border);}
   .ayar-details[open] .ayar-chev{transform:rotate(90deg);color:var(--accent);}
   .ayar-details-body{padding:0.75rem 0.9rem 0.9rem;background:var(--surface);}
-  .ayar-sub-h{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;}
-  .ayar-liste{display:flex;flex-direction:column;gap:0.35rem;}
-  .ayar-form{display:flex;flex-direction:column;gap:0.45rem;}
-  .ayar-form input,.ayar-form select{width:100%;font-size:0.9rem;padding:0.5rem 0.65rem;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);}
+  .ayar-sub-h{font-size:0.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 0.5rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+  .ayar-sub-h > span{flex:1;min-width:0;}
+  .ayar-sep{height:1px;background:var(--border);margin:0.6rem 0 0.6rem;}
+  .ayar-mini-btn{background:var(--surface);border:1px solid var(--border);color:var(--text);width:26px;height:26px;border-radius:6px;font-size:0.85rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+  .ayar-mini-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .ayar-mini-btn.acik{transform:rotate(180deg);color:var(--accent);border-color:var(--accent);}
+  .ayar-liste{display:flex;flex-direction:column;gap:0.4rem;max-height:220px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;}
+  .ayar-liste:empty::before{content:"Kayıt yok";color:var(--muted);font-size:0.78rem;font-weight:normal;text-transform:none;letter-spacing:0;font-style:italic;padding:0.4rem 0;text-align:center;display:block;}
+  .ayar-form{display:flex;flex-direction:column;gap:0.5rem;padding:0.5rem;background:var(--surface);border:1px dashed var(--border);border-radius:8px;}
+  .ayar-form input,.ayar-form select{width:100%;font-size:0.9rem;padding:0.55rem 0.7rem;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);}
   .ayar-form input:focus,.ayar-form select:focus{border-color:var(--accent);outline:none;}
   .ayar-form input::placeholder{color:var(--muted);opacity:0.65;}
 
@@ -468,9 +484,14 @@
         <div class="ayar-hesap-avatar" id="ayar-hesap-avatar">👤</div>
         <div class="ayar-hesap-info">
           <div class="ayar-hesap-ad" id="ayar-kul-ad">Kullanıcı</div>
-          <div class="ayar-hesap-tel" id="ayar-kul-tel">—</div>
+          <div class="ayar-hesap-alt">
+            <span class="ayar-rol-badge" id="ayar-rol-badge">👤 Personel</span>
+            <span class="ayar-hesap-tel" id="ayar-kul-tel">—</span>
+          </div>
         </div>
-        <button class="ayar-cikis-btn" onclick="window.cikisYap&&window.cikisYap()" title="Çıkış Yap" aria-label="Çıkış Yap">🚪</button>
+        <button class="ayar-cikis-btn" onclick="if(confirm('Çıkış yapılsın mı?'))window.cikisYap&&window.cikisYap()" title="Çıkış Yap" aria-label="Çıkış Yap">
+          <span class="ayar-cikis-ico">🚪</span><span class="ayar-cikis-txt">Çıkış</span>
+        </button>
       </div>
 
       <!-- AKTİF DÖNEM -->
@@ -531,44 +552,49 @@
         </div>
       </div>
 
-      <!-- YÖNETİM (admin) -->
-      <details class="ayar-details ayar-admin-only" id="ayar-details-donem">
-        <summary><span>📅 Dönemleri Yönet</span><span class="ayar-chev">›</span></summary>
-        <div class="ayar-details-body">
-          <div class="ayar-sub-h">Mevcut Dönemler</div>
-          <div id="donem-liste" class="ayar-liste"></div>
-          <div class="ayar-sub-h" style="margin-top:0.8rem">Yeni Dönem Oluştur</div>
-          <div class="ayar-form">
-            <input type="text" id="yeni-donem-id" placeholder="Dönem ID — örn: 2026">
-            <input type="text" id="yeni-donem-ad" placeholder="Dönem Adı — örn: 2026 Kömür Dönemi">
-            <input type="password" id="yeni-donem-sifre" placeholder="Admin Şifresi">
-            <button class="btn btn-primary btn-sm" onclick="yeniDonemOlustur()" style="justify-content:center">✅ Dönem Oluştur</button>
-          </div>
+      <!-- DÖNEM YÖNETİMİ (admin) -->
+      <div class="ayar-cluster ayar-admin-only" id="ayar-cluster-donem">
+        <div class="ayar-cluster-title">📅 Dönem Yönetimi</div>
+        <div class="ayar-sub-h">Mevcut Dönemler</div>
+        <div id="donem-liste" class="ayar-liste"></div>
+        <div class="ayar-sep"></div>
+        <div class="ayar-sub-h">
+          <span>➕ Yeni Dönem Oluştur</span>
+          <button class="ayar-mini-btn" onclick="ayarBolumAcKapa('yeni-donem-form')" id="ayar-mini-btn-donem" aria-label="Formu aç/kapa">▾</button>
         </div>
-      </details>
+        <div class="ayar-form" id="yeni-donem-form" style="display:none">
+          <input type="text" id="yeni-donem-id" placeholder="Dönem ID — örn: 2026">
+          <input type="text" id="yeni-donem-ad" placeholder="Dönem Adı — örn: 2026 Kömür Dönemi">
+          <input type="password" id="yeni-donem-sifre" placeholder="Admin Şifresi">
+          <button class="btn btn-primary btn-sm" onclick="yeniDonemOlustur()" style="justify-content:center">✅ Dönem Oluştur</button>
+        </div>
+      </div>
 
-      <details class="ayar-details ayar-admin-only" id="ayar-details-personel" ontoggle="if(this.open)personelListeYukle()">
-        <summary><span>👥 Personeli Yönet</span><span class="ayar-chev">›</span></summary>
-        <div class="ayar-details-body">
-          <div class="ayar-sub-h">Kayıtlı Personel</div>
-          <div id="personel-liste" class="ayar-liste"></div>
-          <div class="ayar-sub-h" style="margin-top:0.8rem">Yeni Personel Ekle</div>
-          <div class="ayar-form">
-            <input type="text" id="yeni-p-tel" placeholder="Telefon (05xxxxxxxxx)" maxlength="11" inputmode="numeric" style="font-family:var(--mono)">
-            <input type="text" id="yeni-p-ad" placeholder="Ad Soyad">
-            <select id="yeni-p-rol">
-              <option value="personel">👤 Saha Personeli</option>
-              <option value="admin">👑 Admin</option>
-            </select>
-            <div style="position:relative">
-              <input type="password" id="yeni-p-sifre" placeholder="Şifre (min. 6 karakter)" style="padding-right:2.2rem">
-              <button type="button" onclick="var i=document.getElementById('yeni-p-sifre');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:0.9rem;color:var(--muted)" aria-label="Şifreyi göster">👁</button>
-            </div>
-            <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
-            <button class="btn btn-primary btn-sm" onclick="yeniPersonelEkle()" style="justify-content:center">➕ Personel Ekle</button>
-          </div>
+      <!-- PERSONEL YÖNETİMİ (admin) -->
+      <div class="ayar-cluster ayar-admin-only" id="ayar-cluster-personel">
+        <div class="ayar-cluster-title">👥 Personel Yönetimi</div>
+        <div class="ayar-sub-h">Kayıtlı Personel</div>
+        <div id="personel-liste" class="ayar-liste"></div>
+        <div class="ayar-sep"></div>
+        <div class="ayar-sub-h">
+          <span>➕ Yeni Personel Ekle</span>
+          <button class="ayar-mini-btn" onclick="ayarBolumAcKapa('yeni-personel-form')" id="ayar-mini-btn-personel" aria-label="Formu aç/kapa">▾</button>
         </div>
-      </details>
+        <div class="ayar-form" id="yeni-personel-form" style="display:none">
+          <input type="text" id="yeni-p-tel" placeholder="Telefon (05xxxxxxxxx)" maxlength="11" inputmode="numeric" style="font-family:var(--mono)">
+          <input type="text" id="yeni-p-ad" placeholder="Ad Soyad">
+          <select id="yeni-p-rol">
+            <option value="personel">👤 Saha Personeli</option>
+            <option value="admin">👑 Admin</option>
+          </select>
+          <div style="position:relative">
+            <input type="password" id="yeni-p-sifre" placeholder="Şifre (min. 6 karakter)" style="padding-right:2.2rem;width:100%">
+            <button type="button" onclick="var i=document.getElementById('yeni-p-sifre');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:0.9rem;color:var(--muted)" aria-label="Şifreyi göster">👁</button>
+          </div>
+          <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
+          <button class="btn btn-primary btn-sm" onclick="yeniPersonelEkle()" style="justify-content:center">➕ Personel Ekle</button>
+        </div>
+      </div>
 
       <!-- UYGULAMA -->
       <div class="ayar-cluster">
@@ -2635,15 +2661,15 @@ function teslimatListesiOlustur() {
 }
 
 // ===== DÖNEM YÖNETİM UI =====
-// Geriye dönük uyum: eski ayarTab() çağrıları için — details bölümlerini aç
+// Geriye dönük uyum: eski ayarTab() çağrıları için — ilgili bölüme kaydır
 function ayarTab(tab) {
-  if (tab === 'donem') {
-    var d = document.getElementById('ayar-details-donem');
-    if (d) { d.open = true; try { d.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_){} }
-  } else if (tab === 'personel') {
-    var p = document.getElementById('ayar-details-personel');
-    if (p) { p.open = true; personelListeYukle(); try { p.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_){} }
-  }
+  var id = tab === 'donem' ? 'ayar-cluster-donem'
+         : tab === 'personel' ? 'ayar-cluster-personel'
+         : null;
+  if (!id) return;
+  var el = document.getElementById(id);
+  if (el) { try { el.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_){} }
+  if (tab === 'personel') { try { personelListeYukle(); } catch(_){} }
 }
 
 // Nav'daki ⚙️ butonundan gelen ana giriş
@@ -2658,35 +2684,86 @@ function ayarModalAc() {
   if (m) m.style.display = 'flex';
 }
 
+// Telefon 05322549139 -> 0532 254 91 39
+function _telFmt(t) {
+  if (!t) return '—';
+  var s = String(t).replace(/\D/g,'');
+  if (s.length === 11 && s.charAt(0) === '0') {
+    return s.slice(0,4) + ' ' + s.slice(4,7) + ' ' + s.slice(7,9) + ' ' + s.slice(9,11);
+  }
+  if (s.length === 10) {
+    return '0' + s.slice(0,3) + ' ' + s.slice(3,6) + ' ' + s.slice(6,8) + ' ' + s.slice(8,10);
+  }
+  return t;
+}
+
 function ayarModalYukle() {
-  // Hesap bilgisi
   try {
-    var k   = window._aktifKullanici || {};
-    var rol = window._aktifRol || 'personel';
-    var adEl  = document.getElementById('ayar-kul-ad');
-    var telEl = document.getElementById('ayar-kul-tel');
-    var avEl  = document.getElementById('ayar-hesap-avatar');
-    var ad    = k.ad  || 'Kullanıcı';
-    var tel   = k.tel || '—';
-    if (adEl)  adEl.textContent  = ad;
-    if (telEl) telEl.textContent = (rol === 'admin' ? '👑 Admin · ' : '👤 Personel · ') + tel;
-    if (avEl)  avEl.textContent  = (ad || '?').trim().charAt(0).toUpperCase() || (rol === 'admin' ? '👑' : '👤');
+    var k    = window._aktifKullanici || {};
+    var rol  = window._aktifRol || 'personel';
+    var isAd = window._aktifRol === 'admin';
+    var adRaw = (k.ad || '').trim();
+    var tel   = k.tel || '';
+    var telFmt = _telFmt(tel);
+
+    var telDigits = tel.replace(/\D/g,'');
+    var isAdMeaningful = adRaw && adRaw.replace(/\D/g,'') !== telDigits;
+
+    var adEl    = document.getElementById('ayar-kul-ad');
+    var telEl   = document.getElementById('ayar-kul-tel');
+    var avEl    = document.getElementById('ayar-hesap-avatar');
+    var badgeEl = document.getElementById('ayar-rol-badge');
+
+    if (adEl) adEl.textContent = isAdMeaningful ? adRaw : (isAd ? 'Yönetici' : 'Personel');
+    if (telEl) telEl.textContent = telFmt;
+    if (badgeEl) {
+      badgeEl.textContent = isAd ? '👑 Admin' : '👤 Personel';
+      badgeEl.classList.toggle('personel', !isAd);
+    }
+    if (avEl) {
+      if (isAdMeaningful) {
+        var parts = adRaw.split(/\s+/).filter(Boolean);
+        var initials = (parts[0]||'').charAt(0);
+        if (parts.length > 1) initials += (parts[parts.length-1]||'').charAt(0);
+        avEl.textContent = initials.toUpperCase() || (isAd ? '👑' : '👤');
+      } else {
+        avEl.textContent = isAd ? '👑' : '👤';
+      }
+    }
   } catch(_){}
-  // Tema seçim durumu
+
   ayarGorunumYukle();
-  // Toggle'lar
+
   var s = document.getElementById('ayar-ses');       if (s) s.checked = getAyar('ses', true);
   var t = document.getElementById('ayar-titresim');  if (t) t.checked = getAyar('titresim', true);
   var o = document.getElementById('ayar-otokamera'); if (o) o.checked = getAyar('otokamera', false);
-  // Sürüm
+
   try {
     var meta = document.querySelector('meta[name="version"]');
     var ver  = meta ? meta.getAttribute('content') : '—';
     var vEl  = document.getElementById('ayar-ver'); if (vEl) vEl.textContent = ver;
   } catch(_){}
-  // PWA install butonu — sadece prompt varsa
+
   var row = document.getElementById('ayar-install-row');
   if (row) row.style.display = window._installPrompt ? 'flex' : 'none';
+
+  // Admin: personel listesini de yükle (artık her zaman görünür)
+  if (window._aktifRol === 'admin') {
+    try { personelListeYukle(); } catch(_){}
+  }
+}
+
+// Aç/kapa yardımcısı (yeni dönem formu, yeni personel formu)
+function ayarBolumAcKapa(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var acik = el.style.display !== 'none';
+  el.style.display = acik ? 'none' : 'flex';
+  var btnId = id === 'yeni-donem-form' ? 'ayar-mini-btn-donem' : id === 'yeni-personel-form' ? 'ayar-mini-btn-personel' : null;
+  if (btnId) {
+    var btn = document.getElementById(btnId);
+    if (btn) btn.classList.toggle('acik', !acik);
+  }
 }
 
 function ayarGorunumYukle() {
@@ -2779,12 +2856,12 @@ function donemYonetModal() {
   liste.innerHTML = ids.map(function(id) {
     var meta = (donemler[id] && donemler[id].meta) || {};
     var aktif = meta.durum === 'aktif';
-    return '<div style="background:var(--surface2);border-radius:8px;padding:0.55rem 0.8rem;display:flex;align-items:center;gap:0.5rem">'
-      + '<div style="flex:1"><div style="font-weight:700;font-size:0.85rem">' + (aktif ? '🟢 ' : '📁 ') + (meta.ad || id) + '</div>'
-      + '<div style="font-size:0.72rem;color:var(--muted);margin-top:2px">' + (aktif ? 'Aktif dönem' : 'Kapalı dönem') + '</div></div>'
-      + '<div style="display:flex;gap:0.3rem">'
-      + '<button onclick="window.donemSec(\'' + id + '\');document.getElementById(\'donem-modal\').style.display=\'none\'" style="font-size:0.72rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer">👁 Görüntüle</button>'
-      + (aktif ? '<button onclick="donemKapatOnay(\'' + id + '\')" style="font-size:0.72rem;padding:0.25rem 0.5rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer;font-weight:700">🔒 Kapat</button>' : '')
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
+      + '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (aktif ? '🟢 ' : '📁 ') + (meta.ad || id) + '</div>'
+      + '<div style="font-size:0.7rem;color:var(--muted);margin-top:2px">' + (aktif ? 'Aktif dönem' : 'Kapalı dönem') + '</div></div>'
+      + '<div style="display:flex;gap:0.3rem;flex-shrink:0">'
+      + '<button onclick="window.donemSec(\'' + id + '\');document.getElementById(\'donem-modal\').style.display=\'none\'" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700">👁</button>'
+      + (aktif ? '<button onclick="donemKapatOnay(\'' + id + '\')" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--danger);border:none;color:#fff;cursor:pointer;font-weight:700">🔒</button>' : '')
       + '</div></div>';
   }).join('');
   var yil = new Date().getFullYear() + 1;
@@ -2795,7 +2872,8 @@ function donemYonetModal() {
   document.getElementById('donem-modal').style.display = 'flex';
   try {
     document.querySelectorAll('.ayar-admin-only').forEach(function(el){ el.style.display=''; });
-    var d = document.getElementById('ayar-details-donem'); if (d) d.open = true;
+    var c = document.getElementById('ayar-cluster-donem');
+    if (c) setTimeout(function(){ try { c.scrollIntoView({behavior:'smooth', block:'start'}); } catch(_){} }, 100);
   } catch(_){}
 }
 
@@ -2817,13 +2895,13 @@ async function personelListeYukle() {
       var safeTel = escapeHtml(tel);
       var safeAd = escapeHtml(p.ad || tel);
       var safeRol = escapeHtml(p.rol || 'personel');
-      return '<div style="background:var(--surface2);border-radius:8px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
-        + '<div style="flex:1">'
-        + '<div style="font-weight:700;font-size:0.85rem">' + safeAd + '</div>'
-        + '<div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono)">' + safeTel + '</div>'
+      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.7rem;display:flex;align-items:center;gap:0.5rem">'
+        + '<div style="flex:1;min-width:0">'
+        + '<div style="font-weight:700;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + safeAd + '</div>'
+        + '<div style="font-size:0.7rem;color:var(--muted);font-family:var(--mono)">' + safeTel + '</div>'
         + '</div>'
-        + '<span style="font-size:0.72rem;font-weight:700;color:' + rolRenk + '">' + rolIkon + ' ' + safeRol + '</span>'
-        + '<button onclick="personelSil(\'' + safeTel + '\')" style="font-size:0.72rem;padding:0.2rem 0.45rem;border-radius:5px;background:var(--danger);border:none;color:#fff;cursor:pointer;margin-left:0.3rem">🗑</button>'
+        + '<span style="font-size:0.68rem;font-weight:800;color:' + rolRenk + ';padding:0.15rem 0.45rem;background:var(--surface2);border-radius:100px;flex-shrink:0">' + rolIkon + ' ' + (p.rol === 'admin' ? 'Admin' : 'Personel') + '</span>'
+        + '<button onclick="personelSil(\'' + safeTel + '\')" style="font-size:0.75rem;padding:0.25rem 0.4rem;border-radius:6px;background:var(--surface2);border:1px solid var(--danger);color:var(--danger);cursor:pointer;flex-shrink:0" title="Sil">🗑</button>'
         + '</div>';
     }).join('');
   } catch(e) {
