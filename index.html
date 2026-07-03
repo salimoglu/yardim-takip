@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260703213000">
+<meta name="version" content="20260703214000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -134,7 +134,8 @@
   .ayar-mini-btn.acik{transform:rotate(180deg);color:var(--accent);border-color:var(--accent);}
   .ayar-liste{display:flex;flex-direction:column;gap:0.4rem;max-height:220px;overflow-y:auto;padding-right:2px;-webkit-overflow-scrolling:touch;}
   .ayar-liste:empty::before{content:"Kayıt yok";color:var(--muted);font-size:0.78rem;font-weight:normal;text-transform:none;letter-spacing:0;font-style:italic;padding:0.4rem 0;text-align:center;display:block;}
-  .ayar-form{display:flex;flex-direction:column;gap:0.5rem;padding:0.5rem;background:var(--surface);border:1px dashed var(--border);border-radius:8px;}
+  .ayar-cluster-vurgu{border-color:rgba(212,167,44,0.45);background:linear-gradient(180deg,var(--surface2),var(--surface));}
+  .ayar-form{display:flex;flex-direction:column;gap:0.5rem;padding:0.65rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-top:0.35rem;}
   .ayar-form input,.ayar-form select{width:100%;font-size:0.9rem;padding:0.55rem 0.7rem;border-radius:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);}
   .ayar-form input:focus,.ayar-form select:focus{border-color:var(--accent);outline:none;}
   .ayar-form input::placeholder{color:var(--muted);opacity:0.65;}
@@ -504,6 +505,44 @@
         </div>
       </div>
 
+      <!-- DÖNEM YÖNETİMİ (admin) -->
+      <div class="ayar-cluster ayar-admin-only ayar-cluster-vurgu" id="ayar-cluster-donem">
+        <div class="ayar-cluster-title">📅 Dönem Yönetimi</div>
+        <div class="ayar-sub-h">Mevcut Dönemler</div>
+        <div id="donem-liste" class="ayar-liste"></div>
+        <div class="ayar-sep"></div>
+        <div class="ayar-sub-h">➕ Yeni Dönem Oluştur</div>
+        <div class="ayar-form" id="yeni-donem-form">
+          <input type="text" id="yeni-donem-id" placeholder="Dönem ID — örn: 2026">
+          <input type="text" id="yeni-donem-ad" placeholder="Dönem Adı — örn: 2026 Kömür Dönemi">
+          <input type="password" id="yeni-donem-sifre" placeholder="Admin Şifresi">
+          <button class="btn btn-primary btn-sm" onclick="yeniDonemOlustur()" style="justify-content:center;width:100%">✅ Dönem Oluştur</button>
+        </div>
+      </div>
+
+      <!-- PERSONEL YÖNETİMİ (admin) -->
+      <div class="ayar-cluster ayar-admin-only ayar-cluster-vurgu" id="ayar-cluster-personel">
+        <div class="ayar-cluster-title">👥 Personel Yönetimi</div>
+        <div class="ayar-sub-h">Kayıtlı Personel</div>
+        <div id="personel-liste" class="ayar-liste"></div>
+        <div class="ayar-sep"></div>
+        <div class="ayar-sub-h">➕ Yeni Personel Ekle</div>
+        <div class="ayar-form" id="yeni-personel-form">
+          <input type="text" id="yeni-p-tel" placeholder="Telefon (05xxxxxxxxx)" maxlength="11" inputmode="numeric" style="font-family:var(--mono)">
+          <input type="text" id="yeni-p-ad" placeholder="Ad Soyad">
+          <select id="yeni-p-rol">
+            <option value="personel">👤 Saha Personeli</option>
+            <option value="admin">👑 Admin</option>
+          </select>
+          <div style="position:relative">
+            <input type="password" id="yeni-p-sifre" placeholder="Şifre (min. 6 karakter)" style="padding-right:2.2rem;width:100%">
+            <button type="button" onclick="var i=document.getElementById('yeni-p-sifre');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:0.9rem;color:var(--muted)" aria-label="Şifreyi göster">👁</button>
+          </div>
+          <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
+          <button class="btn btn-primary btn-sm" onclick="yeniPersonelEkle()" style="justify-content:center;width:100%">➕ Personel Ekle</button>
+        </div>
+      </div>
+
       <!-- GÖRÜNÜM -->
       <div class="ayar-cluster">
         <div class="ayar-cluster-title">🎨 Görünüm</div>
@@ -549,50 +588,6 @@
             <div class="ayar-row-sub">Kayıtlı kamerayı unut</div>
           </div>
           <button class="btn btn-outline btn-sm" onclick="kameraTercihSifirla()">🔄 Sıfırla</button>
-        </div>
-      </div>
-
-      <!-- DÖNEM YÖNETİMİ (admin) -->
-      <div class="ayar-cluster ayar-admin-only" id="ayar-cluster-donem">
-        <div class="ayar-cluster-title">📅 Dönem Yönetimi</div>
-        <div class="ayar-sub-h">Mevcut Dönemler</div>
-        <div id="donem-liste" class="ayar-liste"></div>
-        <div class="ayar-sep"></div>
-        <div class="ayar-sub-h">
-          <span>➕ Yeni Dönem Oluştur</span>
-          <button class="ayar-mini-btn" onclick="ayarBolumAcKapa('yeni-donem-form')" id="ayar-mini-btn-donem" aria-label="Formu aç/kapa">▾</button>
-        </div>
-        <div class="ayar-form" id="yeni-donem-form" style="display:none">
-          <input type="text" id="yeni-donem-id" placeholder="Dönem ID — örn: 2026">
-          <input type="text" id="yeni-donem-ad" placeholder="Dönem Adı — örn: 2026 Kömür Dönemi">
-          <input type="password" id="yeni-donem-sifre" placeholder="Admin Şifresi">
-          <button class="btn btn-primary btn-sm" onclick="yeniDonemOlustur()" style="justify-content:center">✅ Dönem Oluştur</button>
-        </div>
-      </div>
-
-      <!-- PERSONEL YÖNETİMİ (admin) -->
-      <div class="ayar-cluster ayar-admin-only" id="ayar-cluster-personel">
-        <div class="ayar-cluster-title">👥 Personel Yönetimi</div>
-        <div class="ayar-sub-h">Kayıtlı Personel</div>
-        <div id="personel-liste" class="ayar-liste"></div>
-        <div class="ayar-sep"></div>
-        <div class="ayar-sub-h">
-          <span>➕ Yeni Personel Ekle</span>
-          <button class="ayar-mini-btn" onclick="ayarBolumAcKapa('yeni-personel-form')" id="ayar-mini-btn-personel" aria-label="Formu aç/kapa">▾</button>
-        </div>
-        <div class="ayar-form" id="yeni-personel-form" style="display:none">
-          <input type="text" id="yeni-p-tel" placeholder="Telefon (05xxxxxxxxx)" maxlength="11" inputmode="numeric" style="font-family:var(--mono)">
-          <input type="text" id="yeni-p-ad" placeholder="Ad Soyad">
-          <select id="yeni-p-rol">
-            <option value="personel">👤 Saha Personeli</option>
-            <option value="admin">👑 Admin</option>
-          </select>
-          <div style="position:relative">
-            <input type="password" id="yeni-p-sifre" placeholder="Şifre (min. 6 karakter)" style="padding-right:2.2rem;width:100%">
-            <button type="button" onclick="var i=document.getElementById('yeni-p-sifre');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:0.4rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:0.9rem;color:var(--muted)" aria-label="Şifreyi göster">👁</button>
-          </div>
-          <div id="personel-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
-          <button class="btn btn-primary btn-sm" onclick="yeniPersonelEkle()" style="justify-content:center">➕ Personel Ekle</button>
         </div>
       </div>
 
@@ -2674,14 +2669,46 @@ function ayarTab(tab) {
 
 // Nav'daki ⚙️ butonundan gelen ana giriş
 function ayarModalAc() {
-  var personel = !!window._personelModu;
-  // Admin-özgü açılır bölümleri gizle (Dönemler, Personel)
+  var isAdmin = window._aktifRol === 'admin';
   document.querySelectorAll('.ayar-admin-only').forEach(function(el){
-    el.style.display = personel ? 'none' : '';
+    el.style.display = isAdmin ? '' : 'none';
   });
   ayarModalYukle();
+  if (isAdmin) {
+    try { donemListeYukle(); } catch(_){}
+    try { personelListeYukle(); } catch(_){}
+  }
   var m = document.getElementById('donem-modal');
   if (m) m.style.display = 'flex';
+}
+
+function donemListeYukle() {
+  var donemler = window._tumDonemler || {};
+  var ids = Object.keys(donemler).sort().reverse();
+  var liste = document.getElementById('donem-liste');
+  if (!liste) return;
+  if (ids.length === 0) {
+    liste.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;font-style:italic;padding:0.35rem 0;text-align:center">Henüz dönem yok — aşağıdan ekleyin</div>';
+  } else {
+    liste.innerHTML = ids.map(function(id) {
+      var meta = (donemler[id] && donemler[id].meta) || {};
+      var aktif = meta.durum === 'aktif';
+      return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
+        + '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (aktif ? '🟢 ' : '📁 ') + (meta.ad || id) + '</div>'
+        + '<div style="font-size:0.7rem;color:var(--muted);margin-top:2px">' + (aktif ? 'Aktif dönem' : 'Kapalı dönem') + '</div></div>'
+        + '<div style="display:flex;gap:0.3rem;flex-shrink:0">'
+        + '<button onclick="window.donemSec(\'' + id + '\');document.getElementById(\'donem-modal\').style.display=\'none\'" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700">👁</button>'
+        + (aktif ? '<button onclick="donemKapatOnay(\'' + id + '\')" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--danger);border:none;color:#fff;cursor:pointer;font-weight:700">🔒</button>' : '')
+        + '</div></div>';
+    }).join('');
+  }
+  var yil = new Date().getFullYear() + 1;
+  var idEl = document.getElementById('yeni-donem-id');
+  var adEl = document.getElementById('yeni-donem-ad');
+  if (idEl) idEl.value = String(yil);
+  if (adEl) adEl.value = yil + ' Kömür Dönemi';
+  var sifEl = document.getElementById('yeni-donem-sifre');
+  if (sifEl) sifEl.value = '';
 }
 
 // Telefon 05322549139 -> 0532 254 91 39
@@ -2747,23 +2774,7 @@ function ayarModalYukle() {
   var row = document.getElementById('ayar-install-row');
   if (row) row.style.display = window._installPrompt ? 'flex' : 'none';
 
-  // Admin: personel listesini de yükle (artık her zaman görünür)
-  if (window._aktifRol === 'admin') {
-    try { personelListeYukle(); } catch(_){}
-  }
-}
-
-// Aç/kapa yardımcısı (yeni dönem formu, yeni personel formu)
-function ayarBolumAcKapa(id) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var acik = el.style.display !== 'none';
-  el.style.display = acik ? 'none' : 'flex';
-  var btnId = id === 'yeni-donem-form' ? 'ayar-mini-btn-donem' : id === 'yeni-personel-form' ? 'ayar-mini-btn-personel' : null;
-  if (btnId) {
-    var btn = document.getElementById(btnId);
-    if (btn) btn.classList.toggle('acik', !acik);
-  }
+  // Admin: listeler ayarModalAc icinde yuklenir
 }
 
 function ayarGorunumYukle() {
@@ -2850,24 +2861,7 @@ async function pwaInstall() {
 }
 
 function donemYonetModal() {
-  var donemler = window._tumDonemler || {};
-  var ids = Object.keys(donemler).sort().reverse();
-  var liste = document.getElementById('donem-liste');
-  liste.innerHTML = ids.map(function(id) {
-    var meta = (donemler[id] && donemler[id].meta) || {};
-    var aktif = meta.durum === 'aktif';
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;display:flex;align-items:center;gap:0.5rem">'
-      + '<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (aktif ? '🟢 ' : '📁 ') + (meta.ad || id) + '</div>'
-      + '<div style="font-size:0.7rem;color:var(--muted);margin-top:2px">' + (aktif ? 'Aktif dönem' : 'Kapalı dönem') + '</div></div>'
-      + '<div style="display:flex;gap:0.3rem;flex-shrink:0">'
-      + '<button onclick="window.donemSec(\'' + id + '\');document.getElementById(\'donem-modal\').style.display=\'none\'" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700">👁</button>'
-      + (aktif ? '<button onclick="donemKapatOnay(\'' + id + '\')" style="font-size:0.72rem;padding:0.3rem 0.55rem;border-radius:6px;background:var(--danger);border:none;color:#fff;cursor:pointer;font-weight:700">🔒</button>' : '')
-      + '</div></div>';
-  }).join('');
-  var yil = new Date().getFullYear() + 1;
-  document.getElementById('yeni-donem-id').value = String(yil);
-  document.getElementById('yeni-donem-ad').value = yil + ' Kömür Dönemi';
-  document.getElementById('yeni-donem-sifre').value = '';
+  donemListeYukle();
   try { ayarModalYukle(); } catch(_){}
   document.getElementById('donem-modal').style.display = 'flex';
   try {
