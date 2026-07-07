@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260703220000">
+<meta name="version" content="20260707183000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -59,99 +59,105 @@
   .ayar-btn-nav:active{transform:scale(0.94);}
   /* ===== AYARLAR MODAL ===== */
   .ayar-modal-overlay{padding:0.5rem;z-index:200;}
-  .ayar-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;}
+  .ayar-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;font-size:0.9375rem;line-height:1.5;-webkit-font-smoothing:antialiased;}
   .ayar-modal-header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0;}
-  .ayar-modal-title{font-size:0.95rem;font-weight:800;color:var(--text);letter-spacing:0.01em;}
+  .ayar-modal-title{font-size:1.05rem;font-weight:600;color:var(--text);letter-spacing:-0.01em;}
   .ayar-modal-close{background:none;border:none;color:var(--muted);width:32px;height:32px;border-radius:8px;font-size:1.1rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color 0.15s;-webkit-tap-highlight-color:transparent;}
   .ayar-modal-close:hover{color:var(--danger);}
-  .ayar-modal-body{overflow-y:auto;padding:0.75rem 0.85rem 1rem;display:flex;flex-direction:column;gap:0.65rem;-webkit-overflow-scrolling:touch;}
+  .ayar-modal-body{overflow-y:auto;padding:0.8rem 1rem 1.1rem;display:flex;flex-direction:column;gap:0.75rem;-webkit-overflow-scrolling:touch;}
 
-  /* Hesap kartı — sade */
-  .ayar-hesap{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.7rem 0.1rem 0.85rem;border-bottom:1px solid var(--border);margin-bottom:0.15rem;}
+  /* Hesap kartı */
+  .ayar-hesap{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.65rem 0 0.85rem;border-bottom:1px solid var(--border);margin-bottom:0.1rem;}
   .ayar-hesap-left{display:flex;align-items:center;gap:0.7rem;min-width:0;flex:1;}
-  .ayar-hesap-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;flex-shrink:0;}
+  .ayar-hesap-avatar{width:42px;height:42px;border-radius:50%;background:var(--accent);color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:0.95rem;font-weight:600;flex-shrink:0;}
   .ayar-hesap-info{min-width:0;flex:1;}
-  .ayar-hesap-ad{font-size:0.95rem;font-weight:800;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .ayar-hesap-meta{display:flex;align-items:center;gap:0.45rem;margin-top:0.2rem;flex-wrap:wrap;}
-  .ayar-rol-badge{font-size:0.65rem;font-weight:700;padding:0.12rem 0.45rem;border-radius:100px;background:rgba(212,167,44,0.15);color:var(--accent);border:1px solid rgba(212,167,44,0.35);}
-  .ayar-rol-badge.personel{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
-  .ayar-hesap-tel{font-size:0.72rem;color:var(--muted);font-family:var(--mono);}
-  .ayar-cikis-btn{background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:600;cursor:pointer;padding:0.35rem 0.5rem;border-radius:6px;flex-shrink:0;transition:color 0.15s;-webkit-tap-highlight-color:transparent;}
+  .ayar-hesap-ad{font-size:1rem;font-weight:600;color:var(--text);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.01em;}
+  .ayar-hesap-meta{display:flex;align-items:center;gap:0.5rem;margin-top:0.15rem;flex-wrap:wrap;}
+  .ayar-rol-badge{font-size:0.75rem;font-weight:500;padding:0.1rem 0.45rem;border-radius:6px;background:rgba(212,167,44,0.12);color:var(--accent);border:none;}
+  .ayar-rol-badge.personel{background:var(--surface2);color:var(--muted);}
+  .ayar-hesap-tel{font-size:0.8125rem;color:var(--muted);font-family:var(--mono);font-weight:400;}
+  .ayar-cikis-btn{background:none;border:none;color:var(--muted);font-size:0.8125rem;font-weight:500;cursor:pointer;padding:0.35rem 0.5rem;border-radius:6px;flex-shrink:0;transition:color 0.15s;-webkit-tap-highlight-color:transparent;}
   .ayar-cikis-btn:hover{color:var(--danger);}
 
   /* Grup */
-  .ayar-cluster{background:transparent;border:none;border-radius:0;padding:0;display:flex;flex-direction:column;gap:0.45rem;}
-  .ayar-section-head{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding:0.15rem 0;}
-  .ayar-section-title{font-size:0.78rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
-  .ayar-add-btn{padding:0.35rem 0.65rem;border-radius:7px;background:var(--accent);color:#111;border:none;font-size:0.75rem;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent;}
-  .ayar-add-btn:hover{opacity:0.88;}
+  .ayar-cluster{background:transparent;border:none;border-radius:0;padding:0;display:flex;flex-direction:column;gap:0.5rem;}
+  .ayar-section-head{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding:0.1rem 0;}
+  .ayar-section-title{font-size:0.8125rem;font-weight:500;color:var(--muted);letter-spacing:0;text-transform:none;}
+  .ayar-add-btn{padding:0.4rem 0.7rem;border-radius:8px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-size:0.8125rem;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+  .ayar-add-btn:hover{border-color:var(--accent);color:var(--accent);}
 
   /* Aktif dönem */
-  .ayar-donem-secici select{width:100%;padding:0.5rem 0.65rem;font-size:0.9rem;font-weight:600;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:var(--font);}
+  .ayar-donem-secici select{width:100%;padding:0.55rem 0.7rem;font-size:0.9375rem;font-weight:400;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-family:var(--font);line-height:1.4;}
   .ayar-donem-secici select:focus{border-color:var(--accent);outline:none;}
 
   /* Satır */
-  .ayar-row{display:flex;align-items:center;gap:0.65rem;padding:0.5rem 0;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.55rem 0.7rem;}
+  .ayar-row{display:flex;align-items:center;gap:0.65rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.75rem;}
   .ayar-row + .ayar-row{margin-top:0;}
   .ayar-row-info{flex:1;min-width:0;}
-  .ayar-row-title{font-size:0.85rem;font-weight:700;color:var(--text);line-height:1.2;}
-  .ayar-row-sub{font-size:0.7rem;color:var(--muted);margin-top:1px;line-height:1.3;}
-  .ayar-row .btn{flex-shrink:0;}
+  .ayar-row-title{font-size:0.9375rem;font-weight:400;color:var(--text);line-height:1.35;}
+  .ayar-row-sub{font-size:0.8125rem;color:var(--muted);margin-top:2px;line-height:1.4;font-weight:400;}
+  .ayar-row .btn{flex-shrink:0;font-weight:500;}
 
   /* Toggle */
   .ayar-sw{position:relative;width:42px;height:22px;flex-shrink:0;cursor:pointer;display:inline-block;}
   .ayar-sw input{opacity:0;width:0;height:0;position:absolute;}
   .ayar-sw span{position:absolute;inset:0;background:var(--border);border-radius:100px;transition:background 0.2s;}
-  .ayar-sw span::before{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.3);}
+  .ayar-sw span::before{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.25);}
   .ayar-sw input:checked + span{background:var(--accent);}
   .ayar-sw input:checked + span::before{transform:translateX(20px);}
 
   .tema-secim{display:flex;gap:0.25rem;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:2px;}
-  .tema-secim button{padding:0.3rem 0.6rem;border-radius:5px;background:none;border:none;color:var(--muted);font-size:0.75rem;font-weight:700;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+  .tema-secim button{padding:0.35rem 0.65rem;border-radius:5px;background:none;border:none;color:var(--muted);font-size:0.875rem;font-weight:400;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
   .tema-secim button.active{background:var(--accent);color:#111;}
 
-  .ver-badge{font-family:var(--mono);font-size:0.68rem;padding:0.15rem 0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:100px;color:var(--muted);flex-shrink:0;}
+  .ver-badge{font-family:var(--mono);font-size:0.75rem;font-weight:400;padding:0.15rem 0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);flex-shrink:0;}
 
   /* Liste */
-  .ayar-liste{display:flex;flex-direction:column;gap:0.35rem;max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-  .ayar-liste-empty{color:var(--muted);font-size:0.78rem;font-style:italic;text-align:center;padding:0.6rem 0;}
-  .ayar-list-item{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.65rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;}
+  .ayar-liste{display:flex;flex-direction:column;gap:0.4rem;max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .ayar-liste-empty{color:var(--muted);font-size:0.875rem;font-weight:400;text-align:center;padding:0.65rem 0;line-height:1.45;}
+  .ayar-list-item{display:flex;align-items:center;gap:0.55rem;padding:0.55rem 0.7rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;}
   .ayar-list-item-main{flex:1;min-width:0;}
-  .ayar-list-item-title{font-weight:700;font-size:0.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
-  .ayar-list-item-sub{font-size:0.68rem;color:var(--muted);margin-top:1px;font-family:var(--mono);}
-  .ayar-list-item-badge{font-size:0.62rem;font-weight:800;padding:0.12rem 0.4rem;border-radius:100px;background:var(--surface);border:1px solid var(--border);color:var(--muted);flex-shrink:0;}
-  .ayar-list-item-badge.admin{color:var(--accent);border-color:rgba(212,167,44,0.4);}
+  .ayar-list-item-title{font-weight:500;font-size:0.9375rem;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+  .ayar-list-item-sub{font-size:0.8125rem;font-weight:400;color:var(--muted);margin-top:2px;font-family:var(--mono);line-height:1.3;}
+  .ayar-list-item-badge{font-size:0.75rem;font-weight:500;padding:0.12rem 0.45rem;border-radius:6px;background:var(--surface);border:none;color:var(--muted);flex-shrink:0;}
+  .ayar-list-item-badge.admin{color:var(--accent);background:rgba(212,167,44,0.1);}
   .ayar-list-item-actions{display:flex;gap:0.25rem;flex-shrink:0;}
-  .ayar-list-item-actions button{font-size:0.72rem;padding:0.25rem 0.45rem;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700;}
-  .ayar-list-item-actions button.danger{background:var(--danger);border:none;color:#fff;}
+  .ayar-list-item-actions button{font-size:0.8125rem;font-weight:500;padding:0.3rem 0.5rem;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;}
+  .ayar-list-item-actions button.danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
 
-  /* Alt modal (ekleme pencereleri) */
+  /* Alt modal */
   .ayar-submodal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:300;align-items:center;justify-content:center;padding:1rem;}
-  .ayar-submodal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,0.5);overflow:hidden;}
+  .ayar-submodal-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,0.5);overflow:hidden;font-size:0.9375rem;line-height:1.5;}
   .ayar-submodal-header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1rem;border-bottom:1px solid var(--border);}
-  .ayar-submodal-header span{font-size:0.92rem;font-weight:800;color:var(--text);}
+  .ayar-submodal-header span{font-size:1rem;font-weight:600;color:var(--text);letter-spacing:-0.01em;}
   .ayar-submodal-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0.2rem;line-height:1;}
   .ayar-submodal-close:hover{color:var(--danger);}
-  .ayar-submodal-body{padding:1rem;display:flex;flex-direction:column;gap:0.65rem;}
-  .ayar-submodal-body label{display:block;font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;}
-  .ayar-submodal-body input,.ayar-submodal-body select{width:100%;font-size:0.9rem;padding:0.55rem 0.7rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);}
+  .ayar-submodal-body{padding:1rem;display:flex;flex-direction:column;gap:0.75rem;}
+  .ayar-submodal-body label{display:block;font-size:0.8125rem;font-weight:500;color:var(--muted);letter-spacing:0;margin-bottom:0.3rem;}
+  .ayar-submodal-body input,.ayar-submodal-body select{width:100%;font-size:0.9375rem;font-weight:400;padding:0.6rem 0.75rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);line-height:1.4;}
   .ayar-submodal-body input:focus,.ayar-submodal-body select:focus{border-color:var(--accent);outline:none;}
+  .ayar-submodal-body input::placeholder{color:var(--muted);opacity:0.7;}
   .ayar-submodal-footer{padding:0 1rem 1rem;}
-  .ayar-submodal-footer .btn{width:100%;justify-content:center;}
+  .ayar-submodal-footer .btn{width:100%;justify-content:center;font-weight:500;font-size:0.9375rem;}
 
   /* Yardım */
   .ayar-details{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-  .ayar-details > summary{list-style:none;cursor:pointer;padding:0.6rem 0.75rem;display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;font-weight:700;color:var(--muted);-webkit-tap-highlight-color:transparent;user-select:none;}
+  .ayar-details > summary{list-style:none;cursor:pointer;padding:0.65rem 0.75rem;display:flex;align-items:center;justify-content:space-between;font-size:0.875rem;font-weight:500;color:var(--muted);-webkit-tap-highlight-color:transparent;user-select:none;}
   .ayar-details > summary::-webkit-details-marker{display:none;}
-  .ayar-chev{color:var(--muted);font-size:1rem;transition:transform 0.2s;}
+  .ayar-chev{color:var(--muted);font-size:0.95rem;transition:transform 0.2s;}
   .ayar-details[open] .ayar-chev{transform:rotate(90deg);}
-  .ayar-details-body{padding:0.65rem 0.75rem 0.75rem;font-size:0.8rem;line-height:1.55;color:var(--muted);}
-  .ayar-yardim{display:flex;flex-direction:column;gap:0.4rem;}
-  .ayar-yardim > div{display:flex;gap:0.4rem;}
+  .ayar-details-body{padding:0.65rem 0.75rem 0.8rem;font-size:0.875rem;line-height:1.55;color:var(--muted);font-weight:400;}
+  .ayar-yardim{display:flex;flex-direction:column;gap:0.45rem;}
+  .ayar-yardim > div{display:flex;gap:0.45rem;line-height:1.5;}
+  .ayar-yardim b{font-weight:500;color:var(--text);}
 
   @media(max-width:480px){
     .ayar-modal-overlay{padding:0;align-items:flex-end;}
     .ayar-modal-box{max-height:94vh;border-radius:16px 16px 0 0;max-width:100%;}
+    .ayar-modal-body{padding:0.75rem 0.85rem 1rem;}
+    .ayar-hesap-ad{font-size:0.975rem;}
+    .ayar-row-title{font-size:0.9rem;}
+    .ayar-list-item-title{font-size:0.9rem;}
     .ayar-submodal-overlay{padding:0.75rem;align-items:flex-end;}
     .ayar-submodal-box{border-radius:14px 14px 0 0;max-width:100%;}
   }
