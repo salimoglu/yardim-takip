@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714182000">
+<meta name="version" content="20260714190000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1163,7 +1163,7 @@
       <div class="flex gap-1 flex-wrap">
         <input type="text" id="tir-ara" placeholder="Ara..." oninput="tirRender()" style="max-width:160px;font-size:0.85rem;padding:0.35rem 0.55rem">
         <button class="btn btn-outline btn-sm" onclick="tirExcelIceAktar()">📥 İçe Aktar</button>
-        <button class="btn btn-sm" onclick="tirExcelDisaAktar()" style="background:var(--accent2);color:#111;border:none">📤 Dışa Aktar</button>
+        <button class="btn btn-sm" onclick="tirExportModalAc()" style="background:var(--accent2);color:#111;border:none">📤 Dışa Aktar</button>
         <input type="file" id="tir-excel-input" accept=".xlsx,.xls" style="display:none" onchange="tirExcelDosyaOku(event)">
       </div>
     </div>
@@ -1213,6 +1213,36 @@
           <option value="TARTILDI">TARTILDI</option>
         </select>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIR EXPORT İMZA MODALI -->
+<div id="tir-export-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)tirExportModalKapat()">
+  <div class="modal" style="max-width:520px;width:94%">
+    <div class="modal-title">📤 Excel Dışa Aktar</div>
+    <div class="text-muted" style="margin-bottom:0.9rem;font-size:0.85rem">Alt kısımda görünecek 3 kişinin adını ve ünvanını girin. Excel dikey (A4) baskıya hazır çıkar.</div>
+    <div class="form-group" style="margin-bottom:0.75rem">
+      <label>Liste başlığı</label>
+      <input type="text" id="tir-exp-altbaslik" placeholder="örn: ARALIK AYI/Liste 1">
+    </div>
+    <div style="display:grid;gap:0.65rem;margin-bottom:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <div class="form-group" style="margin:0"><label>1. Kişi — Ad Soyad</label><input type="text" id="tir-exp-imza1" placeholder="Zafer EROĞLU"></div>
+        <div class="form-group" style="margin:0"><label>1. Ünvan</label><input type="text" id="tir-exp-unvan1" placeholder="Sos.Yrd.İnc.Gör."></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <div class="form-group" style="margin:0"><label>2. Kişi — Ad Soyad</label><input type="text" id="tir-exp-imza2" placeholder="Yaver AKGÜL"></div>
+        <div class="form-group" style="margin:0"><label>2. Ünvan</label><input type="text" id="tir-exp-unvan2" placeholder="Sos.Yrd.İnc.Gör."></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <div class="form-group" style="margin:0"><label>3. Kişi — Ad Soyad</label><input type="text" id="tir-exp-imza3" placeholder="Abdullah ZENGİN"></div>
+        <div class="form-group" style="margin:0"><label>3. Ünvan</label><input type="text" id="tir-exp-unvan3" placeholder="Vakıf Müdürü"></div>
+      </div>
+    </div>
+    <div class="flex gap-1 flex-wrap">
+      <button class="btn btn-primary" onclick="tirExcelDisaAktar()">📤 Excel İndir</button>
+      <button class="btn btn-outline" onclick="tirExportModalKapat()">İptal</button>
     </div>
   </div>
 </div>
@@ -4535,7 +4565,7 @@ async function tirExcelDosyaOku(ev) {
         teslimMiktar: teslim,
         fisNo: row[9] != null && row[9] !== '' ? String(row[9]).trim() : '',
         irsaliyeNo: String(row[10] || '').trim(),
-        not: String(row[11] || '').trim(),
+        notu: String(row[11] || '').trim(),
         fark: fark,
         tartiDurumu: String(row[13] || '').trim()
       };
@@ -4555,96 +4585,169 @@ async function tirExcelDosyaOku(ev) {
   }
 }
 
+function tirExportModalAc() {
+  var liste = tirKayitListesi();
+  if (liste.length === 0) { toast('Dışa aktarılacak kayıt yok!', 'error'); return; }
+  var meta = tirMeta();
+  var set = function(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; };
+  set('tir-exp-altbaslik', meta.altBaslik || (document.getElementById('tir-alt-baslik') || {}).value || '');
+  set('tir-exp-imza1', meta.imza1 || 'Zafer EROĞLU');
+  set('tir-exp-unvan1', meta.imza1Unvan || 'Sos.Yrd.İnc.Gör.');
+  set('tir-exp-imza2', meta.imza2 || 'Yaver AKGÜL');
+  set('tir-exp-unvan2', meta.imza2Unvan || 'Sos.Yrd.İnc.Gör.');
+  set('tir-exp-imza3', meta.imza3 || 'Abdullah ZENGİN');
+  set('tir-exp-unvan3', meta.imza3Unvan || 'Vakıf Müdürü');
+  var m = document.getElementById('tir-export-modal');
+  if (m) m.style.display = 'flex';
+}
+
+function tirExportModalKapat() {
+  var m = document.getElementById('tir-export-modal');
+  if (m) m.style.display = 'none';
+}
+
 function tirExcelDisaAktar() {
   var XS = window.XlsxStyle || window.XLSX;
   if (!XS) { toast('Excel kütüphanesi yüklenmedi!', 'error'); return; }
   var liste = tirKayitListesi();
   if (liste.length === 0) { toast('Dışa aktarılacak kayıt yok!', 'error'); return; }
 
-  var meta = tirMeta();
+  var val = function(id) { var el = document.getElementById(id); return el ? (el.value || '').trim() : ''; };
+  var altBaslik = val('tir-exp-altbaslik') || tirMeta().altBaslik || '';
+  var imza1 = val('tir-exp-imza1') || 'Zafer EROĞLU';
+  var unvan1 = val('tir-exp-unvan1') || 'Sos.Yrd.İnc.Gör.';
+  var imza2 = val('tir-exp-imza2') || 'Yaver AKGÜL';
+  var unvan2 = val('tir-exp-unvan2') || 'Sos.Yrd.İnc.Gör.';
+  var imza3 = val('tir-exp-imza3') || 'Abdullah ZENGİN';
+  var unvan3 = val('tir-exp-unvan3') || 'Vakıf Müdürü';
+
+  try {
+    var metaKayit = Object.assign({}, tirMeta(), {
+      altBaslik: altBaslik,
+      imza1: imza1, imza1Unvan: unvan1,
+      imza2: imza2, imza2Unvan: unvan2,
+      imza3: imza3, imza3Unvan: unvan3
+    });
+    if (window._tirData) window._tirData.meta = metaKayit;
+    if (window.dbTirMetaKaydet) window.dbTirMetaKaydet(metaKayit);
+    var altEl = document.getElementById('tir-alt-baslik');
+    if (altEl) altEl.value = altBaslik;
+  } catch (_) {}
+
+  var COLS = 11;
   var thin = { style: 'thin', color: { rgb: '000000' } };
   var border = { top: thin, bottom: thin, left: thin, right: thin };
-  function cellStyle(bold, sz, wrap) {
+  function sty(opt) {
+    opt = opt || {};
     return {
-      font: { name: 'Arial', bold: !!bold, sz: sz || 10 },
-      alignment: { horizontal: 'center', vertical: 'center', wrapText: !!wrap },
-      border: border
+      font: { name: 'Arial', bold: !!opt.bold, sz: opt.sz || 9 },
+      alignment: { horizontal: opt.hz || 'center', vertical: 'center', wrapText: opt.wrap !== false },
+      border: opt.noBorder ? undefined : border
     };
   }
 
-  var wsData = [
-    [meta.baslik, '', '', '', '', '', '', '', '', '', '', '', '', ''],
-    [meta.altBaslik || '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-    ['Sıra No', 'Yüklemeyi Yapan Firma ', 'Gideceği  İl ', 'Gideceği Yer İlçe ', 'Vagon veya Plaka No',
-     'Sevk Çıkış Tarihi ', 'Sevk Edilen Miktar (kg)', 'Teslim Alınan Tarih', 'Teslim Alınan Miktar ',
-     'Kömür Teslim ve Tesellüm Fiş No', 'İrsaliye No', 'NOT', 'FARK', 'TARTI DURUMU']
-  ];
+  var baslik = (tirMeta().baslik) || 'ÖZALP SYDV GÜNLÜK KÖMÜR ÇIKIŞ VE TESLİMAT MİKTARLARI İZLEME TABLOSU';
+  var bos11 = function() { return ['', '', '', '', '', '', '', '', '', '', '']; };
+  var wsData = [];
+  var r0 = bos11(); r0[0] = baslik; wsData.push(r0);
+  var r1 = bos11(); r1[COLS - 1] = altBaslik; wsData.push(r1);
+  wsData.push([
+    'Sıra No', 'Yüklemeyi Yapan Firma', 'Gideceği İl', 'Gideceği Yer İlçe', 'Vagon veya Plaka No',
+    'Sevk Çıkış Tarihi', 'Sevk Edilen Miktar (kg)', 'Teslim Alınan Tarih', 'Teslim Alınan Miktar',
+    'Kömür Teslim ve Tesellüm Fiş No', 'İrsaliye No'
+  ]);
 
-  var sevkToplam = 0, teslimToplam = 0, farkToplam = 0;
-  liste.forEach(function(k) {
+  var sevkToplam = 0, teslimToplam = 0;
+  liste.forEach(function(k, idx) {
     var s = tirSayi(k.sevkMiktar); if (s !== null) sevkToplam += s;
     var t = tirSayi(k.teslimMiktar); if (t !== null) teslimToplam += t;
-    var f = tirFarkHesapla(k.sevkMiktar, k.teslimMiktar);
-    if (f !== null) farkToplam += f;
     wsData.push([
-      k.siraNo || '',
-      k.firma || '',
-      k.il || '',
-      k.ilce || '',
-      k.plaka || '',
-      tirTarihExcel(k.sevkTarihi),
-      s === null ? '' : s,
-      tirTarihExcel(k.teslimTarihi),
-      t === null ? '' : t,
-      k.fisNo || '',
-      k.irsaliyeNo || '',
-      k.not || '',
-      f === null ? '' : f,
-      k.tartiDurumu || ''
+      k.siraNo || (String(idx + 1) + '.'),
+      k.firma || '', k.il || '', k.ilce || '', k.plaka || '',
+      tirTarihExcel(k.sevkTarihi), s === null ? '' : s,
+      tirTarihExcel(k.teslimTarihi), t === null ? '' : t,
+      k.fisNo || '', k.irsaliyeNo || ''
     ]);
   });
 
-  wsData.push(['AY İÇİ TOPLAM:', '', '', '', '', '', Math.round(sevkToplam), '', Math.round(teslimToplam), '', '', '', Math.round(farkToplam), '']);
-  wsData.push(['GENEL TOPLAM:', '', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['', '', '', '', '', '', '', '', '', '', '', '', '', '']);
-  wsData.push(['', meta.imza1 || '', '', '', '', meta.imza2 || '', '', '', meta.imza3 || '', '', '', '', '', '']);
-  wsData.push(['', meta.imza1Unvan || '', '', '', '', meta.imza2Unvan || '', '', '', meta.imza3Unvan || '', '', '', '', '', '']);
+  var ayToplam = bos11();
+  ayToplam[0] = 'AY İÇİ TOPLAM:';
+  ayToplam[6] = Math.round(sevkToplam);
+  ayToplam[8] = Math.round(teslimToplam);
+  wsData.push(ayToplam);
+
+  var genel = bos11();
+  genel[0] = 'GENEL TOPLAM:';
+  wsData.push(genel);
+  wsData.push(bos11());
+
+  var imzaAd = bos11();
+  imzaAd[1] = imza1; imzaAd[5] = imza2; imzaAd[8] = imza3;
+  wsData.push(imzaAd);
+  var imzaUn = bos11();
+  imzaUn[1] = unvan1; imzaUn[5] = unvan2; imzaUn[8] = unvan3;
+  wsData.push(imzaUn);
 
   var ws = XS.utils.aoa_to_sheet(wsData);
+  var n = liste.length;
+  var rAy = 3 + n, rGen = 4 + n, rBos = 5 + n, rImza = 6 + n, rUnvan = 7 + n;
   ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } },
-    { s: { r: liste.length + 3, c: 0 }, e: { r: liste.length + 3, c: 1 } },
-    { s: { r: liste.length + 4, c: 0 }, e: { r: liste.length + 4, c: 1 } },
-    { s: { r: liste.length + 6, c: 1 }, e: { r: liste.length + 6, c: 2 } },
-    { s: { r: liste.length + 6, c: 5 }, e: { r: liste.length + 6, c: 6 } },
-    { s: { r: liste.length + 6, c: 8 }, e: { r: liste.length + 6, c: 9 } },
-    { s: { r: liste.length + 7, c: 1 }, e: { r: liste.length + 7, c: 2 } },
-    { s: { r: liste.length + 7, c: 5 }, e: { r: liste.length + 7, c: 6 } },
-    { s: { r: liste.length + 7, c: 8 }, e: { r: liste.length + 7, c: 9 } }
+    { s: { r: 0, c: 0 }, e: { r: 0, c: COLS - 1 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: COLS - 2 } },
+    { s: { r: rAy, c: 0 }, e: { r: rAy, c: 1 } },
+    { s: { r: rGen, c: 0 }, e: { r: rGen, c: 1 } },
+    { s: { r: rImza, c: 1 }, e: { r: rImza, c: 2 } },
+    { s: { r: rImza, c: 5 }, e: { r: rImza, c: 6 } },
+    { s: { r: rImza, c: 8 }, e: { r: rImza, c: 9 } },
+    { s: { r: rUnvan, c: 1 }, e: { r: rUnvan, c: 2 } },
+    { s: { r: rUnvan, c: 5 }, e: { r: rUnvan, c: 6 } },
+    { s: { r: rUnvan, c: 8 }, e: { r: rUnvan, c: 9 } }
   ];
   ws['!cols'] = [
-    { wch: 8 }, { wch: 16 }, { wch: 10 }, { wch: 12 }, { wch: 14 },
-    { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 },
-    { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 8 }, { wch: 12 }
+    { wch: 7 }, { wch: 13 }, { wch: 7 }, { wch: 9 }, { wch: 13 },
+    { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 12 }, { wch: 16 }
   ];
+  ws['!rows'] = [{ hpt: 28 }, { hpt: 18 }, { hpt: 36 }];
+  for (var i = 0; i < n; i++) ws['!rows'].push({ hpt: 16 });
+  ws['!rows'].push({ hpt: 18 }, { hpt: 18 }, { hpt: 12 }, { hpt: 18 }, { hpt: 16 });
+  ws['!pageSetup'] = { orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 };
+  ws['!printOptions'] = { horizontalCentered: true };
+  ws['!margins'] = { left: 0.25, right: 0.25, top: 0.35, bottom: 0.35, header: 0.15, footer: 0.15 };
 
-  // stil (xlsx-js-style varsa)
   for (var R = 0; R < wsData.length; R++) {
-    for (var C = 0; C < 14; C++) {
+    for (var C = 0; C < COLS; C++) {
       var addr = XS.utils.encode_cell({ r: R, c: C });
       if (!ws[addr]) ws[addr] = { t: 's', v: '' };
-      var bold = (R <= 2) || R >= liste.length + 3;
-      ws[addr].s = cellStyle(bold, R === 0 ? 12 : 10, R === 2);
+      var isTitle = R === 0, isSub = R === 1, isHead = R === 2;
+      var isData = R >= 3 && R < 3 + n;
+      var isTot = R === rAy || R === rGen;
+      var isImza = R === rImza || R === rUnvan;
+      var isEmpty = R === rBos;
+      if (isTitle) ws[addr].s = sty({ bold: true, sz: 11, wrap: true });
+      else if (isSub) {
+        ws[addr].s = sty({ bold: true, sz: 10, hz: C === COLS - 1 ? 'right' : 'center', noBorder: C < COLS - 1 });
+        if (C === COLS - 1) ws[addr].s.border = border;
+      } else if (isHead) ws[addr].s = sty({ bold: true, sz: 8, wrap: true });
+      else if (isData) {
+        ws[addr].s = sty({ bold: false, sz: 8, wrap: false });
+        if ((C === 6 || C === 8) && typeof ws[addr].v === 'number') { ws[addr].z = '#,##0'; ws[addr].t = 'n'; }
+      } else if (isTot) {
+        ws[addr].s = sty({ bold: true, sz: 9 });
+        if ((C === 6 || C === 8) && typeof ws[addr].v === 'number') { ws[addr].z = '#,##0'; ws[addr].t = 'n'; }
+      } else if (isImza) ws[addr].s = sty({ bold: R === rImza, sz: 9, noBorder: true });
+      else if (isEmpty) ws[addr].s = sty({ noBorder: true });
+      else ws[addr].s = sty({ sz: 8 });
     }
   }
 
   var wb = XS.utils.book_new();
   XS.utils.book_append_sheet(wb, ws, 'TIR T.TESELLÜM');
-  var ad = 'TIR-Teslim-Tesellum-' + new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
+  var ad = 'TIR-Teslim-Tesellum-' + new Date().toLocaleDateString('tr-TR').split('.').join('-');
   XS.writeFile(wb, ad + '.xlsx');
-  toast('Excel indirildi (' + liste.length + ' TIR)');
+  tirExportModalKapat();
+  toast('Excel indirildi — dikey baskıya hazır (' + liste.length + ' TIR)');
 }
+
 
 // ===== SEÇİM SİSTEMİ (kalıcı — sayfalama sınırını aşar) =====
 function secimToggle(tc, checked) {
