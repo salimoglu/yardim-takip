@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714203000">
+<meta name="version" content="20260714204000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -254,11 +254,20 @@
   #page-tir .panel-sticky{padding-bottom:0.55rem;}
   #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
-  #page-tir.page{max-width:1180px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
+  #page-tir.page{max-width:1360px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
   .tir-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .tir-table{font-size:0.78rem;min-width:980px;}
-  .tir-table th{white-space:nowrap;font-size:0.65rem;}
-  .tir-table td{white-space:nowrap;vertical-align:middle;}
+  .tir-table{font-size:0.74rem;width:100%;border-collapse:collapse;table-layout:auto;}
+  .tir-table th{white-space:nowrap;font-size:0.62rem;padding:0.45rem 0.35rem;}
+  .tir-table td{white-space:nowrap;vertical-align:middle;padding:0.4rem 0.35rem;}
+  .tir-table td:nth-child(11),.tir-table th:nth-child(11){max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+  .tir-table td:nth-child(12),.tir-table th:nth-child(12){max-width:90px;overflow:hidden;text-overflow:ellipsis;}
+  .tir-table .btn{padding:0.15rem 0.4rem;font-size:0.68rem;}
+  @media(min-width:1400px){
+    #page-tir.page{max-width:1480px;}
+  }
+  @media(max-width:1100px){
+    .tir-table{min-width:920px;}
+  }
   .tir-fark-pos{color:var(--danger);font-weight:700;}
   .tir-fark-neg{color:var(--accent2);font-weight:700;}
   .tir-fark-0{color:var(--muted);}
@@ -4617,12 +4626,12 @@ function tirRender() {
       + '<td>' + tirTarihGoster(k.teslimTarihi) + '</td>'
       + '<td>' + tirKgGoster(k.teslimMiktar) + '</td>'
       + '<td>' + escapeHtml(k.fisNo || '') + '</td>'
-      + '<td style="font-size:0.72rem">' + escapeHtml(k.irsaliyeNo || '') + '</td>'
-      + '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis" title="' + escapeHtml(tirNotMetin(k)) + '">' + escapeHtml(tirNotMetin(k)) + '</td>'
+      + '<td title="' + escapeHtml(k.irsaliyeNo || '') + '">' + escapeHtml(k.irsaliyeNo || '') + '</td>'
+      + '<td title="' + escapeHtml(tirNotMetin(k)) + '">' + escapeHtml(tirNotMetin(k)) + '</td>'
       + '<td class="' + farkCls + '">' + (fark === null ? '—' : fark.toLocaleString('tr-TR')) + '</td>'
       + '<td style="white-space:nowrap">'
-      + '<button class="btn btn-outline btn-sm" style="padding:0.2rem 0.45rem;font-size:0.72rem;margin-right:3px" onclick="tirDuzenle(\'' + id + '\')">Düzenle</button>'
-      + '<button class="btn btn-sm" style="padding:0.2rem 0.4rem;font-size:0.72rem;background:var(--danger);color:#fff;border:none" onclick="tirSil(\'' + id + '\')">🗑</button>'
+      + '<button class="btn btn-outline btn-sm" style="margin-right:3px" onclick="tirDuzenle(\'' + id + '\')">Düzenle</button>'
+      + '<button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="tirSil(\'' + id + '\')">🗑</button>'
       + '</td></tr>';
   }).join('');
 }
