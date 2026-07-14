@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714360000">
+<meta name="version" content="20260714370000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -126,7 +126,9 @@
   .ayar-list-item-badge.admin{color:var(--accent);background:rgba(212,167,44,0.1);}
   .ayar-list-item-actions{display:flex;gap:0.25rem;flex-shrink:0;}
   .ayar-list-item-actions button{font-size:0.8125rem;font-weight:500;padding:0.3rem 0.5rem;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;}
+  .ayar-list-item-actions button.warn{background:transparent;border-color:var(--accent);color:var(--accent);}
   .ayar-list-item-actions button.danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+  .personel-edit-note{font-size:0.78rem;color:var(--muted);line-height:1.4;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.65rem;}
 
   /* Alt modal */
   .ayar-submodal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:300;align-items:center;justify-content:center;padding:1rem;}
@@ -1207,6 +1209,38 @@
   </div>
 </div>
 
+<!-- PERSONEL DÜZENLE MODAL -->
+<div id="personel-duzenle-modal" class="ayar-submodal-overlay" onclick="if(event.target===this)personelDuzenleModalKapat()">
+  <div class="ayar-submodal-box">
+    <div class="ayar-submodal-header">
+      <span>✏️ Personel Düzenle</span>
+      <button class="ayar-submodal-close" onclick="personelDuzenleModalKapat()" aria-label="Kapat">✕</button>
+    </div>
+    <div class="ayar-submodal-body">
+      <input type="hidden" id="edit-p-eski-tel">
+      <div><label for="edit-p-tel">Telefon / Kullanıcı adı</label><input type="text" id="edit-p-tel" placeholder="05xxxxxxxxx" maxlength="11" inputmode="numeric" style="font-family:var(--mono)"></div>
+      <div><label for="edit-p-ad">Ad Soyad</label><input type="text" id="edit-p-ad" placeholder="Ad Soyad"></div>
+      <div><label for="edit-p-rol">Rol</label>
+        <select id="edit-p-rol">
+          <option value="personel">Saha Personeli</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div><label for="edit-p-mevcut-sifre">Mevcut şifre</label>
+        <input type="password" id="edit-p-mevcut-sifre" placeholder="Eski kayıtlarda şifre/telefon değişimi için">
+      </div>
+      <div><label for="edit-p-yeni-sifre">Yeni şifre</label>
+        <input type="password" id="edit-p-yeni-sifre" placeholder="Boş bırakırsanız değişmez">
+      </div>
+      <div class="personel-edit-note">Ad ve rol hemen güncellenir. Telefon veya şifre değişikliği için Auth hesabını doğrulamak gerekir; yeni eklenen personellerde bu otomatik yapılır.</div>
+      <div id="personel-edit-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
+    </div>
+    <div class="ayar-submodal-footer">
+      <button class="btn btn-primary" onclick="personelDuzenleKaydet()">💾 Değişiklikleri Kaydet</button>
+    </div>
+  </div>
+</div>
+
 <!-- ========== DASHBOARD ========== -->
 <div id="page-dashboard" class="page active">
   <div class="panel-sticky-spacer" id="panel-sticky-spacer" aria-hidden="true"></div>
@@ -2118,6 +2152,8 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
+  const personelApp = initializeApp(firebaseConfig, 'personel-admin');
+  const personelAuth = getAuth(personelApp);
 
   // Firebase bağlantı durumu göstergesi
   const connRef = ref(db, '.info/connected');
@@ -2390,6 +2426,8 @@
   // ===== FIREBASE HAZIR =====
   window._firebaseHazir = true;
   window._auth = auth;
+  window._personelAuth = personelAuth;
+  window._firebaseConfig = firebaseConfig;
   window._db = db;
 
   // Auth state — giriş yapılmış mı?
@@ -2397,10 +2435,16 @@
     if (user) {
       try {
         var tel = user.email.replace('@yardim.com','');
-        var rolSnap = await get(ref(db, 'kullanicilar/'+tel+'/rol'));
-        var rol = rolSnap.val() || 'personel'; // varsayılan personel (güvenli)
-        var adSnap = await get(ref(db, 'kullanicilar/'+tel+'/ad'));
-        var kullaniciAd = adSnap.val() || tel;
+        var kulSnap = await get(ref(db, 'kullanicilar/'+tel));
+        var kul = kulSnap.val();
+        if (!kul || kul.pasif === true) {
+          await signOut(auth);
+          var gh = document.getElementById('giris-hata');
+          if (gh) gh.textContent = 'Bu kullanıcı pasif veya silinmiş.';
+          return;
+        }
+        var rol = kul.rol || 'personel'; // varsayılan personel (güvenli)
+        var kullaniciAd = kul.ad || tel;
         window._aktifKullanici = { tel: tel, ad: kullaniciAd, rol: rol, uid: user.uid };
         window._aktifRol = rol;
         document.getElementById('giris-ekrani').style.display = 'none';
@@ -4763,6 +4807,10 @@ function personelEkleModalKapat() {
   var m = document.getElementById('personel-ekle-modal');
   if (m) m.style.display = 'none';
 }
+function personelDuzenleModalKapat() {
+  var m = document.getElementById('personel-duzenle-modal');
+  if (m) m.style.display = 'none';
+}
 
 function donemListeYukle() {
   var donemler = window._tumDonemler || {};
@@ -5027,6 +5075,7 @@ async function personelListeYukle() {
       var isAdmin = p.rol === 'admin';
       var safeTel = escapeHtml(tel);
       var safeAd = escapeHtml(p.ad || tel);
+      var encTel = encodeURIComponent(tel);
       return '<div class="ayar-list-item">'
         + '<div class="ayar-list-item-main">'
         + '<div class="ayar-list-item-title">' + safeAd + '</div>'
@@ -5034,11 +5083,82 @@ async function personelListeYukle() {
         + '</div>'
         + '<span class="ayar-list-item-badge' + (isAdmin ? ' admin' : '') + '">' + (isAdmin ? 'Admin' : 'Personel') + '</span>'
         + '<div class="ayar-list-item-actions">'
+        + '<button class="warn" onclick="personelDuzenleModalAc(\'' + encTel + '\')" title="Düzenle">✎</button>'
         + '<button class="danger" onclick="personelSil(\'' + safeTel + '\')" title="Sil">🗑</button>'
         + '</div></div>';
     }).join('');
   } catch(e) {
     liste.innerHTML = '<div class="ayar-liste-empty" style="color:var(--danger)">Yüklenemedi</div>';
+  }
+}
+
+function personelTelTemizle(x) {
+  return String(x || '').replace(/[^0-9]/g, '');
+}
+function personelAuthEmail(tel) {
+  return personelTelTemizle(tel) + '@yardim.com';
+}
+async function personelAuthCikis() {
+  try {
+    if (window._personelAuth) await signOut(window._personelAuth);
+  } catch(_){}
+}
+async function personelAuthOlustur(tel, sifre) {
+  var { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  try {
+    await createUserWithEmailAndPassword(window._personelAuth, personelAuthEmail(tel), sifre);
+    await personelAuthCikis();
+    return 'created';
+  } catch(e) {
+    await personelAuthCikis();
+    if (e && e.code === 'auth/email-already-in-use') return 'exists';
+    throw e;
+  }
+}
+async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
+  var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  if (!mevcutSifre) throw new Error('Telefon veya şifre değiştirmek için mevcut şifre gerekir.');
+  try {
+    await signInWithEmailAndPassword(window._personelAuth, personelAuthEmail(eskiTel), mevcutSifre);
+    var user = window._personelAuth.currentUser;
+    if (!user) throw new Error('Personel oturumu doğrulanamadı.');
+    if (personelTelTemizle(yeniTel) !== personelTelTemizle(eskiTel)) {
+      await mod.updateEmail(user, personelAuthEmail(yeniTel));
+    }
+    if (yeniSifre) await mod.updatePassword(user, yeniSifre);
+    await personelAuthCikis();
+  } catch(e) {
+    await personelAuthCikis();
+    if (e && (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')) throw new Error('Mevcut şifre hatalı.');
+    if (e && e.code === 'auth/email-already-in-use') throw new Error('Bu telefon/kullanıcı adı zaten kullanılıyor.');
+    throw e;
+  }
+}
+
+async function personelDuzenleModalAc(telEncoded) {
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
+  var tel = decodeURIComponent(telEncoded || '');
+  var hata = document.getElementById('personel-edit-hata');
+  if (hata) hata.textContent = '';
+  try {
+    var p = await window._dbGet('kullanicilar/' + tel);
+    if (!p) { toast('Personel bulunamadı', 'error'); personelListeYukle(); return; }
+    var eski = document.getElementById('edit-p-eski-tel');
+    var telEl = document.getElementById('edit-p-tel');
+    var adEl = document.getElementById('edit-p-ad');
+    var rolEl = document.getElementById('edit-p-rol');
+    var mevEl = document.getElementById('edit-p-mevcut-sifre');
+    var yeniEl = document.getElementById('edit-p-yeni-sifre');
+    if (eski) eski.value = tel;
+    if (telEl) telEl.value = p.tel || tel;
+    if (adEl) adEl.value = p.ad || '';
+    if (rolEl) rolEl.value = p.rol === 'admin' ? 'admin' : 'personel';
+    if (mevEl) mevEl.value = '';
+    if (yeniEl) yeniEl.value = '';
+    var m = document.getElementById('personel-duzenle-modal');
+    if (m) m.style.display = 'flex';
+  } catch(e) {
+    toast('Personel bilgisi okunamadı: ' + e.message, 'error');
   }
 }
 
@@ -5062,12 +5182,10 @@ async function yeniPersonelEkle() {
   if (!tel || tel.length < 10) { hataEl.textContent = 'Geçerli telefon girin!'; return; }
   if (!sifre || sifre.length < 6) { hataEl.textContent = 'Şifre en az 6 karakter olmalı!'; return; }
   try {
-    // Firebase Auth'a kullanıcı ekle
-    var { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-    var email = tel + '@yardim.com';
-    await createUserWithEmailAndPassword(window._auth, email, sifre);
+    // Secondary Auth kullanılır; admin oturumu yeni personele geçmez.
+    await personelAuthOlustur(tel, sifre);
     // Kullanicilar DB'ye kaydet
-    await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel });
+    await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
     toast('✅ ' + (ad||tel) + ' eklendi!');
     document.getElementById('yeni-p-tel').value = '';
     document.getElementById('yeni-p-ad').value = '';
@@ -5077,7 +5195,7 @@ async function yeniPersonelEkle() {
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
       // Zaten Auth'da var, sadece DB'ye ekle
-      await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel });
+      await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
       toast('✅ ' + (ad||tel) + ' güncellendi!');
       personelEkleModalKapat();
       personelListeYukle();
@@ -5086,6 +5204,75 @@ async function yeniPersonelEkle() {
     }
   }
 }
+
+async function personelDuzenleKaydet() {
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
+  var eskiTel = personelTelTemizle(document.getElementById('edit-p-eski-tel').value);
+  var yeniTel = personelTelTemizle(document.getElementById('edit-p-tel').value);
+  var ad = document.getElementById('edit-p-ad').value.trim();
+  var rol = document.getElementById('edit-p-rol').value === 'admin' ? 'admin' : 'personel';
+  var mevcutSifre = document.getElementById('edit-p-mevcut-sifre').value;
+  var yeniSifre = document.getElementById('edit-p-yeni-sifre').value;
+  var hataEl = document.getElementById('personel-edit-hata');
+  if (hataEl) hataEl.textContent = '';
+  if (!eskiTel || !yeniTel || yeniTel.length < 10) { if (hataEl) hataEl.textContent = 'Geçerli telefon/kullanıcı adı girin!'; return; }
+  if (yeniSifre && yeniSifre.length < 6) { if (hataEl) hataEl.textContent = 'Yeni şifre en az 6 karakter olmalı!'; return; }
+
+  try {
+    var eskiKayit = await window._dbGet('kullanicilar/' + eskiTel);
+    if (!eskiKayit) { if (hataEl) hataEl.textContent = 'Personel kaydı bulunamadı.'; return; }
+    var eskiSifre = mevcutSifre || eskiKayit.sifre || '';
+    var telDegisti = yeniTel !== eskiTel;
+    var authDegisti = telDegisti || !!yeniSifre;
+
+    if (telDegisti) {
+      var mevcutYeni = await window._dbGet('kullanicilar/' + yeniTel);
+      if (mevcutYeni) throw new Error('Bu telefon/kullanıcı adı başka bir personelde kayıtlı.');
+    }
+
+    if (authDegisti) {
+      await personelAuthGuncelle(eskiTel, yeniTel, eskiSifre, yeniSifre);
+    }
+
+    var yeniKayit = Object.assign({}, eskiKayit, {
+      ad: ad || yeniTel,
+      rol: rol,
+      tel: yeniTel
+    });
+    if (yeniSifre) yeniKayit.sifre = yeniSifre;
+    else if (eskiSifre && !yeniKayit.sifre) yeniKayit.sifre = eskiSifre;
+
+    if (telDegisti) {
+      await window._dbSet('kullanicilar/' + yeniTel, yeniKayit);
+      await window._dbRemove('kullanicilar/' + eskiTel);
+    } else {
+      await window._dbSet('kullanicilar/' + eskiTel, yeniKayit);
+    }
+
+    if (window._aktifKullanici && window._aktifKullanici.tel === eskiTel) {
+      window._aktifKullanici.tel = yeniTel;
+      window._aktifKullanici.ad = yeniKayit.ad;
+      window._aktifKullanici.rol = rol;
+      window._aktifRol = rol;
+      try { rolAyarla(rol); ayarModalYukle(); } catch(_){}
+    }
+
+    toast('✅ Personel bilgileri güncellendi');
+    personelDuzenleModalKapat();
+    personelListeYukle();
+  } catch(e) {
+    if (hataEl) hataEl.textContent = 'Hata: ' + (e && e.message ? e.message : e);
+  }
+}
+
+window.personelDuzenleModalAc = personelDuzenleModalAc;
+window.personelDuzenleModalKapat = personelDuzenleModalKapat;
+window.personelDuzenleKaydet = personelDuzenleKaydet;
+window.personelEkleModalAc = personelEkleModalAc;
+window.personelEkleModalKapat = personelEkleModalKapat;
+window.personelListeYukle = personelListeYukle;
+window.yeniPersonelEkle = yeniPersonelEkle;
+window.personelSil = personelSil;
 
 async function donemKapatOnay(donemId) {
   if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
