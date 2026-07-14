@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714210000">
+<meta name="version" content="20260714211500">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -265,6 +265,10 @@
   .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.66rem;}
   .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
   .komur-ist-tablo .ki-saha{text-align:left;font-size:0.62rem;white-space:normal;line-height:1.25;max-width:0;}
+  .komur-ist-tablo .ki-elden-inp{width:100%;max-width:54px;margin:0 auto;display:block;text-align:center;font-size:0.66rem;font-family:var(--mono);padding:0.2rem 0.15rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+  .komur-ist-tablo .ki-elden-inp:focus{border-color:var(--accent);outline:none;}
+  .komur-ist-ayar{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;font-size:0.72rem;color:var(--muted);}
+  .komur-ist-ayar input{width:52px;padding:0.25rem 0.35rem;font-size:0.78rem;text-align:center;font-family:var(--mono);}
   .komur-ist-tablo tfoot td{position:sticky;bottom:0;z-index:2;background:#3a2e12;color:var(--accent);font-weight:700;border-top:2px solid var(--accent);padding:0.4rem 0.25rem;}
   [data-theme="light"] .komur-ist-tablo tfoot td{background:#fef3d5;color:#8a5a00;}
   [data-theme="light"] .komur-ist-tablo .ki-ort{background:#fff3b0;}
@@ -820,7 +824,12 @@
   <div class="card komur-ist-card">
     <div class="komur-ist-baslik">
       <div class="card-title">GELEN KÖMÜR İSTATİSTİĞİ</div>
-      <span class="text-muted" style="font-size:0.72rem">TIR + teslim verilerinden günlük özet · 1 fiş = 50 torba</span>
+      <div class="komur-ist-ayar">
+        <label for="ki-torba-per-fis" style="margin:0;text-transform:none;letter-spacing:0;font-weight:500">1 fiş =</label>
+        <input type="number" id="ki-torba-per-fis" min="1" step="1" value="50" onchange="kiTorbaPerFisKaydet()" title="Sistem fişi başına torba">
+        <span>torba</span>
+        <span style="opacity:0.7">· ortalamalar elden fiş hariç</span>
+      </div>
     </div>
     <div class="komur-ist-wrap">
       <table class="komur-ist-tablo">
@@ -1538,6 +1547,29 @@
       kayitlar: temizKayitlar
     });
   };
+
+  // Gelen kömür istatistik ayarları (torba/fiş + manuel elden)
+  window._komurIstUnsub = null;
+  window._komurIstData = { torbaPerFis: 50, elden: {} };
+  window.dbKomurIstKaydet = async function(data) {
+    var temiz = tirSanitize(data || {});
+    if (!temiz.elden) temiz.elden = {};
+    if (!temiz.torbaPerFis) temiz.torbaPerFis = 50;
+    return set(ref(db, dbYol('meta/komurIstatistik')), temiz);
+  };
+  window.dbKomurIstEldenKaydet = async function(gun, adet) {
+    var n = parseInt(adet, 10);
+    if (!gun) return;
+    if (!n || n < 0) {
+      return remove(ref(db, dbYol('meta/komurIstatistik/elden/' + gun)));
+    }
+    return set(ref(db, dbYol('meta/komurIstatistik/elden/' + gun)), n);
+  };
+  window.dbKomurIstTorbaKaydet = async function(adet) {
+    var n = parseInt(adet, 10);
+    if (!n || n < 1) n = 50;
+    return set(ref(db, dbYol('meta/komurIstatistik/torbaPerFis')), n);
+  };
   window.dbTopluYaz = async function(kayitlar, onProgress) {
     var BATCH = 50, done = 0;
     for (var i = 0; i < kayitlar.length; i += BATCH) {
@@ -1602,6 +1634,15 @@
       window._tirData = { meta: v.meta || {}, kayitlar: v.kayitlar || {} };
       if (typeof tirRender === 'function') tirRender();
       if (typeof updateDashboard === 'function') updateDashboard();
+    });
+    if (window._komurIstUnsub) { try { window._komurIstUnsub(); } catch(_){} window._komurIstUnsub = null; }
+    window._komurIstUnsub = onValue(ref(db, 'donemler/'+donemId+'/meta/komurIstatistik'), function(snap) {
+      var v = snap.val() || {};
+      window._komurIstData = {
+        torbaPerFis: parseInt(v.torbaPerFis, 10) > 0 ? parseInt(v.torbaPerFis, 10) : 50,
+        elden: v.elden || {}
+      };
+      if (typeof komurIstatistikRender === 'function') komurIstatistikRender();
     });
   };
 
@@ -2678,8 +2719,15 @@ function buildPersonInfo(k){
     <div class="person-row"><span class="person-key">Kayıt</span><span class="person-val">${new Date(k.kayitTarihi).toLocaleDateString('tr-TR')}</span></div>`;
 }
 
-// ===== DASHBOARD =====
-var _TORBA_PER_FIS = 50;
+// ===== DASHBOARD / GELEN KÖMÜR İSTATİSTİĞİ =====
+function kiTorbaPerFis() {
+  var d = window._komurIstData || {};
+  var n = parseInt(d.torbaPerFis, 10);
+  return (n > 0) ? n : 50;
+}
+function kiEldenMap() {
+  return (window._komurIstData && window._komurIstData.elden) || {};
+}
 
 function kiFmtInt(n) {
   return Math.round(n || 0).toLocaleString('tr-TR');
@@ -2693,10 +2741,6 @@ function kiGunTr(isoGun) {
   var p = String(isoGun).split('-');
   if (p.length !== 3) return isoGun;
   return p[2] + '.' + p[1] + '.' + p[0];
-}
-function kiEldenMi(k) {
-  var t = ((k.yardimturu || '') + ' ' + (k.gundem || '') + ' ' + (k.notu || k.not || '')).toLocaleLowerCase('tr-TR');
-  return t.indexOf('elden') !== -1 || t.indexOf('kuran') !== -1;
 }
 function kiTeslimGun(k) {
   if (!k || !k.teslimTarihi) return '';
@@ -2713,10 +2757,13 @@ function komurIstatistikHesapla() {
   var byDay = {};
   function gunSatir(gun) {
     if (!byDay[gun]) {
-      byDay[gun] = { gun: gun, kamyon: 0, kg: 0, fis: 0, elden: 0, saha: {} };
+      byDay[gun] = { gun: gun, kamyon: 0, kg: 0, fis: 0, saha: {} };
     }
     return byDay[gun];
   }
+
+  var torbaPer = kiTorbaPerFis();
+  var eldenMap = kiEldenMap();
 
   // TIR: teslim tarihi + teslim kg
   var tirListe = (typeof tirKayitListesi === 'function') ? tirKayitListesi() : [];
@@ -2729,34 +2776,40 @@ function komurIstatistikHesapla() {
     if (kg !== null && !isNaN(kg)) s.kg += kg;
   });
 
-  // Kişi teslimleri → fiş / elden / saha
+  // Sistem teslimleri → fiş sayısı + saha (elden HARİÇ — elden manuel)
   Object.values(_allKisiler || {}).forEach(function(k) {
     if (!k || !k.teslimEdildi || !k.teslimTarihi) return;
     var gun = kiTeslimGun(k);
     if (!gun) return;
     var s = gunSatir(gun);
     s.fis += 1;
-    if (kiEldenMi(k)) s.elden += 1;
     var kim = (k.teslimEden || '').trim();
     if (kim) {
-      // kısa ad: ilk kelime büyük
       var kisa = kim.split(/\s+/)[0];
       s.saha[kisa] = true;
     }
   });
 
+  // Manuel elden günlerini de satır olarak göster (TIR/teslim yoksa bile)
+  Object.keys(eldenMap).forEach(function(gun) {
+    if (eldenMap[gun]) gunSatir(gun);
+  });
+
   return Object.keys(byDay).sort().map(function(gun) {
     var s = byDay[gun];
-    var torba = s.fis * _TORBA_PER_FIS;
+    // Ortalamalar SADECE sistem fişine göre (elden dahil değil)
+    var fisSistem = s.fis;
+    var torba = fisSistem * torbaPer;
+    var elden = parseInt(eldenMap[gun], 10) || 0;
     return {
       gun: gun,
       kamyon: s.kamyon,
       kg: Math.round(s.kg),
       torba: torba,
-      fis: s.fis,
-      elden: s.elden,
+      fis: fisSistem,
+      elden: elden,
       torbaOrt: torba > 0 ? (s.kg / torba) : null,
-      fisOrt: s.fis > 0 ? (s.kg / s.fis) : null,
+      fisOrt: fisSistem > 0 ? (s.kg / fisSistem) : null,
       saha: Object.keys(s.saha).sort(function(a, b) {
         return a.localeCompare(b, 'tr');
       })
@@ -2764,10 +2817,49 @@ function komurIstatistikHesapla() {
   });
 }
 
+async function kiTorbaPerFisKaydet() {
+  var el = document.getElementById('ki-torba-per-fis');
+  var n = parseInt(el && el.value, 10);
+  if (!n || n < 1) n = 50;
+  if (el) el.value = String(n);
+  if (!window._komurIstData) window._komurIstData = { torbaPerFis: 50, elden: {} };
+  window._komurIstData.torbaPerFis = n;
+  komurIstatistikRender();
+  try {
+    if (window.dbKomurIstTorbaKaydet) await window.dbKomurIstTorbaKaydet(n);
+  } catch (e) {
+    toast('Torba ayarı kaydedilemedi: ' + e.message, 'error');
+  }
+}
+
+async function kiEldenKaydet(gun, inp) {
+  if (!gun || !inp) return;
+  var ham = String(inp.value || '').trim();
+  var n = ham === '' ? 0 : parseInt(ham, 10);
+  if (isNaN(n) || n < 0) n = 0;
+  inp.value = n ? String(n) : '';
+  if (!window._komurIstData) window._komurIstData = { torbaPerFis: 50, elden: {} };
+  if (!window._komurIstData.elden) window._komurIstData.elden = {};
+  if (n) window._komurIstData.elden[gun] = n;
+  else delete window._komurIstData.elden[gun];
+  komurIstatistikRender();
+  try {
+    if (window.dbKomurIstEldenKaydet) await window.dbKomurIstEldenKaydet(gun, n);
+  } catch (e) {
+    toast('Elden fiş kaydedilemedi: ' + e.message, 'error');
+  }
+}
+
 function komurIstatistikRender() {
   var body = document.getElementById('komur-ist-body');
   var foot = document.getElementById('komur-ist-foot');
   if (!body) return;
+
+  var torbaInp = document.getElementById('ki-torba-per-fis');
+  if (torbaInp && document.activeElement !== torbaInp) {
+    torbaInp.value = String(kiTorbaPerFis());
+  }
+
   var satirlar = komurIstatistikHesapla();
   if (satirlar.length === 0) {
     body.innerHTML = '<tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Henüz TIR veya teslim kaydı yok</td></tr>';
@@ -2776,6 +2868,7 @@ function komurIstatistikRender() {
   }
 
   body.innerHTML = satirlar.map(function(s, i) {
+    var eldenVal = s.elden ? String(s.elden) : '';
     return '<tr>'
       + '<td class="ki-no">' + (i + 1) + '</td>'
       + '<td class="ki-tarih">' + kiGunTr(s.gun) + '</td>'
@@ -2783,9 +2876,9 @@ function komurIstatistikRender() {
       + '<td class="ki-sayi">' + (s.kg ? kiFmtInt(s.kg) : '') + '</td>'
       + '<td class="ki-sayi">' + (s.torba ? kiFmtInt(s.torba) : '') + '</td>'
       + '<td class="ki-sayi">' + (s.fis ? kiFmtInt(s.fis) : '') + '</td>'
-      + '<td class="ki-sayi">' + (s.elden ? kiFmtInt(s.elden) : '') + '</td>'
-      + '<td class="ki-ort">' + kiFmtOrt(s.torbaOrt) + '</td>'
-      + '<td class="ki-ort">' + kiFmtOrt(s.fisOrt) + '</td>'
+      + '<td><input class="ki-elden-inp" type="number" min="0" step="1" value="' + eldenVal + '" placeholder="—" title="Manuel elden fiş / kuran" onchange="kiEldenKaydet(\'' + s.gun + '\', this)" onkeydown="if(event.key===\'Enter\'){this.blur()}"></td>'
+      + '<td class="ki-ort" title="kg ÷ dağıtılan torba (elden hariç)">' + kiFmtOrt(s.torbaOrt) + '</td>'
+      + '<td class="ki-ort" title="kg ÷ sistem fiş (elden hariç)">' + kiFmtOrt(s.fisOrt) + '</td>'
       + '<td class="ki-saha" title="' + escapeHtml(s.saha.join(' / ')) + '">' + escapeHtml(s.saha.join(' / ')) + '</td>'
       + '</tr>';
   }).join('');
