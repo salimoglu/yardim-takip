@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714230000">
+<meta name="version" content="20260714231000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -283,7 +283,7 @@
   }
   #page-dashboard .panel-komur-ust{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
   #page-dashboard .panel-komur-sticky .card-title{margin:0;font-size:0.95rem;}
-  /* Mahalle özete gelince kömür özeti (turuncu başlık alanı) sabit kalmasın */
+  /* Mahalle özete gelince kömür özeti sabit bandtan çıkar (animasyonsuz jump yok — JS scroll telafi eder) */
   #page-dashboard .panel-sticky.ozet-modu .panel-komur-sticky{display:none;}
   .panel-komur-hedef{
     display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0.45rem;align-items:stretch;
@@ -313,12 +313,12 @@
     .panel-komur-hedef{grid-template-columns:repeat(2,minmax(0,1fr));}
   }
   #page-dashboard .panel-sticky.ozet-modu .stats-grid{margin-bottom:0;}
-  /* Gelen kömür istatistik tablosu — başlık sabitlenmez */
+  /* Gelen kömür istatistik tablosu */
   .komur-ist-card{padding:0.85rem 0.85rem 1rem;overflow:visible;}
   .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
   .komur-ist-baslik .card-title{margin:0;font-size:0.95rem;}
   .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
-  /* separate: sticky thead collapse ile bozulmasın */
+  /* separate: sticky thead collapse ile bozulmasın — tablo bitince doğal bırakır */
   .komur-ist-tablo{width:100%;border-collapse:separate;border-spacing:0;font-size:1.02rem;table-layout:fixed;}
   .komur-ist-tablo thead th{
     position:sticky;
@@ -326,11 +326,6 @@
     z-index:40;
     background:var(--surface2);
     box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.45);
-  }
-  /* Mahalle özete gelince (ozet-modu) tablo başlığı sabit kalmaz */
-  #page-dashboard #panel-sticky.ozet-modu ~ #komur-ist-card .komur-ist-tablo thead th{
-    position:static;
-    box-shadow:none;
   }
   .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
   .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
@@ -3343,21 +3338,43 @@ function panelStickyYukseklikAyarla() {
 function panelStickyModGuncelle() {
   var sticky = document.getElementById('panel-sticky');
   var mahalle = document.getElementById('mahalle-ozet-card');
+  var komurCard = document.getElementById('komur-ist-card');
   var dash = document.getElementById('page-dashboard');
   if (!sticky || !mahalle || !dash) return;
   if (!dash.classList.contains('active')) return;
-  var stickyBottom = sticky.getBoundingClientRect().bottom;
+
+  var stickyRect = sticky.getBoundingClientRect();
+  var stickyBottom = stickyRect.bottom;
+  var komurBottom = komurCard ? komurCard.getBoundingClientRect().bottom : 0;
   var mahalleTop = mahalle.getBoundingClientRect().top;
   var ozetSimdi = sticky.classList.contains('ozet-modu');
-  // Histerezis: kömür bandı gizlenince sticky küçülür — titreşimi önler
-  var ozetOlsun = ozetSimdi
-    ? (mahalleTop <= stickyBottom + 72)
-    : (mahalleTop <= stickyBottom + 2);
-  var degisti = ozetSimdi !== ozetOlsun;
-  sticky.classList.toggle('ozet-modu', ozetOlsun);
-  if (degisti) {
-    requestAnimationFrame(panelStickyYukseklikAyarla);
+
+  // Tablo tamamen üst bandın üstüne çıkınca özet moduna geç — ara kesişimde
+  // thead+kömür bandı aynı anda zıplamasın. Histerezis ile titreşim engellenir.
+  var ozetOlsun;
+  if (ozetSimdi) {
+    // Geri: kömür tablosu tekrar belirgin şekilde görünürse
+    ozetOlsun = !(komurBottom > stickyBottom + 48);
+  } else {
+    // İleri: kömür kartı bandın altına tamamen girdi (mahalle yaklaştı)
+    ozetOlsun = komurBottom <= stickyBottom + 4 && mahalleTop <= stickyBottom + 120;
   }
+
+  if (ozetSimdi === ozetOlsun) return;
+
+  var hOnceki = sticky.offsetHeight;
+  sticky.classList.toggle('ozet-modu', ozetOlsun);
+  // layout: sticky + spacer yüksekliği değişince içerik zıplamasın
+  void sticky.offsetHeight;
+  var hSonra = sticky.offsetHeight;
+  var spacer = document.getElementById('panel-sticky-spacer');
+  if (spacer) spacer.style.height = hSonra + 'px';
+  var delta = hOnceki - hSonra;
+  if (delta !== 0) {
+    window.scrollBy(0, -delta);
+  }
+  var top = Math.round(sticky.getBoundingClientRect().bottom);
+  document.documentElement.style.setProperty('--komur-thead-top', top + 'px');
 }
 
 function panelStickyModKur() {
