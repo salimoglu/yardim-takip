@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714390000">
+<meta name="version" content="20260714400000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -5266,6 +5266,7 @@ async function personelListeYukle() {
         + '</div>'
         + '<span class="ayar-list-item-badge' + (isAdmin ? ' admin' : '') + '">' + (isAdmin ? 'Admin' : 'Personel') + '</span>'
         + '<div class="ayar-list-item-actions">'
+        + '<button onclick="personelGirisOnar(\'' + encTel + '\')" title="Giriş Onar">🔑</button>'
         + '<button class="warn" onclick="personelDuzenleModalAc(\'' + encTel + '\')" title="Düzenle">✎</button>'
         + '<button class="danger" onclick="personelSil(\'' + safeTel + '\')" title="Sil">🗑</button>'
         + '</div></div>';
@@ -5283,18 +5284,33 @@ function personelAuthEmail(tel) {
 }
 async function personelAuthCikis() {
   try {
-    if (window._personelAuth) await signOut(window._personelAuth);
+    if (!window._personelAuth) return;
+    var { signOut } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    await signOut(window._personelAuth);
   } catch(_){}
 }
 async function personelAuthOlustur(tel, sifre) {
-  var { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  var { createUserWithEmailAndPassword, signInWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  var email = personelAuthEmail(tel);
   try {
-    await createUserWithEmailAndPassword(window._personelAuth, personelAuthEmail(tel), sifre);
+    await createUserWithEmailAndPassword(window._personelAuth, email, sifre);
     await personelAuthCikis();
     return 'created';
   } catch(e) {
+    if (e && e.code === 'auth/email-already-in-use') {
+      try {
+        await signInWithEmailAndPassword(window._personelAuth, email, sifre);
+        await personelAuthCikis();
+        return 'exists-valid';
+      } catch(loginErr) {
+        await personelAuthCikis();
+        if (loginErr && (loginErr.code === 'auth/wrong-password' || loginErr.code === 'auth/invalid-credential')) {
+          throw new Error('Bu telefon Firebase Auth tarafında zaten kayıtlı ama girilen şifreyle eşleşmiyor. DB şifresi kaydedilmedi; mevcut Auth şifresini kullanın veya farklı telefon/kullanıcı adıyla ekleyin.');
+        }
+        throw loginErr;
+      }
+    }
     await personelAuthCikis();
-    if (e && e.code === 'auth/email-already-in-use') return 'exists';
     throw e;
   }
 }
@@ -5302,7 +5318,7 @@ async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
   var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
   if (!mevcutSifre) throw new Error('Telefon veya şifre değiştirmek için mevcut şifre gerekir.');
   try {
-    await signInWithEmailAndPassword(window._personelAuth, personelAuthEmail(eskiTel), mevcutSifre);
+    await mod.signInWithEmailAndPassword(window._personelAuth, personelAuthEmail(eskiTel), mevcutSifre);
     var user = window._personelAuth.currentUser;
     if (!user) throw new Error('Personel oturumu doğrulanamadı.');
     if (personelTelTemizle(yeniTel) !== personelTelTemizle(eskiTel)) {
@@ -5311,10 +5327,44 @@ async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
     if (yeniSifre) await mod.updatePassword(user, yeniSifre);
     await personelAuthCikis();
   } catch(e) {
+    if (e && (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found')) {
+      try {
+        await mod.createUserWithEmailAndPassword(window._personelAuth, personelAuthEmail(eskiTel), mevcutSifre);
+        var yeniUser = window._personelAuth.currentUser;
+        if (!yeniUser) throw new Error('Personel Auth hesabı oluşturulamadı.');
+        if (personelTelTemizle(yeniTel) !== personelTelTemizle(eskiTel)) {
+          await mod.updateEmail(yeniUser, personelAuthEmail(yeniTel));
+        }
+        if (yeniSifre) await mod.updatePassword(yeniUser, yeniSifre);
+        await personelAuthCikis();
+        return;
+      } catch(createErr) {
+        await personelAuthCikis();
+        if (createErr && createErr.code === 'auth/email-already-in-use') {
+          throw new Error('Bu personelin Firebase Auth hesabı var ama mevcut şifre eşleşmiyor. Lütfen gerçekten çalışan eski şifreyi girin.');
+        }
+        throw createErr;
+      }
+    }
     await personelAuthCikis();
-    if (e && (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')) throw new Error('Mevcut şifre hatalı.');
     if (e && e.code === 'auth/email-already-in-use') throw new Error('Bu telefon/kullanıcı adı zaten kullanılıyor.');
     throw e;
+  }
+}
+
+async function personelGirisOnar(telEncoded) {
+  if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
+  var tel = personelTelTemizle(decodeURIComponent(telEncoded || ''));
+  if (!tel) { toast('Telefon bulunamadı', 'error'); return; }
+  try {
+    var p = await window._dbGet('kullanicilar/' + tel);
+    if (!p) { toast('Personel kaydı bulunamadı', 'error'); return; }
+    if (!p.sifre) { toast('Bu personelin kayıtlı şifresi yok; düzenlemeden yeni şifre verin.', 'error'); return; }
+    var sonuc = await personelAuthOlustur(tel, p.sifre);
+    if (sonuc === 'created') toast('✅ Giriş hesabı oluşturuldu. Personel artık giriş yapabilir.');
+    else toast('✅ Giriş hesabı zaten doğru şifreyle uyumlu.');
+  } catch(e) {
+    toast('Giriş onarılamadı: ' + (e && e.message ? e.message : e), 'error');
   }
 }
 
@@ -5366,25 +5416,17 @@ async function yeniPersonelEkle() {
   if (!sifre || sifre.length < 6) { hataEl.textContent = 'Şifre en az 6 karakter olmalı!'; return; }
   try {
     // Secondary Auth kullanılır; admin oturumu yeni personele geçmez.
-    await personelAuthOlustur(tel, sifre);
+    var authSonuc = await personelAuthOlustur(tel, sifre);
     // Kullanicilar DB'ye kaydet
     await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
-    toast('✅ ' + (ad||tel) + ' eklendi!');
+    toast('✅ ' + (ad||tel) + (authSonuc === 'created' ? ' eklendi!' : ' güncellendi!'));
     document.getElementById('yeni-p-tel').value = '';
     document.getElementById('yeni-p-ad').value = '';
     document.getElementById('yeni-p-sifre').value = '';
     personelEkleModalKapat();
     personelListeYukle();
   } catch(e) {
-    if (e.code === 'auth/email-already-in-use') {
-      // Zaten Auth'da var, sadece DB'ye ekle
-      await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
-      toast('✅ ' + (ad||tel) + ' güncellendi!');
-      personelEkleModalKapat();
-      personelListeYukle();
-    } else {
-      hataEl.textContent = 'Hata: ' + e.message;
-    }
+    hataEl.textContent = 'Hata: ' + (e && e.message ? e.message : e);
   }
 }
 
@@ -5454,6 +5496,7 @@ window.personelDuzenleKaydet = personelDuzenleKaydet;
 window.personelEkleModalAc = personelEkleModalAc;
 window.personelEkleModalKapat = personelEkleModalKapat;
 window.personelListeYukle = personelListeYukle;
+window.personelGirisOnar = personelGirisOnar;
 window.yeniPersonelEkle = yeniPersonelEkle;
 window.personelSil = personelSil;
 
