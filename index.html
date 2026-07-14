@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714224500">
+<meta name="version" content="20260714225500">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -252,36 +252,54 @@
     box-shadow:0 12px 20px -10px rgba(0,0,0,0.55);
     isolation:isolate;
   }
+  /* Panel: sticky yerine fixed — yükseklik artınca sticky kayboluyordu */
+  #page-dashboard .panel-sticky-spacer{width:100%;pointer-events:none;}
+  #page-dashboard #panel-sticky{
+    position:fixed;
+    top:var(--nav-h);
+    left:0;right:0;
+    z-index:90;
+    margin:0;
+    padding:0.55rem 0 0.75rem;
+    width:auto;
+    max-height:calc(100vh - var(--nav-h) - 0.25rem);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    background:var(--bg);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 12px 20px -10px rgba(0,0,0,0.55);
+  }
+  #page-dashboard #panel-sticky .panel-sticky-inner{
+    max-width:1280px;
+    margin:0 auto;
+    padding:0 1.5rem;
+    box-sizing:border-box;
+  }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
   #page-dashboard .panel-sticky .stats-grid{margin-bottom:0.65rem;}
   #page-dashboard .panel-komur-sticky{
-    display:flex;flex-direction:column;align-items:stretch;gap:0.65rem;
-    padding:0.65rem 0.85rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    display:flex;flex-direction:column;align-items:stretch;gap:0.55rem;
+    padding:0.55rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;
   }
   #page-dashboard .panel-komur-ust{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
   #page-dashboard .panel-komur-sticky .card-title{margin:0;font-size:0.95rem;}
+  /* Mahalle özete gelince kömür özeti (turuncu başlık alanı) sabit kalmasın */
   #page-dashboard .panel-sticky.ozet-modu .panel-komur-sticky{display:none;}
   .panel-komur-hedef{
-    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0.55rem;align-items:stretch;
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0.45rem;align-items:stretch;
   }
   .pkh-item{
-    background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.65rem;
-    display:flex;flex-direction:column;gap:0.2rem;min-width:0;
+    background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.55rem;
+    display:flex;flex-direction:column;gap:0.15rem;min-width:0;
   }
-  .pkh-item.pkh-progress{grid-column:1 / -1;}
-  .pkh-lbl{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;}
-  .pkh-val{font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.2;}
+  .pkh-lbl{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;}
+  .pkh-val{font-family:var(--mono);font-size:0.98rem;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.2;}
   .pkh-val.pkh-hedef{color:var(--accent);}
   .pkh-val.pkh-gelen{color:var(--accent2);}
   .pkh-val.pkh-kalan{color:var(--danger);}
   .pkh-val.pkh-kalan.sifir{color:var(--success);}
   .pkh-val.pkh-kalan.asim{color:var(--accent);}
   .pkh-val.pkh-pct{color:var(--accent);}
-  .pkh-bar-wrap{height:10px;background:var(--bg);border-radius:999px;overflow:hidden;border:1px solid var(--border);margin-top:0.35rem;}
-  .pkh-bar{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 0.45s ease;}
-  .pkh-bar.tamam{background:var(--success);}
-  .pkh-bar.asim{background:linear-gradient(90deg,var(--accent),#e67e22);}
-  .pkh-meta{font-size:0.75rem;color:var(--muted);margin-top:0.25rem;}
   .tir-hedef-kart{position:relative;padding-bottom:2.1rem;}
   .tir-hedef-kart .stat-val{font-size:1.15rem;}
   .tir-hedef-edit{
@@ -293,15 +311,15 @@
   .tir-hedef-edit:hover{border-color:var(--accent);color:var(--accent);}
   @media(max-width:720px){
     .panel-komur-hedef{grid-template-columns:repeat(2,minmax(0,1fr));}
-    .pkh-item.pkh-progress{grid-column:1 / -1;}
   }
   #page-dashboard .panel-sticky.ozet-modu .stats-grid{margin-bottom:0;}
-  /* Gelen kömür istatistik tablosu */
+  /* Gelen kömür istatistik tablosu — başlık sabitlenmez */
   .komur-ist-card{padding:0.85rem 0.85rem 1rem;overflow:visible;}
   .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
   .komur-ist-baslik .card-title{margin:0;font-size:0.95rem;}
   .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
   .komur-ist-tablo{width:100%;border-collapse:collapse;font-size:1.02rem;table-layout:fixed;}
+  .komur-ist-tablo thead th{position:static;}
   .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
   .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
   .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
@@ -595,6 +613,7 @@
       padding-left:0.4rem;padding-right:0.4rem;
       margin-left:-0.4rem;margin-right:-0.4rem;
     }
+    #page-dashboard #panel-sticky .panel-sticky-inner{padding:0 0.4rem;}
     .card{padding:0.7rem 0.6rem;margin-bottom:0.7rem;border-radius:10px;}
     .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:0.7rem;}
     .stat-card{padding:0.75rem 0.6rem;}
@@ -612,6 +631,7 @@
       padding-left:0.3rem;padding-right:0.3rem;
       margin-left:-0.3rem;margin-right:-0.3rem;
     }
+    #page-dashboard #panel-sticky .panel-sticky-inner{padding:0 0.3rem;}
     .card{padding:0.6rem 0.5rem;}
     th,td{padding:0.4rem 0.3rem;}
   }
@@ -859,7 +879,9 @@
 
 <!-- ========== DASHBOARD ========== -->
 <div id="page-dashboard" class="page active">
+  <div class="panel-sticky-spacer" id="panel-sticky-spacer" aria-hidden="true"></div>
   <div class="panel-sticky" id="panel-sticky">
+    <div class="panel-sticky-inner">
     <div class="panel-donem-baslik">
       <h2>📊 <span class="panel-donem-ad" id="panel-donem-ad">—</span></h2>
       <span class="panel-donem-etiket">Aktif dönem</span>
@@ -909,12 +931,8 @@
           <div class="pkh-lbl">Tamamlanma</div>
           <div class="pkh-val pkh-pct" id="pkh-pct">—</div>
         </div>
-        <div class="pkh-item pkh-progress">
-          <div class="pkh-lbl">İlerleme</div>
-          <div class="pkh-bar-wrap"><div class="pkh-bar" id="pkh-bar"></div></div>
-          <div class="pkh-meta" id="pkh-meta">TIR modülünden hedef girilince özet burada görünür</div>
-        </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -3000,8 +3018,6 @@ function panelKomurHedefRender() {
   var elGelen = document.getElementById('pkh-gelen');
   var elKalan = document.getElementById('pkh-kalan');
   var elPct = document.getElementById('pkh-pct');
-  var elBar = document.getElementById('pkh-bar');
-  var elMeta = document.getElementById('pkh-meta');
   if (!elHedef || !elGelen) return;
 
   var ozet = (typeof tirKomurOzetHesapla === 'function')
@@ -3015,11 +3031,6 @@ function panelKomurHedefRender() {
     elKalan.textContent = '—';
     elKalan.className = 'pkh-val pkh-kalan';
     elPct.textContent = '—';
-    if (elBar) {
-      elBar.style.width = '0%';
-      elBar.className = 'pkh-bar';
-    }
-    if (elMeta) elMeta.textContent = 'TIR modülünden “Gelmesi Gereken” hedefi girilince özet burada görünür';
     return;
   }
 
@@ -3042,22 +3053,6 @@ function panelKomurHedefRender() {
   var pct = ozet.pct || 0;
   var pctGoster = Math.round(pct * 10) / 10;
   elPct.textContent = '%' + pctGoster.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
-
-  var barPct = Math.max(0, Math.min(100, pct));
-  if (elBar) {
-    elBar.style.width = barPct + '%';
-    elBar.className = 'pkh-bar' + (pct >= 100 ? (pct > 100.5 ? ' asim' : ' tamam') : '');
-  }
-  if (elMeta) {
-    if (pct >= 100) {
-      elMeta.textContent = pct > 100.5
-        ? 'Hedef aşıldı — gelen kömür planın üzerinde'
-        : 'Hedef tamamlandı';
-    } else {
-      elMeta.textContent = 'Hedefin %' + pctGoster.toLocaleString('tr-TR', { maximumFractionDigits: 1 })
-        + '’i geldi · kalan ' + Math.round(Math.max(0, kalan || 0)).toLocaleString('tr-TR') + ' kg';
-    }
-  }
 }
 
 function komurIstatistikHesapla() {
@@ -3318,6 +3313,13 @@ function komurIstatistikExcelAktar() {
   toast('Excel indirildi');
 }
 
+function panelStickyYukseklikAyarla() {
+  var sticky = document.getElementById('panel-sticky');
+  var spacer = document.getElementById('panel-sticky-spacer');
+  if (!sticky || !spacer) return;
+  spacer.style.height = sticky.offsetHeight + 'px';
+}
+
 function panelStickyModGuncelle() {
   var sticky = document.getElementById('panel-sticky');
   var mahalle = document.getElementById('mahalle-ozet-card');
@@ -3327,16 +3329,21 @@ function panelStickyModGuncelle() {
   var stickyBottom = sticky.getBoundingClientRect().bottom;
   var mahalleTop = mahalle.getBoundingClientRect().top;
   var ozetSimdi = sticky.classList.contains('ozet-modu');
-  // Histerezis: kömür barı gizlenince sticky küçülür — titreşimi önler
+  // Histerezis: kömür bandı gizlenince sticky küçülür — titreşimi önler
   var ozetOlsun = ozetSimdi
     ? (mahalleTop <= stickyBottom + 72)
     : (mahalleTop <= stickyBottom + 2);
+  var degisti = ozetSimdi !== ozetOlsun;
   sticky.classList.toggle('ozet-modu', ozetOlsun);
+  if (degisti) {
+    requestAnimationFrame(panelStickyYukseklikAyarla);
+  }
 }
 
 function panelStickyModKur() {
   if (window._panelStickyScrollKurulu) {
     panelStickyModGuncelle();
+    panelStickyYukseklikAyarla();
     return;
   }
   window._panelStickyScrollKurulu = true;
@@ -3350,7 +3357,11 @@ function panelStickyModKur() {
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    panelStickyYukseklikAyarla();
+    onScroll();
+  }, { passive: true });
+  panelStickyYukseklikAyarla();
   panelStickyModGuncelle();
 }
 
