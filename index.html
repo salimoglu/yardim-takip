@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714270000">
+<meta name="version" content="20260714280000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1657,34 +1657,34 @@
     <div class="rapor-card-head">
       <div>
         <div class="card-title">Raporlama ve Dışa Aktar</div>
-        <div class="rapor-card-sub">Hangi dosyaya ihtiyacınız varsa açıklamasına göre seçin. Dosyalar CSV olarak indirilir.</div>
+        <div class="rapor-card-sub">Hangi dosyaya ihtiyacınız varsa açıklamasına göre seçin. Dosyalar stil verilmiş Excel olarak indirilir.</div>
       </div>
     </div>
     <div class="rapor-actions">
       <div class="rapor-action">
         <div class="rapor-action-title">Tüm Kayıtlar</div>
         <div class="rapor-action-desc">Sistemdeki bütün kişi listesini teslim durumu ile birlikte indirir.</div>
-        <button class="btn btn-outline" onclick="exportCSV('tum')">📄 İndir</button>
+        <button class="btn btn-outline" onclick="exportCSV('tum')">📄 Excel</button>
       </div>
       <div class="rapor-action">
         <div class="rapor-action-title">Teslim Edilenler</div>
         <div class="rapor-action-desc">Sadece teslim işlemi tamamlanan kişileri ve teslim bilgilerini içerir.</div>
-        <button class="btn btn-outline" onclick="exportCSV('teslim')">✅ İndir</button>
+        <button class="btn btn-outline" onclick="exportCSV('teslim')">✅ Excel</button>
       </div>
       <div class="rapor-action">
         <div class="rapor-action-title">Bekleyenler</div>
         <div class="rapor-action-desc">Henüz teslim almamış kayıtları hızlı kontrol için dışa aktarır.</div>
-        <button class="btn btn-outline" onclick="exportCSV('bekliyor')">⏳ İndir</button>
+        <button class="btn btn-outline" onclick="exportCSV('bekliyor')">⏳ Excel</button>
       </div>
       <div class="rapor-action">
         <div class="rapor-action-title">Filtrelenmiş Liste</div>
         <div class="rapor-action-desc">Yukarıdaki tarih aralığında ekranda görünen teslim geçmişini indirir.</div>
-        <button class="btn btn-outline" onclick="exportCSVFiltreli()">🔎 İndir</button>
+        <button class="btn btn-outline" onclick="exportCSVFiltreli()">🔎 Excel</button>
       </div>
       <div class="rapor-action">
         <div class="rapor-action-title">Günlük Rapor</div>
         <div class="rapor-action-desc">Seçili tarih aralığı varsa onu, yoksa bugünün teslimatlarını raporlar.</div>
-        <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 İndir</button>
+        <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 Excel</button>
       </div>
     </div>
   </div>
@@ -5225,37 +5225,113 @@ function raporPersonelOzeti() {
 // ===== EXPORT =====
 function exportCSV(filtre){
   let k=Object.values(_allKisiler);
-  if(filtre==='teslim') k=k.filter(x=>x.teslimEdildi);
-  if(filtre==='bekliyor') k=k.filter(x=>!x.teslimEdildi);
-  _csvIndir(k, 'yardim-'+filtre);
+  var baslik = 'TÜM KAYITLAR RAPORU';
+  var dosya = 'Rapor-Tum-Kayitlar';
+  var alt = k.length.toLocaleString('tr-TR') + ' toplam kayıt';
+  if(filtre==='teslim') {
+    k=k.filter(x=>x.teslimEdildi);
+    baslik = 'TESLİM EDİLENLER RAPORU';
+    dosya = 'Rapor-Teslim-Edilenler';
+    alt = k.length.toLocaleString('tr-TR') + ' teslim edilen kayıt';
+  }
+  if(filtre==='bekliyor') {
+    k=k.filter(x=>!x.teslimEdildi);
+    baslik = 'BEKLEYENLER RAPORU';
+    dosya = 'Rapor-Bekleyenler';
+    alt = k.length.toLocaleString('tr-TR') + ' teslim almayan kayıt';
+  }
+  raporExcelIndir(k, {
+    raporBaslik: baslik,
+    altBaslik: alt,
+    dosyaAdi: dosya,
+    sheetName: filtre === 'teslim' ? 'Teslim Edilenler' : (filtre === 'bekliyor' ? 'Bekleyenler' : 'Tüm Kayıtlar')
+  });
 }
 
 function exportCSVFiltreli() {
-  _csvIndir(_raporFiltreli || [], 'yardim-filtreli');
+  var bas = document.getElementById('rapor-tarih-bas').value;
+  var bit = document.getElementById('rapor-tarih-bit').value;
+  raporExcelIndir(_raporFiltreli || [], {
+    raporBaslik: 'FİLTRELENMİŞ TESLİM RAPORU',
+    altBaslik: raporTarihAraligiMetni(bas, bit) + ' · ekranda görünen teslim geçmişi',
+    dosyaAdi: 'Rapor-Filtrelenmis-Liste',
+    sheetName: 'Filtreli Liste'
+  });
 }
 
-function _csvIndir(k, isim) {
-  const rows=[['TC No','Ad','Soyad','Mahalle','Gündem','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
-  k.forEach(x => {
-    const d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
-    rows.push([
-      x.tc,
-      _getAd(x),
-      _getSoyad(x),
-      x.adres||'',
-      x.gundem||'',
-      x.teslimEdildi ? 'Teslim Edildi' : 'Bekliyor',
-      x.teslimEden||'',
-      d ? d.toLocaleDateString('tr-TR') : '',
-      d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
-      x.zorlaIslendi ? 'Evet' : 'Hayır'
-    ]);
+function raporTarihSaat(x) {
+  var d = x && x.teslimTarihi ? new Date(x.teslimTarihi) : null;
+  if (!d || isNaN(d.getTime())) return { tarih: '', saat: '' };
+  return {
+    tarih: d.toLocaleDateString('tr-TR'),
+    saat: d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'})
+  };
+}
+
+function raporDurumMetni(x) {
+  if (!x) return '';
+  if (x.teslimEdildi) return 'Teslim Edildi';
+  if (kisiTeslimEngelli(x)) {
+    var nedenler = [];
+    if (x.goc) nedenler.push('Göç');
+    if (x.fisAlmadi) nedenler.push('Fişini Almadı');
+    return nedenler.join(' + ') || 'Teslim Engelli';
+  }
+  return 'Bekliyor';
+}
+
+function raporTarihAraligiMetni(bas, bit) {
+  if (bas || bit) return 'Tarih: ' + (bas || 'Başlangıç') + ' → ' + (bit || 'Bitiş');
+  return 'Tüm tarihler';
+}
+
+function raporExcelSatirlari(k) {
+  return (k || []).map(function(x, i) {
+    var ts = raporTarihSaat(x);
+    return [
+      i + 1,
+      x.tc || '',
+      x.adsoyad || '',
+      x.adres || '',
+      x.yardimturu || '',
+      x.gundem || '',
+      raporDurumMetni(x),
+      ts.tarih,
+      ts.saat,
+      x.teslimEden || '',
+      x.zorlaIslendi ? 'Evet' : 'Hayır',
+      x.goc ? 'Evet' : 'Hayır',
+      x.fisAlmadi ? 'Evet' : 'Hayır'
+    ];
   });
-  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download=isim+'-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
-  toast('CSV indirildi!');
+}
+
+function raporExcelIndir(k, opt) {
+  opt = opt || {};
+  var liste = (k || []).slice();
+  if (!liste.length) { toast('Dışa aktarılacak kayıt yok!', 'error'); return; }
+  liste.sort(function(a, b) {
+    var da = a.teslimTarihi ? new Date(a.teslimTarihi).getTime() : 0;
+    var db = b.teslimTarihi ? new Date(b.teslimTarihi).getTime() : 0;
+    if (da !== db) return opt.sortYonu === 'asc' ? da - db : db - da;
+    return trSort(a.adsoyad || '', b.adsoyad || '');
+  });
+  panelListeExcelKaydet({
+    liste: raporExcelSatirlari(liste),
+    raporBaslik: opt.raporBaslik || 'RAPOR',
+    altBaslik: opt.altBaslik || (liste.length.toLocaleString('tr-TR') + ' kayıt'),
+    basliklar: [
+      'No', 'TC Kimlik No', 'Ad Soyad', 'Mahalle / Adres', 'Yardım Türü', 'Gündem',
+      'Teslim Durumu', 'Teslim Tarihi', 'Saat', 'Teslim Eden', 'Zorla Teslim', 'Göç', 'Fişini Almadı'
+    ],
+    colWidths: [
+      { wch: 5 }, { wch: 14 }, { wch: 24 }, { wch: 22 }, { wch: 16 }, { wch: 10 },
+      { wch: 18 }, { wch: 12 }, { wch: 8 }, { wch: 18 }, { wch: 12 }, { wch: 8 }, { wch: 13 }
+    ],
+    alignLeft: [2, 3, 4, 6, 9],
+    sheetName: opt.sheetName || 'Rapor',
+    dosyaAdi: opt.dosyaAdi || 'Rapor'
+  });
 }
 
 function exportCSVGunluk() {
@@ -5274,32 +5350,14 @@ function exportCSVGunluk() {
 
   liste.sort(function(a,b){ return new Date(a.teslimTarihi)-new Date(b.teslimTarihi); });
 
-  var rows = [['TC No','Ad','Soyad','Mahalle','Teslim Durumu','Teslim Eden','Teslim Tarihi','Teslim Saati','Zorla Teslim']];
-  liste.forEach(function(x) {
-    var d = x.teslimTarihi ? new Date(x.teslimTarihi) : null;
-    rows.push([
-      x.tc,
-      _getAd(x),
-      _getSoyad(x),
-      x.adres||'',
-      'Teslim Edildi',
-      x.teslimEden||'',
-      d ? d.toLocaleDateString('tr-TR') : '',
-      d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '',
-      x.zorlaIslendi ? 'Evet' : 'Hayır'
-    ]);
-  });
-
   var tarihAdi = bas ? bas : new Date().toISOString().slice(0,10);
-  _csvIndir2(rows, 'gunluk-rapor-'+tarihAdi);
-}
-
-function _csvIndir2(rows, isim) {
-  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(';'); }).join('\n');
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'}));
-  a.download = isim+'.csv'; a.click();
-  toast('Günlük rapor indirildi!');
+  raporExcelIndir(liste, {
+    raporBaslik: 'GÜNLÜK TESLİM RAPORU',
+    altBaslik: raporTarihAraligiMetni(bas, bit) + (bas || bit ? '' : ' · bugün') + ' · sadece teslim edilenler',
+    dosyaAdi: 'Gunluk-Rapor-' + tarihAdi,
+    sheetName: 'Günlük Rapor',
+    sortYonu: 'asc'
+  });
 }
 
 // ===== TOPLU QR BASDIR =====
