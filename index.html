@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714205000">
+<meta name="version" content="20260714210000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -251,6 +251,24 @@
     isolation:isolate;
   }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
+  /* Gelen kömür istatistik tablosu */
+  .komur-ist-card{padding:0.75rem 0.7rem 0.85rem;overflow:visible;}
+  .komur-ist-baslik{display:flex;align-items:baseline;justify-content:space-between;gap:0.75rem;margin-bottom:0.55rem;flex-wrap:wrap;}
+  .komur-ist-baslik .card-title{margin:0;}
+  .komur-ist-wrap{overflow:auto;max-height:min(58vh,560px);border:1px solid var(--border);border-radius:8px;}
+  .komur-ist-tablo{width:100%;border-collapse:collapse;font-size:0.68rem;table-layout:fixed;}
+  .komur-ist-tablo th{position:sticky;top:0;z-index:2;background:var(--surface2);color:var(--muted);font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.4rem 0.25rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.2;vertical-align:middle;}
+  .komur-ist-tablo td{padding:0.28rem 0.25rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
+  .komur-ist-tablo .ki-no{width:2.2rem;color:var(--muted);}
+  .komur-ist-tablo .ki-tarih{width:5.4rem;font-variant-numeric:tabular-nums;}
+  .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.66rem;}
+  .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
+  .komur-ist-tablo .ki-saha{text-align:left;font-size:0.62rem;white-space:normal;line-height:1.25;max-width:0;}
+  .komur-ist-tablo tfoot td{position:sticky;bottom:0;z-index:2;background:#3a2e12;color:var(--accent);font-weight:700;border-top:2px solid var(--accent);padding:0.4rem 0.25rem;}
+  [data-theme="light"] .komur-ist-tablo tfoot td{background:#fef3d5;color:#8a5a00;}
+  [data-theme="light"] .komur-ist-tablo .ki-ort{background:#fff3b0;}
+  #page-dashboard.page{max-width:1180px;}
   #page-tir .panel-sticky{padding-bottom:0.55rem;}
   #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
@@ -799,11 +817,32 @@
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Son Teslimler</div>
-    <div class="table-wrap">
-      <table><thead><tr><th>Ad Soyad</th><th>Yardım Türü</th><th>Teslim Zamanı</th><th>Durum</th></tr></thead>
-      <tbody id="son-teslimler"><tr><td colspan="4" class="text-muted text-center" style="padding:2rem">Henüz teslim yok</td></tr></tbody></table>
+  <div class="card komur-ist-card">
+    <div class="komur-ist-baslik">
+      <div class="card-title">GELEN KÖMÜR İSTATİSTİĞİ</div>
+      <span class="text-muted" style="font-size:0.72rem">TIR + teslim verilerinden günlük özet · 1 fiş = 50 torba</span>
+    </div>
+    <div class="komur-ist-wrap">
+      <table class="komur-ist-tablo">
+        <thead>
+          <tr>
+            <th class="ki-no">No</th>
+            <th class="ki-tarih">Tarih</th>
+            <th>Gelen<br>Kamyon</th>
+            <th>Toplam Gelen<br>kg Vakıf</th>
+            <th>Dağıtılan<br>Torba</th>
+            <th>Fiş<br>Sayısı</th>
+            <th>Elden Fiş<br>/ Kuran</th>
+            <th>Torba<br>Ort.</th>
+            <th>Fiş<br>Ort.</th>
+            <th style="width:22%">SYDV Saha Çalışanı</th>
+          </tr>
+        </thead>
+        <tbody id="komur-ist-body">
+          <tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Yükleniyor...</td></tr>
+        </tbody>
+        <tfoot id="komur-ist-foot"></tfoot>
+      </table>
     </div>
   </div>
 
@@ -1562,6 +1601,7 @@
       var v = snap.val() || {};
       window._tirData = { meta: v.meta || {}, kayitlar: v.kayitlar || {} };
       if (typeof tirRender === 'function') tirRender();
+      if (typeof updateDashboard === 'function') updateDashboard();
     });
   };
 
@@ -2639,6 +2679,136 @@ function buildPersonInfo(k){
 }
 
 // ===== DASHBOARD =====
+var _TORBA_PER_FIS = 50;
+
+function kiFmtInt(n) {
+  return Math.round(n || 0).toLocaleString('tr-TR');
+}
+function kiFmtOrt(n) {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function kiGunTr(isoGun) {
+  if (!isoGun) return '—';
+  var p = String(isoGun).split('-');
+  if (p.length !== 3) return isoGun;
+  return p[2] + '.' + p[1] + '.' + p[0];
+}
+function kiEldenMi(k) {
+  var t = ((k.yardimturu || '') + ' ' + (k.gundem || '') + ' ' + (k.notu || k.not || '')).toLocaleLowerCase('tr-TR');
+  return t.indexOf('elden') !== -1 || t.indexOf('kuran') !== -1;
+}
+function kiTeslimGun(k) {
+  if (!k || !k.teslimTarihi) return '';
+  if (typeof tirGunAnahtar === 'function') return tirGunAnahtar(k.teslimTarihi);
+  var d = new Date(k.teslimTarihi);
+  if (isNaN(d.getTime())) {
+    var m = String(k.teslimTarihi).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? m[1] + '-' + m[2] + '-' + m[3] : '';
+  }
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function komurIstatistikHesapla() {
+  var byDay = {};
+  function gunSatir(gun) {
+    if (!byDay[gun]) {
+      byDay[gun] = { gun: gun, kamyon: 0, kg: 0, fis: 0, elden: 0, saha: {} };
+    }
+    return byDay[gun];
+  }
+
+  // TIR: teslim tarihi + teslim kg
+  var tirListe = (typeof tirKayitListesi === 'function') ? tirKayitListesi() : [];
+  tirListe.forEach(function(t) {
+    var gun = (typeof tirGunAnahtar === 'function') ? tirGunAnahtar(t.teslimTarihi) : '';
+    if (!gun) return;
+    var s = gunSatir(gun);
+    s.kamyon += 1;
+    var kg = (typeof tirSayi === 'function') ? tirSayi(t.teslimMiktar) : Number(t.teslimMiktar);
+    if (kg !== null && !isNaN(kg)) s.kg += kg;
+  });
+
+  // Kişi teslimleri → fiş / elden / saha
+  Object.values(_allKisiler || {}).forEach(function(k) {
+    if (!k || !k.teslimEdildi || !k.teslimTarihi) return;
+    var gun = kiTeslimGun(k);
+    if (!gun) return;
+    var s = gunSatir(gun);
+    s.fis += 1;
+    if (kiEldenMi(k)) s.elden += 1;
+    var kim = (k.teslimEden || '').trim();
+    if (kim) {
+      // kısa ad: ilk kelime büyük
+      var kisa = kim.split(/\s+/)[0];
+      s.saha[kisa] = true;
+    }
+  });
+
+  return Object.keys(byDay).sort().map(function(gun) {
+    var s = byDay[gun];
+    var torba = s.fis * _TORBA_PER_FIS;
+    return {
+      gun: gun,
+      kamyon: s.kamyon,
+      kg: Math.round(s.kg),
+      torba: torba,
+      fis: s.fis,
+      elden: s.elden,
+      torbaOrt: torba > 0 ? (s.kg / torba) : null,
+      fisOrt: s.fis > 0 ? (s.kg / s.fis) : null,
+      saha: Object.keys(s.saha).sort(function(a, b) {
+        return a.localeCompare(b, 'tr');
+      })
+    };
+  });
+}
+
+function komurIstatistikRender() {
+  var body = document.getElementById('komur-ist-body');
+  var foot = document.getElementById('komur-ist-foot');
+  if (!body) return;
+  var satirlar = komurIstatistikHesapla();
+  if (satirlar.length === 0) {
+    body.innerHTML = '<tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Henüz TIR veya teslim kaydı yok</td></tr>';
+    if (foot) foot.innerHTML = '';
+    return;
+  }
+
+  body.innerHTML = satirlar.map(function(s, i) {
+    return '<tr>'
+      + '<td class="ki-no">' + (i + 1) + '</td>'
+      + '<td class="ki-tarih">' + kiGunTr(s.gun) + '</td>'
+      + '<td class="ki-sayi">' + (s.kamyon ? kiFmtInt(s.kamyon) : '') + '</td>'
+      + '<td class="ki-sayi">' + (s.kg ? kiFmtInt(s.kg) : '') + '</td>'
+      + '<td class="ki-sayi">' + (s.torba ? kiFmtInt(s.torba) : '') + '</td>'
+      + '<td class="ki-sayi">' + (s.fis ? kiFmtInt(s.fis) : '') + '</td>'
+      + '<td class="ki-sayi">' + (s.elden ? kiFmtInt(s.elden) : '') + '</td>'
+      + '<td class="ki-ort">' + kiFmtOrt(s.torbaOrt) + '</td>'
+      + '<td class="ki-ort">' + kiFmtOrt(s.fisOrt) + '</td>'
+      + '<td class="ki-saha" title="' + escapeHtml(s.saha.join(' / ')) + '">' + escapeHtml(s.saha.join(' / ')) + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var tKamyon = 0, tKg = 0, tTorba = 0, tFis = 0, tElden = 0;
+  satirlar.forEach(function(s) {
+    tKamyon += s.kamyon; tKg += s.kg; tTorba += s.torba; tFis += s.fis; tElden += s.elden;
+  });
+  if (foot) {
+    foot.innerHTML = '<tr>'
+      + '<td colspan="2">TOPLAM</td>'
+      + '<td class="ki-sayi">' + kiFmtInt(tKamyon) + '</td>'
+      + '<td class="ki-sayi">' + kiFmtInt(tKg) + '</td>'
+      + '<td class="ki-sayi">' + kiFmtInt(tTorba) + '</td>'
+      + '<td class="ki-sayi">' + kiFmtInt(tFis) + '</td>'
+      + '<td class="ki-sayi">' + kiFmtInt(tElden) + '</td>'
+      + '<td class="ki-ort">' + kiFmtOrt(tTorba > 0 ? tKg / tTorba : null) + '</td>'
+      + '<td class="ki-ort">' + kiFmtOrt(tFis > 0 ? tKg / tFis : null) + '</td>'
+      + '<td></td>'
+      + '</tr>';
+  }
+}
+
 function updateDashboard(){
   const k=Object.values(_allKisiler);
   const t=k.length,te=k.filter(x=>x.teslimEdildi).length,be=t-te;
@@ -2652,10 +2822,7 @@ function updateDashboard(){
   document.getElementById('stat-pct').style.color = renk;
   if (window.panelDonemBaslikGuncelle) window.panelDonemBaslikGuncelle();
 
-  const son=k.filter(x=>x.teslimEdildi).sort((a,b)=>new Date(b.teslimTarihi)-new Date(a.teslimTarihi)).slice(0,10);
-  document.getElementById('son-teslimler').innerHTML=son.length===0
-    ?'<tr><td colspan="4" class="text-muted text-center" style="padding:2rem">Henüz teslim yok</td></tr>'
-    :son.map(x=>`<tr><td class="kisi-ad">${escapeHtml(x.adsoyad)}</td><td><span class="badge badge-blue">${escapeHtml(x.yardimturu)}</span></td><td class="tc-no" style="font-size:0.85rem">${new Date(x.teslimTarihi).toLocaleString('tr-TR')}</td><td><span class="badge badge-green">✅ Teslim</span></td></tr>`).join('');
+  if (typeof komurIstatistikRender === 'function') komurIstatistikRender();
 
   const tur={};k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
   if(document.getElementById('dagilim-list')) document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
