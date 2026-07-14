@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714250000">
+<meta name="version" content="20260714260000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -3370,18 +3370,71 @@ function komurIstatistikExcelAktar() {
     ''
   ]);
 
+  // Alt özet tablosu (orijinal Excel özeti)
+  var fillSariSert = { patternType: 'solid', fgColor: { rgb: 'FFFF00' } };
+  var kisilerOzet = Object.values(_allKisiler || {});
+  var kabulEdilen = kisilerOzet.length;
+  var teslimEdilen = kisilerOzet.filter(function(x) { return !!x.teslimEdildi; }).length;
+  var fisGoc = kisilerOzet.filter(function(x) { return kisiTeslimEngelli(x); }).length;
+  var teslimAlmayan = kisilerOzet.filter(function(x) {
+    return !x.teslimEdildi && !kisiTeslimEngelli(x);
+  }).length;
+  var dagitimOran = kabulEdilen > 0
+    ? Math.round((teslimEdilen / kabulEdilen) * 10000) / 100
+    : null;
+  var komurOzet = (typeof tirKomurOzetHesapla === 'function')
+    ? tirKomurOzetHesapla()
+    : { kalan: null };
+  var kalanMik = (komurOzet.kalan !== null && komurOzet.kalan !== undefined)
+    ? Math.round(komurOzet.kalan)
+    : null;
+
+  function ozetSatir(etiket, deger) {
+    var row = Array(COLS).fill('');
+    row[0] = etiket;
+    // Değer merge aralığının sol üst hücresinde (C4) olmalı
+    row[4] = deger === null || deger === undefined ? '' : deger;
+    return row;
+  }
+
+  var rGap = wsData.length;
+  wsData.push(Array(COLS).fill(''));
+  var rOzetKalan = wsData.length;
+  wsData.push(ozetSatir('TOPLAM KALAN KÖMÜR MİK.', kalanMik));
+  var rOzetBos = wsData.length;
+  wsData.push(ozetSatir('', ''));
+  var rOzetKabul = wsData.length;
+  wsData.push(ozetSatir('KÖMÜRÜ KABUL EDİLEN', kabulEdilen));
+  var rOzetTeslim = wsData.length;
+  wsData.push(ozetSatir('KÖMÜRÜ TESLİM EDİLEN KİŞİ', teslimEdilen));
+  var rOzetFisGoc = wsData.length;
+  wsData.push(ozetSatir('FİŞİNİ ALMAYANLAR VE GÖÇLE', fisGoc));
+  var rOzetBekleyen = wsData.length;
+  wsData.push(ozetSatir('KÖMÜRÜNÜ TESLİM ALMAYAN', teslimAlmayan));
+  var rOzetOran = wsData.length;
+  wsData.push(ozetSatir('DAĞITILAN YÜZDELİK ORANI', dagitimOran));
+
+  var ozetSatirlar = [rOzetKalan, rOzetBos, rOzetKabul, rOzetTeslim, rOzetFisGoc, rOzetBekleyen, rOzetOran];
+
   var ws = XS.utils.aoa_to_sheet(wsData);
   ws['!merges'] = [
     { s: { r: 0, c: 0 }, e: { r: 0, c: COLS - 1 } },
     { s: { r: 1, c: 0 }, e: { r: 1, c: COLS - 1 } }
   ];
+  // Özet etiketleri daha geniş görünsün
+  ozetSatirlar.forEach(function(r) {
+    ws['!merges'].push({ s: { r: r, c: 0 }, e: { r: r, c: 3 } });
+    ws['!merges'].push({ s: { r: r, c: 4 }, e: { r: r, c: 5 } });
+  });
   ws['!cols'] = [
     { wch: 5 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 14 },
     { wch: 10 }, { wch: 12 }, { wch: 11 }, { wch: 13 }, { wch: 28 }
   ];
   ws['!rows'] = [{ hpt: 26 }, { hpt: 18 }, { hpt: 32 }];
   for (var i = 0; i < satirlar.length; i++) ws['!rows'].push({ hpt: 18 });
-  ws['!rows'].push({ hpt: 20 });
+  ws['!rows'].push({ hpt: 20 }); // TOPLAM
+  ws['!rows'].push({ hpt: 12 }); // gap
+  ozetSatirlar.forEach(function() { ws['!rows'].push({ hpt: 20 }); });
   ws['!pageSetup'] = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 };
   ws['!printOptions'] = { horizontalCentered: true };
   ws['!margins'] = { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.15, footer: 0.15 };
@@ -3396,7 +3449,11 @@ function komurIstatistikExcelAktar() {
       else if (R === 1) ws[addr].s = sty({ bold: true, sz: 10, hz: 'left', noBorder: true });
       else if (R === 2) ws[addr].s = sty({ bold: true, sz: 9, fill: fillBaslik, color: 'FFFFFF' });
       else if (R === rTot) ws[addr].s = sty({ bold: true, sz: 10, fill: fillToplam });
-      else {
+      else if (R === rGap) ws[addr].s = sty({ noBorder: true });
+      else if (ozetSatirlar.indexOf(R) >= 0) {
+        // Özet satırları aşağıda özel stillenir; burada boş sütunları şeffaf bırak
+        if (C > 5) ws[addr].s = sty({ noBorder: true });
+      } else {
         var isOrt = (C === 7 || C === 8);
         var isSaha = (C === 9);
         ws[addr].s = sty({
@@ -3409,6 +3466,33 @@ function komurIstatistikExcelAktar() {
       }
     }
   }
+
+  // Özet tablo stilleri — orijinal Excel dili (Times New Roman, kalın çerçeve, sarı oran)
+  function ozetSty(opt) {
+    opt = opt || {};
+    var s = {
+      font: { name: 'Times New Roman', bold: true, sz: 11, color: { rgb: '000000' } },
+      alignment: { horizontal: opt.hz || 'left', vertical: 'center', wrapText: false },
+      border: border
+    };
+    if (opt.fill) s.fill = opt.fill;
+    return s;
+  }
+  ozetSatirlar.forEach(function(R) {
+    var isOran = (R === rOzetOran);
+    var fill = isOran ? fillSariSert : undefined;
+    for (var C = 0; C <= 5; C++) {
+      var a = XS.utils.encode_cell({ r: R, c: C });
+      if (!ws[a]) ws[a] = { t: 's', v: '' };
+      var isDeger = (C >= 4);
+      ws[a].s = ozetSty({ hz: isDeger ? 'right' : 'left', fill: fill });
+      if (isDeger && typeof ws[a].v === 'number') {
+        ws[a].t = 'n';
+        if (isOran) ws[a].z = '0.00';
+        else ws[a].z = '#,##0';
+      }
+    }
+  });
 
   var wb = XS.utils.book_new();
   XS.utils.book_append_sheet(wb, ws, 'Gelen Kömür');
