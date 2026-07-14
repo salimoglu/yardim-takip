@@ -251,6 +251,9 @@
     isolation:isolate;
   }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
+  #page-tir .panel-sticky{padding-bottom:0.55rem;}
+  #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
+  #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
   #page-tir.page{max-width:1180px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
   .tir-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .tir-table{font-size:0.78rem;min-width:980px;}
@@ -1220,19 +1223,18 @@
       <div class="stat-card"><div class="stat-val" id="tir-stat-teslim">0</div><div class="stat-label">Teslim (kg)</div></div>
       <div class="stat-card"><div class="stat-val" id="tir-stat-fark">0</div><div class="stat-label">Fark (kg)</div></div>
     </div>
-  </div>
-
-  <div class="card" style="padding:0.75rem 0.85rem">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
-      <div style="min-width:0;flex:1">
-        <div class="card-title" style="margin-bottom:0.35rem">🚛 TIR Teslim / Tesellüm</div>
-        <input type="text" id="tir-alt-baslik" placeholder="Liste başlığı — örn: ARALIK AYI/Liste 1" onchange="tirMetaKaydet()" style="max-width:420px;font-size:0.85rem;padding:0.35rem 0.55rem">
-      </div>
-      <div class="flex gap-1 flex-wrap tir-filtre-satir">
-        <input type="text" id="tir-ara" placeholder="Ara..." oninput="tirRender()" style="max-width:140px;font-size:0.85rem;padding:0.35rem 0.55rem">
-        <button class="btn btn-outline btn-sm" onclick="tirExcelIceAktar()">📥 İçe Aktar</button>
-        <button class="btn btn-sm" onclick="tirExportModalAc()" style="background:var(--accent2);color:#111;border:none">📤 Dışa Aktar</button>
-        <input type="file" id="tir-excel-input" accept=".xlsx,.xls" style="display:none" onchange="tirExcelDosyaOku(event)">
+    <div class="card tir-toolbar-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
+        <div style="min-width:0;flex:1">
+          <div class="card-title" style="margin-bottom:0.35rem">🚛 TIR Teslim / Tesellüm</div>
+          <input type="text" id="tir-alt-baslik" placeholder="Liste başlığı — örn: ARALIK AYI/Liste 1" onchange="tirMetaKaydet()" style="max-width:420px;font-size:0.85rem;padding:0.35rem 0.55rem">
+        </div>
+        <div class="flex gap-1 flex-wrap tir-filtre-satir">
+          <input type="text" id="tir-ara" placeholder="Ara..." oninput="tirRender()" style="max-width:140px;font-size:0.85rem;padding:0.35rem 0.55rem">
+          <button class="btn btn-outline btn-sm" onclick="tirExcelIceAktar()">📥 İçe Aktar</button>
+          <button class="btn btn-sm" onclick="tirExportModalAc()" style="background:var(--accent2);color:#111;border:none">📤 Dışa Aktar</button>
+          <input type="file" id="tir-excel-input" accept=".xlsx,.xls" style="display:none" onchange="tirExcelDosyaOku(event)">
+        </div>
       </div>
     </div>
   </div>
