@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714204000">
+<meta name="version" content="20260714205000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -291,15 +291,27 @@
   .tir-th-filtre .tir-th-etiket{display:inline-flex;align-items:center;gap:0.2rem;}
   .tir-th-filtre .tir-th-ok{font-size:0.55rem;opacity:0.7;}
   .tir-th-filtre.aktif .tir-th-ok{opacity:1;}
-  .tir-tarih-pop{position:fixed;z-index:120;min-width:220px;max-width:280px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 32px -8px rgba(0,0,0,0.55);padding:0.75rem;display:none;}
+  .tir-tarih-pop{position:fixed;z-index:120;width:280px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 32px -8px rgba(0,0,0,0.55);padding:0.75rem;display:none;}
   .tir-tarih-pop.acik{display:block;}
-  .tir-tarih-pop .tir-pop-baslik{font-size:0.78rem;font-weight:600;margin-bottom:0.55rem;color:var(--text);}
-  .tir-tarih-pop label{font-size:0.7rem;color:var(--muted);display:block;margin-bottom:0.15rem;}
-  .tir-tarih-pop input[type=date]{width:100%;font-size:0.85rem;padding:0.4rem 0.45rem;margin-bottom:0.55rem;}
-  .tir-tarih-pop .tir-pop-aksiyon{display:flex;gap:0.4rem;justify-content:flex-end;margin-top:0.15rem;}
-  .tir-tarih-pop .tir-pop-gunler{display:flex;flex-wrap:wrap;gap:0.3rem;max-height:120px;overflow-y:auto;margin-bottom:0.55rem;}
-  .tir-tarih-pop .tir-pop-gun{font-size:0.68rem;padding:0.2rem 0.4rem;border:1px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text);cursor:pointer;}
-  .tir-tarih-pop .tir-pop-gun:hover,.tir-tarih-pop .tir-pop-gun.secili{border-color:var(--accent);color:var(--accent);background:rgba(245,166,35,0.12);}
+  .tir-tarih-pop .tir-pop-baslik{font-size:0.78rem;font-weight:600;margin-bottom:0.35rem;color:var(--text);}
+  .tir-pop-secim{font-size:0.72rem;color:var(--muted);margin-bottom:0.55rem;min-height:1.1rem;}
+  .tir-pop-secim b{color:var(--accent);font-weight:600;}
+  .tir-cal-nav{display:flex;align-items:center;justify-content:space-between;gap:0.4rem;margin-bottom:0.45rem;}
+  .tir-cal-nav button{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;width:30px;height:28px;cursor:pointer;font-size:0.85rem;line-height:1;}
+  .tir-cal-nav button:hover{border-color:var(--accent);color:var(--accent);}
+  .tir-cal-ay{font-size:0.82rem;font-weight:600;color:var(--text);text-transform:capitalize;}
+  .tir-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+  .tir-cal-gunad{font-size:0.62rem;color:var(--muted);text-align:center;padding:0.2rem 0;font-weight:600;}
+  .tir-cal-gun{border:none;background:transparent;color:var(--text);font-size:0.78rem;font-family:var(--font);height:32px;border-radius:6px;cursor:pointer;position:relative;}
+  .tir-cal-gun:hover{background:rgba(245,166,35,0.12);}
+  .tir-cal-gun.baska{color:var(--muted);opacity:0.35;}
+  .tir-cal-gun.aralik{background:rgba(245,166,35,0.16);border-radius:0;}
+  .tir-cal-gun.baslangic,.tir-cal-gun.bitis{background:var(--accent);color:#111;font-weight:700;border-radius:6px;}
+  .tir-cal-gun.baslangic.aralik{border-radius:6px 0 0 6px;}
+  .tir-cal-gun.bitis.aralik{border-radius:0 6px 6px 0;}
+  .tir-cal-gun.tek{border-radius:6px;}
+  .tir-tarih-pop .tir-pop-aksiyon{display:flex;gap:0.4rem;justify-content:flex-end;margin-top:0.65rem;}
+  .tir-tarih-pop .tir-pop-ipucu{font-size:0.68rem;color:var(--muted);margin-top:0.35rem;}
   @media(max-width:768px){
     .panel-sticky,.rapor-sticky{top:var(--nav-h);padding-top:0.4rem;padding-bottom:0.55rem;}
     .tir-entry-bar{bottom:calc(3.55rem + env(safe-area-inset-bottom));}
@@ -1298,11 +1310,14 @@
 <!-- TIR SÜTUN TARİH FİLTRESİ -->
 <div id="tir-tarih-pop" class="tir-tarih-pop" onclick="event.stopPropagation()">
   <div class="tir-pop-baslik" id="tir-pop-baslik">Tarih filtresi</div>
-  <div class="tir-pop-gunler" id="tir-pop-gunler"></div>
-  <label>Başlangıç</label>
-  <input type="date" id="tir-pop-bas" onchange="tirTarihPopOtomatik()">
-  <label>Bitiş</label>
-  <input type="date" id="tir-pop-bit" onchange="tirTarihPopOtomatik()">
+  <div class="tir-pop-secim" id="tir-pop-secim">İlk tık: başlangıç · İkinci tık: bitiş</div>
+  <div class="tir-cal-nav">
+    <button type="button" onclick="tirCalAyKaydir(-1)" title="Önceki ay">‹</button>
+    <div class="tir-cal-ay" id="tir-cal-ay">—</div>
+    <button type="button" onclick="tirCalAyKaydir(1)" title="Sonraki ay">›</button>
+  </div>
+  <div class="tir-cal-grid" id="tir-cal-grid"></div>
+  <div class="tir-pop-ipucu">Aralığı seçtikten sonra otomatik uygulanır</div>
   <div class="tir-pop-aksiyon">
     <button type="button" class="btn btn-outline btn-sm" onclick="tirTarihFiltreTemizleAlan()">Temizle</button>
     <button type="button" class="btn btn-primary btn-sm" onclick="tirTarihFiltreUygula()">Uygula</button>
@@ -4346,6 +4361,7 @@ function tirFarkHesaplaForm() {
 
 window._tirFiltre = window._tirFiltre || { sevkBas: '', sevkBit: '', teslimBas: '', teslimBit: '' };
 window._tirPopAlan = null;
+window._tirCal = window._tirCal || { yil: null, ay: null, bas: '', bit: '', adim: 0 };
 
 function tirGunAnahtar(iso) {
   if (!iso) return '';
@@ -4396,15 +4412,6 @@ function tirKayitFiltrelenmis() {
   return liste;
 }
 
-function tirTarihBenzersizGunler(alan) {
-  var set = {};
-  tirKayitListesi().forEach(function(k) {
-    var g = tirGunAnahtar(k[alan]);
-    if (g) set[g] = true;
-  });
-  return Object.keys(set).sort().reverse();
-}
-
 function tirTarihFiltreBaslikGuncelle() {
   var f = window._tirFiltre || {};
   function yaz(id, etiket, bas, bit) {
@@ -4427,6 +4434,113 @@ function tirTarihPopKapat() {
   window._tirPopAlan = null;
 }
 
+function tirCalPad(n) { return String(n).padStart(2, '0'); }
+
+function tirCalIso(y, m0, d) {
+  return y + '-' + tirCalPad(m0 + 1) + '-' + tirCalPad(d);
+}
+
+function tirCalSecimMetni() {
+  var el = document.getElementById('tir-pop-secim');
+  if (!el) return;
+  var c = window._tirCal;
+  if (c.bas && c.bit) {
+    el.innerHTML = '<b>' + tirGunTr(c.bas) + '</b> → <b>' + tirGunTr(c.bit) + '</b>';
+  } else if (c.bas) {
+    el.innerHTML = 'Başlangıç: <b>' + tirGunTr(c.bas) + '</b> · bitiş gününü seçin';
+  } else {
+    el.textContent = 'İlk tık: başlangıç · İkinci tık: bitiş';
+  }
+}
+
+function tirCalCiz() {
+  var c = window._tirCal;
+  if (c.yil == null || c.ay == null) {
+    var now = new Date();
+    c.yil = now.getFullYear();
+    c.ay = now.getMonth();
+  }
+  var ayAd = new Date(c.yil, c.ay, 1).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+  var ayEl = document.getElementById('tir-cal-ay');
+  if (ayEl) ayEl.textContent = ayAd;
+
+  var grid = document.getElementById('tir-cal-grid');
+  if (!grid) return;
+  var gunAdlari = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+  var html = gunAdlari.map(function(g) {
+    return '<div class="tir-cal-gunad">' + g + '</div>';
+  }).join('');
+
+  var ilk = new Date(c.yil, c.ay, 1);
+  var baslangicGun = (ilk.getDay() + 6) % 7; // Pazartesi=0
+  var gunSayisi = new Date(c.yil, c.ay + 1, 0).getDate();
+  var oncekiAyGun = new Date(c.yil, c.ay, 0).getDate();
+
+  var hucreler = [];
+  for (var i = 0; i < baslangicGun; i++) {
+    var d0 = oncekiAyGun - baslangicGun + 1 + i;
+    var ay0 = c.ay - 1, y0 = c.yil;
+    if (ay0 < 0) { ay0 = 11; y0--; }
+    hucreler.push({ iso: tirCalIso(y0, ay0, d0), gun: d0, baska: true });
+  }
+  for (var d = 1; d <= gunSayisi; d++) {
+    hucreler.push({ iso: tirCalIso(c.yil, c.ay, d), gun: d, baska: false });
+  }
+  var nextDay = 1;
+  while (hucreler.length % 7 !== 0) {
+    var ay1 = c.ay + 1, y1 = c.yil;
+    if (ay1 > 11) { ay1 = 0; y1++; }
+    hucreler.push({ iso: tirCalIso(y1, ay1, nextDay), gun: nextDay, baska: true });
+    nextDay++;
+  }
+
+  var bas = c.bas || '';
+  var bit = c.bit || '';
+  if (bas && bit && bas > bit) { var t = bas; bas = bit; bit = t; }
+
+  html += hucreler.map(function(h) {
+    var cls = ['tir-cal-gun'];
+    if (h.baska) cls.push('baska');
+    if (bas && bit && h.iso >= bas && h.iso <= bit) cls.push('aralik');
+    if (bas && h.iso === bas) cls.push('baslangic');
+    if (bit && h.iso === bit) cls.push('bitis');
+    if (bas && bit && bas === bit && h.iso === bas) cls.push('tek');
+    return '<button type="button" class="' + cls.join(' ') + '" data-iso="' + h.iso + '" onclick="tirCalGunTikla(\'' + h.iso + '\')">' + h.gun + '</button>';
+  }).join('');
+
+  grid.innerHTML = html;
+  tirCalSecimMetni();
+}
+
+function tirCalAyKaydir(delta) {
+  var c = window._tirCal;
+  c.ay += delta;
+  if (c.ay < 0) { c.ay = 11; c.yil--; }
+  if (c.ay > 11) { c.ay = 0; c.yil++; }
+  tirCalCiz();
+}
+
+function tirCalGunTikla(iso) {
+  var c = window._tirCal;
+  if (!c.bas || (c.bas && c.bit)) {
+    // yeni aralık başlat
+    c.bas = iso;
+    c.bit = '';
+    c.adim = 1;
+    tirCalCiz();
+    return;
+  }
+  // ikinci tık = bitiş
+  c.bit = iso;
+  if (c.bas > c.bit) {
+    var t = c.bas; c.bas = c.bit; c.bit = t;
+  }
+  c.adim = 2;
+  tirCalCiz();
+  // aralık tamam → uygula
+  setTimeout(function() { tirTarihFiltreUygula(); }, 120);
+}
+
 function tirTarihFiltreAc(ev, alan) {
   if (ev) { ev.preventDefault(); ev.stopPropagation(); }
   var pop = document.getElementById('tir-tarih-pop');
@@ -4439,54 +4553,33 @@ function tirTarihFiltreAc(ev, alan) {
   var f = window._tirFiltre || {};
   var bas = alan === 'sevk' ? f.sevkBas : f.teslimBas;
   var bit = alan === 'sevk' ? f.sevkBit : f.teslimBit;
-  var basEl = document.getElementById('tir-pop-bas');
-  var bitEl = document.getElementById('tir-pop-bit');
-  if (basEl) basEl.value = bas || '';
-  if (bitEl) bitEl.value = bit || '';
+  var c = window._tirCal;
+  c.bas = bas || '';
+  c.bit = bit || '';
+  c.adim = (c.bas && c.bit) ? 2 : (c.bas ? 1 : 0);
+  var odak = c.bas || c.bit || '';
+  if (odak) {
+    var p = odak.split('-');
+    c.yil = +p[0];
+    c.ay = +p[1] - 1;
+  } else {
+    var now = new Date();
+    c.yil = now.getFullYear();
+    c.ay = now.getMonth();
+  }
   var baslik = document.getElementById('tir-pop-baslik');
   if (baslik) baslik.textContent = (alan === 'sevk' ? 'Sevk' : 'Teslim') + ' tarihi filtre';
-
-  var kaynakAlan = alan === 'sevk' ? 'sevkTarihi' : 'teslimTarihi';
-  var gunler = tirTarihBenzersizGunler(kaynakAlan);
-  var gEl = document.getElementById('tir-pop-gunler');
-  if (gEl) {
-    if (gunler.length === 0) {
-      gEl.innerHTML = '<span class="text-muted" style="font-size:0.72rem">Kayıtlı tarih yok</span>';
-    } else {
-      gEl.innerHTML = gunler.slice(0, 40).map(function(g) {
-        var secili = (bas && bit && bas === bit && bas === g) || (bas === g && !bit) || (bit === g && !bas);
-        return '<button type="button" class="tir-pop-gun' + (secili ? ' secili' : '') + '" onclick="tirTarihGunSec(\'' + g + '\')">' + tirGunTr(g) + '</button>';
-      }).join('');
-    }
-  }
+  tirCalCiz();
 
   pop.classList.add('acik');
   var th = document.getElementById(alan === 'sevk' ? 'tir-th-sevk' : 'tir-th-teslim');
   var rect = th ? th.getBoundingClientRect() : { left: 40, bottom: 120, width: 120 };
-  var sol = Math.min(rect.left, window.innerWidth - 240);
+  var sol = Math.min(rect.left, window.innerWidth - 300);
   if (sol < 8) sol = 8;
+  var ust = rect.bottom + 6;
+  if (ust + 340 > window.innerHeight) ust = Math.max(8, rect.top - 340);
   pop.style.left = sol + 'px';
-  pop.style.top = (rect.bottom + 6) + 'px';
-
-  setTimeout(function() {
-    if (basEl && basEl.showPicker) {
-      try { basEl.showPicker(); } catch (_) {}
-    }
-  }, 30);
-}
-
-function tirTarihGunSec(gun) {
-  var basEl = document.getElementById('tir-pop-bas');
-  var bitEl = document.getElementById('tir-pop-bit');
-  if (basEl) basEl.value = gun;
-  if (bitEl) bitEl.value = gun;
-  tirTarihFiltreUygula();
-}
-
-function tirTarihPopOtomatik() {
-  var bas = ((document.getElementById('tir-pop-bas') || {}).value || '').trim();
-  var bit = ((document.getElementById('tir-pop-bit') || {}).value || '').trim();
-  if (bas || bit) tirTarihFiltreUygula();
+  pop.style.top = ust + 'px';
 }
 
 function tirTarihFiltreTemizleAlan() {
@@ -4496,10 +4589,9 @@ function tirTarihFiltreTemizleAlan() {
   if (alan === 'sevk') { f.sevkBas = ''; f.sevkBit = ''; }
   else { f.teslimBas = ''; f.teslimBit = ''; }
   window._tirFiltre = f;
-  var basEl = document.getElementById('tir-pop-bas');
-  var bitEl = document.getElementById('tir-pop-bit');
-  if (basEl) basEl.value = '';
-  if (bitEl) bitEl.value = '';
+  window._tirCal.bas = '';
+  window._tirCal.bit = '';
+  window._tirCal.adim = 0;
   tirTarihPopKapat();
   tirRender();
 }
@@ -4507,8 +4599,9 @@ function tirTarihFiltreTemizleAlan() {
 function tirTarihFiltreUygula() {
   var alan = window._tirPopAlan;
   if (!alan) return;
-  var bas = ((document.getElementById('tir-pop-bas') || {}).value || '').trim();
-  var bit = ((document.getElementById('tir-pop-bit') || {}).value || '').trim();
+  var c = window._tirCal;
+  var bas = (c.bas || '').trim();
+  var bit = (c.bit || '').trim();
   if (bas && !bit) bit = bas;
   if (bit && !bas) bas = bit;
   if (bas && bit && bas > bit) { var t = bas; bas = bit; bit = t; }
@@ -4522,6 +4615,9 @@ function tirTarihFiltreUygula() {
 
 function tirFiltreTemizle() {
   window._tirFiltre = { sevkBas: '', sevkBit: '', teslimBas: '', teslimBit: '' };
+  window._tirCal.bas = '';
+  window._tirCal.bit = '';
+  window._tirCal.adim = 0;
   tirTarihPopKapat();
   tirRender();
 }
