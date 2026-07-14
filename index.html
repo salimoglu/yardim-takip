@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714320000">
+<meta name="version" content="20260714330000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -521,7 +521,11 @@
   .rapor-gun-item,.rapor-personel-item{
     background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;
   }
-  .rapor-gun-item{display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0.75rem;gap:0.75rem;}
+  .rapor-gun-item{
+    display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0.75rem;gap:0.75rem;
+    cursor:pointer;transition:border-color 0.15s,background 0.15s;-webkit-tap-highlight-color:transparent;
+  }
+  .rapor-gun-item:hover{border-color:var(--accent);background:var(--surface);}
   .rapor-gun-ad{font-weight:700;font-size:0.88rem;}
   .rapor-gun-sayi{font-family:var(--mono);font-weight:800;color:var(--accent);}
   .rapor-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0.75rem;}
@@ -5374,9 +5378,9 @@ function updateRaporlar(){
       var sayi = item[1];
       var d = new Date(gun + 'T12:00:00');
       var gunTr = d.toLocaleDateString('tr-TR', {day:'2-digit', month:'long', year:'numeric'});
-      return '<div class="rapor-gun-item">'
+      return '<div class="rapor-gun-item" title="Bu günün Excel raporunu indir" onclick="raporGunExcelIndir(\'' + escapeHtml(gun) + '\')">'
         + '<span class="rapor-gun-ad">📅 ' + escapeHtml(gunTr) + '</span>'
-        + '<span class="rapor-gun-sayi">' + sayi.toLocaleString('tr-TR') + ' teslim</span>'
+        + '<span class="rapor-gun-sayi">' + sayi.toLocaleString('tr-TR') + ' teslim ⤓</span>'
       + '</div>';
     }).join('');
 
@@ -5466,6 +5470,22 @@ function exportCSVFiltreli() {
     altBaslik: raporTarihAraligiMetni(bas, bit) + ' · ekranda görünen teslim geçmişi',
     dosyaAdi: 'Rapor-Filtrelenmis-Liste',
     sheetName: 'Filtreli Liste'
+  });
+}
+
+function raporGunExcelIndir(gun) {
+  if (!gun) return;
+  var liste = Object.values(_allKisiler || {}).filter(function(k) {
+    return k && k.teslimEdildi && k.teslimTarihi && k.teslimTarihi.slice(0, 10) === gun;
+  });
+  var d = new Date(gun + 'T12:00:00');
+  var gunTr = isNaN(d.getTime()) ? gun : d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+  raporExcelIndir(liste, {
+    raporBaslik: 'GÜNLÜK TESLİM ÖZETİ',
+    altBaslik: gunTr + ' · ' + liste.length.toLocaleString('tr-TR') + ' teslim',
+    dosyaAdi: 'Gunluk-Teslim-Ozeti-' + gun,
+    sheetName: 'Günlük Özet',
+    sortYonu: 'asc'
   });
 }
 
