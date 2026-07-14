@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714213000">
+<meta name="version" content="20260714215500">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -251,6 +251,14 @@
     isolation:isolate;
   }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
+  #page-dashboard .panel-sticky .stats-grid{margin-bottom:0.65rem;}
+  #page-dashboard .panel-komur-sticky{
+    display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
+    padding:0.55rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  }
+  #page-dashboard .panel-komur-sticky .card-title{margin:0;font-size:0.95rem;}
+  #page-dashboard .panel-sticky.ozet-modu .panel-komur-sticky{display:none;}
+  #page-dashboard .panel-sticky.ozet-modu .stats-grid{margin-bottom:0;}
   /* Gelen kömür istatistik tablosu */
   .komur-ist-card{padding:0.85rem 0.85rem 1rem;overflow:visible;}
   .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
@@ -809,7 +817,7 @@
 
 <!-- ========== DASHBOARD ========== -->
 <div id="page-dashboard" class="page active">
-  <div class="panel-sticky">
+  <div class="panel-sticky" id="panel-sticky">
     <div class="panel-donem-baslik">
       <h2>📊 <span class="panel-donem-ad" id="panel-donem-ad">—</span></h2>
       <span class="panel-donem-etiket">Aktif dönem</span>
@@ -824,18 +832,19 @@
         <div class="stat-label">Dağıtım Oranı</div>
       </div>
     </div>
-  </div>
-  <div class="card komur-ist-card">
-    <div class="komur-ist-baslik">
+    <div class="panel-komur-sticky" id="panel-komur-sticky">
       <div class="card-title">GELEN KÖMÜR İSTATİSTİĞİ</div>
       <div class="komur-ist-ayar">
         <label for="ki-torba-per-fis" style="margin:0;text-transform:none;letter-spacing:0;font-weight:500">1 fiş =</label>
-        <input type="number" id="ki-torba-per-fis" min="1" step="1" value="50" onchange="kiTorbaPerFisKaydet()" title="Sistem fişi başına torba">
+        <input type="text" id="ki-torba-per-fis" inputmode="numeric" value="50" onchange="kiTorbaPerFisKaydet()" oninput="this.value=this.value.replace(/\D/g,'')" title="Sistem fişi başına torba">
         <span>torba</span>
         <span style="opacity:0.7">· ortalamalar elden fiş hariç</span>
         <button type="button" class="btn btn-sm" onclick="komurIstatistikExcelAktar()" style="background:var(--accent2);color:#111;border:none;margin-left:0.35rem">📤 Excel</button>
       </div>
     </div>
+  </div>
+
+  <div class="card komur-ist-card" id="komur-ist-card">
     <div class="komur-ist-wrap">
       <table class="komur-ist-tablo">
         <thead>
@@ -861,7 +870,7 @@
   </div>
 
 
-  <div class="card">
+  <div class="card" id="mahalle-ozet-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem">
       <div class="card-title" style="margin:0">🏘️ Mahalle Özeti</div>
       <button onclick="ozetYazdir()" style="font-size:0.75rem;padding:0.3rem 0.7rem;border-radius:6px;border:1px solid var(--accent2);color:#000;background:var(--accent2);cursor:pointer;font-weight:700">🖨️ Özeti Yazdır</button>
@@ -1948,6 +1957,9 @@ function showPage(p, btn) {
   if (p === 'raporlar') updateRaporlar();
   if (p === 'tir' && typeof tirRender === 'function') tirRender();
   if (p === 'kisiler' && typeof kisiScrollSyncKur === 'function') kisiScrollSyncKur();
+  if (p === 'dashboard' && typeof panelStickyModKur === 'function') {
+    setTimeout(panelStickyModKur, 50);
+  }
   var tirBar = document.getElementById('tir-entry-bar');
   if (tirBar) tirBar.style.display = (p === 'tir') ? 'block' : 'none';
   if (p === 'tir') {
@@ -3014,6 +3026,42 @@ function komurIstatistikExcelAktar() {
   toast('Excel indirildi');
 }
 
+function panelStickyModGuncelle() {
+  var sticky = document.getElementById('panel-sticky');
+  var mahalle = document.getElementById('mahalle-ozet-card');
+  var dash = document.getElementById('page-dashboard');
+  if (!sticky || !mahalle || !dash) return;
+  if (!dash.classList.contains('active')) return;
+  var stickyBottom = sticky.getBoundingClientRect().bottom;
+  var mahalleTop = mahalle.getBoundingClientRect().top;
+  var ozetSimdi = sticky.classList.contains('ozet-modu');
+  // Histerezis: kömür barı gizlenince sticky küçülür — titreşimi önler
+  var ozetOlsun = ozetSimdi
+    ? (mahalleTop <= stickyBottom + 72)
+    : (mahalleTop <= stickyBottom + 2);
+  sticky.classList.toggle('ozet-modu', ozetOlsun);
+}
+
+function panelStickyModKur() {
+  if (window._panelStickyScrollKurulu) {
+    panelStickyModGuncelle();
+    return;
+  }
+  window._panelStickyScrollKurulu = true;
+  var tick = false;
+  function onScroll() {
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function() {
+      tick = false;
+      panelStickyModGuncelle();
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  panelStickyModGuncelle();
+}
+
 function updateDashboard(){
   const k=Object.values(_allKisiler);
   const t=k.length,te=k.filter(x=>x.teslimEdildi).length,be=t-te;
@@ -3028,6 +3076,7 @@ function updateDashboard(){
   if (window.panelDonemBaslikGuncelle) window.panelDonemBaslikGuncelle();
 
   if (typeof komurIstatistikRender === 'function') komurIstatistikRender();
+  if (typeof panelStickyModKur === 'function') panelStickyModKur();
 
   const tur={};k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
   if(document.getElementById('dagilim-list')) document.getElementById('dagilim-list').innerHTML=Object.keys(tur).length===0
