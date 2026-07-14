@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714234000">
+<meta name="version" content="20260714234500">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -319,24 +319,20 @@
   .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
   .komur-ist-tablo{width:100%;border-collapse:separate;border-spacing:0;font-size:1.02rem;table-layout:fixed;}
   .komur-ist-tablo thead th{position:static;box-shadow:none;}
-  /* JS sabit kopya: sticky CSS panelle çakışmasın diye */
+  /* JS sabit kopya: sticky CSS panelle çakışmasın diye — genişlik tabloyla hizalanır */
   #komur-thead-pin{
-    display:none;position:fixed;left:0;right:0;z-index:80;
-    background:var(--surface2);border-bottom:1px solid var(--border);
+    display:none;position:fixed;z-index:80;left:0;top:0;width:auto;
+    box-sizing:border-box;padding:0;margin:0;
+    background:var(--surface2);border:1px solid var(--border);border-radius:8px 8px 0 0;
     box-shadow:0 8px 16px -12px rgba(0,0,0,0.55);pointer-events:none;
+    overflow:hidden;
   }
-  #komur-thead-pin .komur-thead-pin-inner{max-width:1280px;margin:0 auto;padding:0 1.5rem;box-sizing:border-box;}
+  #komur-thead-pin .komur-thead-pin-inner{padding:0;margin:0;width:100%;box-sizing:border-box;}
   #komur-thead-pin table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:1.02rem;margin:0;}
   #komur-thead-pin th{
     background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;
     text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;
     border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;
-  }
-  @media(max-width:600px){
-    #komur-thead-pin .komur-thead-pin-inner{padding:0 0.4rem;}
-  }
-  @media(max-width:420px){
-    #komur-thead-pin .komur-thead-pin-inner{padding:0 0.3rem;}
   }
   .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
   .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
@@ -3362,6 +3358,7 @@ function panelStickyYukseklikAyarla() {
 }
 
 function komurTheadPinSenkron() {
+  var wrap = document.querySelector('#komur-ist-card .komur-ist-wrap') || document.getElementById('komur-ist-card');
   var src = document.querySelector('#komur-ist-card .komur-ist-tablo thead');
   var dst = document.getElementById('komur-thead-pin-head');
   if (!src || !dst) return;
@@ -3371,15 +3368,17 @@ function komurTheadPinSenkron() {
   for (var i = 0; i < srcTh.length && i < dstTh.length; i++) {
     dstTh[i].style.width = srcTh[i].getBoundingClientRect().width + 'px';
   }
+  return wrap;
 }
 
 function komurTheadPinGuncelle() {
   var pin = document.getElementById('komur-thead-pin');
   var sticky = document.getElementById('panel-sticky');
   var card = document.getElementById('komur-ist-card');
+  var wrap = card ? (card.querySelector('.komur-ist-wrap') || card) : null;
   var thead = card ? card.querySelector('.komur-ist-tablo thead') : null;
   var dash = document.getElementById('page-dashboard');
-  if (!pin || !sticky || !card || !thead || !dash || !dash.classList.contains('active')) {
+  if (!pin || !sticky || !card || !thead || !wrap || !dash || !dash.classList.contains('active')) {
     if (pin) pin.style.display = 'none';
     return;
   }
@@ -3392,6 +3391,7 @@ function komurTheadPinGuncelle() {
 
   var stickyBottom = sticky.getBoundingClientRect().bottom;
   var theadRect = thead.getBoundingClientRect();
+  var wrapRect = wrap.getBoundingClientRect();
   var cardRect = card.getBoundingClientRect();
   var pinH = pin.offsetHeight || theadRect.height || 48;
 
@@ -3399,11 +3399,14 @@ function komurTheadPinGuncelle() {
   var baslikGecti = theadRect.bottom <= stickyBottom + 1;
   var tabloDevam = cardRect.bottom > stickyBottom + pinH + 8;
   if (baslikGecti && tabloDevam) {
-    if (pin.style.display !== 'block') {
-      komurTheadPinSenkron();
-      pin.style.display = 'block';
-    }
+    var ilkAcilis = pin.style.display !== 'block';
+    pin.style.display = 'block';
+    // Yanları tablo kartıyla aynı hizada — tam ekran genişlemesin
     pin.style.top = Math.round(stickyBottom) + 'px';
+    pin.style.left = Math.round(wrapRect.left) + 'px';
+    pin.style.width = Math.round(wrapRect.width) + 'px';
+    pin.style.right = 'auto';
+    if (ilkAcilis) komurTheadPinSenkron();
   } else {
     pin.style.display = 'none';
   }
