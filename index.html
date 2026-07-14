@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714420000">
+<meta name="version" content="20260714430000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2175,7 +2175,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, update, remove, push }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -2472,6 +2472,7 @@
   window._personelAuth = personelAuth;
   window.signInWithEmailAndPassword = signInWithEmailAndPassword;
   window.signOut = signOut;
+  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
   window._firebaseConfig = firebaseConfig;
   window._db = db;
 
@@ -2527,6 +2528,16 @@
     return true;
   }
 
+  async function eksikAuthHesabiOlustur(tel, sifre) {
+    try {
+      await createUserWithEmailAndPassword(auth, tel + '@yardim.com', sifre);
+      return true;
+    } catch(e) {
+      if (e && e.code === 'auth/email-already-in-use') return false;
+      throw e;
+    }
+  }
+
   window.girisYap = async function() {
     var tel = document.getElementById('giris-tel').value.trim().replace(/[^0-9]/g,'');
     var sifre = document.getElementById('giris-sifre').value;
@@ -2554,6 +2565,20 @@
         }
       } catch(dbErr) {
         console.error('DB yedek giriş hatası:', dbErr);
+      }
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
+        try {
+          btn.textContent = 'Giriş hesabı hazırlanıyor...';
+          var olustu = await eksikAuthHesabiOlustur(tel, sifre);
+          if (olustu) {
+            toast('✅ Giriş hesabı hazırlandı');
+            btn.disabled = false;
+            btn.textContent = 'Giriş Yap';
+            return;
+          }
+        } catch(createErr) {
+          console.error('Eksik Auth hesabı oluşturulamadı:', createErr);
+        }
       }
       if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') {
         hata.textContent = 'Telefon veya şifre hatalı!';
