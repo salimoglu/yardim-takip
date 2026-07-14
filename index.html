@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714233000">
+<meta name="version" content="20260714234000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -363,13 +363,26 @@
   #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
   #page-tir.page{max-width:1360px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
-  .tir-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .tir-table{font-size:0.74rem;width:100%;border-collapse:collapse;table-layout:auto;}
-  .tir-table th{white-space:nowrap;font-size:0.62rem;padding:0.45rem 0.35rem;}
+  #page-tir .tir-liste-card{padding:0;overflow:visible;margin-bottom:0;}
+  .tir-table-wrap{
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    max-height:var(--tir-table-max, calc(100vh - 14rem));
+  }
+  .tir-table{font-size:0.74rem;width:100%;border-collapse:separate;border-spacing:0;table-layout:auto;}
+  .tir-table thead th{
+    position:sticky;
+    top:0;
+    z-index:6;
+    background:var(--surface2);
+    box-shadow:inset 0 -1px 0 var(--border);
+  }
+  .tir-table th{white-space:nowrap;font-size:0.62rem;padding:0.45rem 0.35rem;background:var(--surface2);}
   .tir-table td{white-space:nowrap;vertical-align:middle;padding:0.4rem 0.35rem;}
   .tir-table td:nth-child(11),.tir-table th:nth-child(11){max-width:120px;overflow:hidden;text-overflow:ellipsis;}
   .tir-table td:nth-child(12),.tir-table th:nth-child(12){max-width:90px;overflow:hidden;text-overflow:ellipsis;}
   .tir-table .btn{padding:0.15rem 0.4rem;font-size:0.68rem;}
+  [data-theme="light"] .tir-table thead th{background:#f0ebe0;}
   @media(min-width:1400px){
     #page-tir.page{max-width:1480px;}
   }
@@ -1483,7 +1496,7 @@
 
 <!-- ========== TIR TESELLÜM ========== -->
 <div id="page-tir" class="page">
-  <div class="panel-sticky">
+  <div class="panel-sticky" id="tir-panel-sticky">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-val" id="tir-stat-adet">0</div><div class="stat-label">TIR Sayısı</div></div>
       <div class="stat-card"><div class="stat-val" id="tir-stat-sevk">0</div><div class="stat-label">Sevk (kg)</div></div>
@@ -1511,8 +1524,8 @@
     </div>
   </div>
 
-  <div class="card" style="padding:0;overflow:hidden;margin-bottom:0">
-    <div class="tir-table-wrap">
+  <div class="card tir-liste-card">
+    <div class="tir-table-wrap" id="tir-table-wrap">
       <table class="tir-table">
         <thead>
           <tr>
@@ -2175,6 +2188,9 @@ function showPage(p, btn) {
   if (btn) btn.classList.add('active');
   if (p === 'raporlar') updateRaporlar();
   if (p === 'tir' && typeof tirRender === 'function') tirRender();
+  if (p === 'tir' && typeof tirTabloYukseklikKur === 'function') {
+    setTimeout(tirTabloYukseklikKur, 80);
+  }
   if (p === 'kisiler' && typeof kisiScrollSyncKur === 'function') kisiScrollSyncKur();
   if (p === 'dashboard' && typeof panelStickyModKur === 'function') {
     setTimeout(panelStickyModKur, 50);
@@ -2183,6 +2199,7 @@ function showPage(p, btn) {
   if (tirBar) tirBar.style.display = (p === 'tir') ? 'block' : 'none';
   if (p === 'tir') {
     setTimeout(function() {
+      if (typeof tirTabloYukseklikAyarla === 'function') tirTabloYukseklikAyarla();
       var pl = document.getElementById('tir-plaka');
       if (pl && !document.getElementById('tir-duzen-id').value) pl.focus();
     }, 120);
@@ -5623,6 +5640,39 @@ function tirKgGoster(n) {
   return Number(n).toLocaleString('tr-TR');
 }
 
+function tirTabloYukseklikAyarla() {
+  var page = document.getElementById('page-tir');
+  if (!page || !page.classList.contains('active')) return;
+  var panel = document.getElementById('tir-panel-sticky');
+  if (!panel) return;
+  var bottom = panel.getBoundingClientRect().bottom;
+  var entry = document.getElementById('tir-entry-bar');
+  var entryH = (entry && entry.style.display !== 'none' && getComputedStyle(entry).display !== 'none')
+    ? entry.getBoundingClientRect().height : 0;
+  var bnav = document.querySelector('.bottom-nav');
+  var bnavH = 0;
+  if (bnav) {
+    var bd = getComputedStyle(bnav).display;
+    if (bd !== 'none') bnavH = bnav.getBoundingClientRect().height || 0;
+  }
+  var avail = Math.floor(window.innerHeight - bottom - entryH - bnavH - 10);
+  document.documentElement.style.setProperty('--tir-table-max', Math.max(160, avail) + 'px');
+}
+
+function tirTabloYukseklikKur() {
+  if (window._tirTabloYukseklikKurulu) {
+    tirTabloYukseklikAyarla();
+    return;
+  }
+  window._tirTabloYukseklikKurulu = true;
+  window.addEventListener('resize', function() {
+    if (document.getElementById('page-tir') && document.getElementById('page-tir').classList.contains('active')) {
+      tirTabloYukseklikAyarla();
+    }
+  }, { passive: true });
+  tirTabloYukseklikAyarla();
+}
+
 function tirRender() {
   var tum = tirKayitListesi();
   var liste = tirKayitFiltrelenmis();
@@ -5657,6 +5707,7 @@ function tirRender() {
     tbody.innerHTML = '<tr><td colspan="14" class="text-muted text-center" style="padding:1.5rem">'
       + (tum.length === 0 ? 'Henüz TIR kaydı yok' : 'Filtreye uyan kayıt yok')
       + '</td></tr>';
+    if (typeof tirTabloYukseklikKur === 'function') tirTabloYukseklikKur();
     return;
   }
 
@@ -5683,6 +5734,7 @@ function tirRender() {
       + '<button class="btn btn-sm" style="background:var(--danger);color:#fff;border:none" onclick="tirSil(\'' + id + '\')">🗑</button>'
       + '</td></tr>';
   }).join('');
+  if (typeof tirTabloYukseklikKur === 'function') tirTabloYukseklikKur();
 }
 
 async function tirMetaKaydet() {
