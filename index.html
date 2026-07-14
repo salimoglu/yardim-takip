@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714370000">
+<meta name="version" content="20260714380000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -538,6 +538,30 @@
   .rapor-action-title{font-weight:800;color:var(--text);line-height:1.2;}
   .rapor-action-desc{font-size:0.78rem;color:var(--muted);line-height:1.35;flex:1;}
   .rapor-action .btn{width:100%;justify-content:center;padding:0.55rem 0.7rem;}
+  .personel-gunluk-ozet{display:none;}
+  body.personel-saha .personel-gunluk-ozet{display:block;}
+  body.personel-saha #page-dashboard > :not(.personel-gunluk-ozet),
+  body.personel-saha #page-kisiler > :not(.personel-gunluk-ozet),
+  body.personel-saha #page-raporlar > :not(.personel-gunluk-ozet){display:none !important;}
+  body.personel-saha #page-dashboard,
+  body.personel-saha #page-kisiler,
+  body.personel-saha #page-raporlar{max-width:760px;}
+  .personel-ozet-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.85rem;}
+  .personel-ozet-title{font-size:1.05rem;font-weight:800;color:var(--accent);margin-bottom:0.2rem;}
+  .personel-ozet-sub{font-size:0.84rem;color:var(--muted);line-height:1.4;}
+  .personel-ozet-total{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.65rem 0.9rem;text-align:center;min-width:110px;}
+  .personel-ozet-total b{display:block;font-family:var(--mono);font-size:1.65rem;line-height:1;color:var(--accent2);}
+  .personel-ozet-total span{display:block;font-size:0.66rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-top:0.22rem;}
+  .personel-mah-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.45rem;margin-bottom:0.85rem;}
+  .personel-mah-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.55rem 0.65rem;display:flex;align-items:center;justify-content:space-between;gap:0.55rem;}
+  .personel-mah-item span{font-size:0.82rem;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .personel-mah-item b{font-family:var(--mono);color:var(--accent2);font-size:1rem;}
+  .personel-ozet-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px;-webkit-overflow-scrolling:touch;}
+  .personel-ozet-table{width:100%;border-collapse:collapse;min-width:520px;}
+  .personel-ozet-table th{background:var(--surface2);font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em;padding:0.5rem 0.55rem;text-align:left;}
+  .personel-ozet-table td{padding:0.52rem 0.55rem;border-top:1px solid var(--border);font-size:0.86rem;vertical-align:middle;}
+  .personel-ozet-table td:first-child,.personel-ozet-table th:first-child{text-align:center;width:38px;color:var(--muted);}
+  .personel-ozet-empty{padding:1.1rem;text-align:center;color:var(--muted);background:var(--surface2);border:1px dashed var(--border);border-radius:10px;}
   @media(max-width:980px){
     .rapor-grid-2 > div:last-child{grid-template-columns:1fr;}
     .rapor-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -2203,11 +2227,15 @@
       throw new Error('Bu kişiye teslim yapılamaz (' + nedenler.join(' + ') + ')');
     }
     var teslimEden = window._aktifKullanici ? (window._aktifKullanici.ad || window._aktifKullanici.tel) : 'Bilinmiyor';
+    var teslimEdenTel = window._aktifKullanici ? (window._aktifKullanici.tel || '') : '';
+    var teslimEdenUid = window._aktifKullanici ? (window._aktifKullanici.uid || '') : '';
     return update(ref(db, dbYol('kisiler/'+tc)), {
       teslimEdildi: true,
       teslimTarihi: new Date().toISOString(),
       zorlaIslendi: !!zorla,
-      teslimEden: teslimEden
+      teslimEden: teslimEden,
+      teslimEdenTel: teslimEdenTel,
+      teslimEdenUid: teslimEdenUid
     });
   };
 
@@ -2568,29 +2596,155 @@ function trSortKey(fn) {
 
 var _SAYFALAR = ['dashboard','yukleme','tara','kisiler','raporlar','tir'];
 
+function bugunIsoYerel() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function teslimGunAnahtar(k) {
+  if (!k || !k.teslimTarihi) return '';
+  if (typeof tirGunAnahtar === 'function') return tirGunAnahtar(k.teslimTarihi);
+  var d = new Date(k.teslimTarihi);
+  if (!isNaN(d.getTime())) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  var m = String(k.teslimTarihi).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[1] + '-' + m[2] + '-' + m[3] : '';
+}
+
+function personelKimlikNormalize(v) {
+  return String(v || '').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g, ' ');
+}
+
+function aktifPersonelKimlikleri() {
+  var u = window._aktifKullanici || {};
+  var liste = [u.ad, u.tel, u.uid].filter(Boolean).map(personelKimlikNormalize).filter(Boolean);
+  return new Set(liste);
+}
+
+function personelKendiTeslimiMi(k) {
+  if (!window._personelModu || !k) return true;
+  var kimlikler = aktifPersonelKimlikleri();
+  if (!kimlikler.size) return false;
+  var teslimEden = personelKimlikNormalize(k.teslimEden);
+  var teslimTel = personelKimlikNormalize(k.teslimEdenTel);
+  var teslimUid = personelKimlikNormalize(k.teslimEdenUid);
+  return (teslimEden && kimlikler.has(teslimEden))
+    || (teslimTel && kimlikler.has(teslimTel))
+    || (teslimUid && kimlikler.has(teslimUid));
+}
+
+function personelGunlukTeslimleri(gun) {
+  var hedefGun = gun || bugunIsoYerel();
+  return Object.values(_allKisiler || {}).filter(function(k) {
+    return k && k.teslimEdildi && k.teslimTarihi && teslimGunAnahtar(k) === hedefGun && personelKendiTeslimiMi(k);
+  }).sort(function(a, b) {
+    return new Date(b.teslimTarihi) - new Date(a.teslimTarihi);
+  });
+}
+
+function personelOzetKartlariKur() {
+  ['dashboard', 'tara', 'kisiler', 'raporlar'].forEach(function(page) {
+    var hedef = document.getElementById('page-' + page);
+    if (!hedef || document.getElementById('personel-ozet-' + page)) return;
+    var card = document.createElement('div');
+    card.id = 'personel-ozet-' + page;
+    card.className = 'card personel-gunluk-ozet';
+    hedef.insertBefore(card, hedef.firstChild);
+  });
+}
+
+function personelOzetKartlariKaldir() {
+  document.querySelectorAll('.personel-gunluk-ozet').forEach(function(el) {
+    el.remove();
+  });
+}
+
+function personelGunlukOzetHtml(page) {
+  var liste = personelGunlukTeslimleri();
+  var tarihTr = new Date(bugunIsoYerel() + 'T12:00:00').toLocaleDateString('tr-TR', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+  var kullanici = (window._aktifKullanici && (window._aktifKullanici.ad || window._aktifKullanici.tel)) || 'Saha Personeli';
+  var mahalleler = {};
+  liste.forEach(function(k) {
+    var m = (k.adres || 'Belirtilmemiş').trim() || 'Belirtilmemiş';
+    mahalleler[m] = (mahalleler[m] || 0) + 1;
+  });
+  var mahHtml = Object.entries(mahalleler).sort(function(a, b) { return trSort(a[0], b[0]); }).map(function(item) {
+    return '<div class="personel-mah-item" title="' + escapeHtml(item[0]) + '">'
+      + '<span>' + escapeHtml(item[0]) + '</span>'
+      + '<b>' + item[1].toLocaleString('tr-TR') + '</b>'
+    + '</div>';
+  }).join('');
+  var rows = liste.length === 0
+    ? '<tr><td colspan="5" class="text-muted text-center" style="padding:1.2rem">Bugün size ait teslim kaydı yok</td></tr>'
+    : liste.map(function(k, i) {
+      var d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
+      var saat = d && !isNaN(d.getTime()) ? d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '—';
+      return '<tr>'
+        + '<td>' + (i + 1) + '</td>'
+        + '<td><b>' + escapeHtml(k.adsoyad || '—') + '</b></td>'
+        + '<td>' + (escapeHtml(k.adres) || '—') + '</td>'
+        + '<td><span class="badge badge-blue">' + (escapeHtml(k.yardimturu) || '—') + '</span></td>'
+        + '<td class="tc-no">' + saat + '</td>'
+      + '</tr>';
+    }).join('');
+  var modEtiket = page === 'tara' ? 'Tara-Teslim' : (page === 'kisiler' ? 'Kişiler' : (page === 'raporlar' ? 'Raporlar' : 'Panel'));
+  return '<div class="personel-ozet-hero">'
+    + '<div>'
+      + '<div class="personel-ozet-title">👤 Günlük Teslim Özetim</div>'
+      + '<div class="personel-ozet-sub">' + escapeHtml(modEtiket) + ' modülünde sadece sizin bugünkü teslimleriniz gösteriliyor.<br><b>' + escapeHtml(kullanici) + '</b> · ' + escapeHtml(tarihTr) + '</div>'
+    + '</div>'
+    + '<div class="personel-ozet-total"><b>' + liste.length.toLocaleString('tr-TR') + '</b><span>Bugün Teslim</span></div>'
+  + '</div>'
+  + (mahHtml ? '<div class="personel-mah-grid">' + mahHtml + '</div>' : '<div class="personel-ozet-empty">Bugün için mahalle özeti oluşmadı.</div>')
+  + '<div class="personel-ozet-table-wrap" style="margin-top:0.85rem">'
+    + '<table class="personel-ozet-table">'
+      + '<thead><tr><th>#</th><th>Ad Soyad</th><th>Mahalle</th><th>Yardım</th><th>Saat</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+    + '</table>'
+  + '</div>';
+}
+
+function personelGunlukOzetRender() {
+  if (!window._personelModu) return;
+  ['dashboard', 'tara', 'kisiler', 'raporlar'].forEach(function(page) {
+    var el = document.getElementById('personel-ozet-' + page);
+    if (el) el.innerHTML = personelGunlukOzetHtml(page);
+  });
+}
+
 function rolAyarla(rol) {
   var navBtnler = document.querySelectorAll('.nav-btn');
 
   if (rol === 'personel') {
-    // Nav: Yükleme butonunu gizle
+    document.body.classList.add('personel-saha');
+    // Nav: Yükleme ve TIR butonunu gizle
     navBtnler.forEach(function(btn) {
       var onclick = btn.getAttribute('onclick') || '';
-      btn.style.display = onclick.indexOf('yukleme') !== -1 ? 'none' : '';
+      btn.style.display = (onclick.indexOf('yukleme') !== -1 || onclick.indexOf('tir') !== -1) ? 'none' : '';
     });
     // Ayarlar butonu personel icin de goruncur, ancak admin sekmeleri modal icinde gizlenecek (ayarModalAc icinde ele alinir)
-    // Yükleme sayfasını fiziksel olarak gizle
+    // Yükleme ve TIR sayfasını fiziksel olarak gizle
     var yuklemeSayfasi = document.getElementById('page-yukleme');
     if (yuklemeSayfasi) yuklemeSayfasi.style.display = 'none';
+    var tirSayfasi = document.getElementById('page-tir');
+    if (tirSayfasi) tirSayfasi.style.display = 'none';
     // Alt navda yükleme butonunu gizle
     var bnavYukleme = document.getElementById('bnav-yukleme');
     if (bnavYukleme) bnavYukleme.style.display = 'none';
-    // Alt navda kişiler butonunu gizle
+    // Alt navda TIR butonunu gizle
+    var bnavTir = document.getElementById('bnav-tir');
+    if (bnavTir) bnavTir.style.display = 'none';
+    // Kişiler butonu görünsün ama içerik sadece günlük özet olur
     var bnavKisiler = document.getElementById('bnav-kisiler');
-    if (bnavKisiler) bnavKisiler.style.display = 'none';
-    // Kişiler sayfasını gizle
+    if (bnavKisiler) bnavKisiler.style.display = '';
     var kisilerSayfasi = document.getElementById('page-kisiler');
-    if (kisilerSayfasi) kisilerSayfasi.style.display = 'none';
+    if (kisilerSayfasi) kisilerSayfasi.style.display = '';
     window._personelModu = true;
+    personelOzetKartlariKur();
+    personelGunlukOzetRender();
     // Bottom nav'ı JS ile de zorla sabit yap
     var bnav = document.querySelector('.bottom-nav');
     if (bnav) {
@@ -2601,12 +2755,18 @@ function rolAyarla(rol) {
     showPage('dashboard', document.querySelector('[onclick*="dashboard"]'));
   } else {
     // Admin: her şey görünsün
+    document.body.classList.remove('personel-saha');
     window._personelModu = false;
+    personelOzetKartlariKaldir();
     navBtnler.forEach(function(btn) { btn.style.display = ''; });
     var yuklemeSayfasi = document.getElementById('page-yukleme');
     if (yuklemeSayfasi) yuklemeSayfasi.style.display = '';
+    var tirSayfasi = document.getElementById('page-tir');
+    if (tirSayfasi) tirSayfasi.style.display = '';
     var bnavYukleme = document.getElementById('bnav-yukleme');
     if (bnavYukleme) bnavYukleme.style.display = '';
+    var bnavTir = document.getElementById('bnav-tir');
+    if (bnavTir) bnavTir.style.display = '';
     var bnavKisiler = document.getElementById('bnav-kisiler');
     if (bnavKisiler) bnavKisiler.style.display = '';
     var kisilerSayfasi = document.getElementById('page-kisiler');
@@ -2630,8 +2790,8 @@ function rolAyarla(rol) {
 }
 
 function showPage(p, btn) {
-  // Personel modu — yükleme sayfasına erişim engeli
-  if (window._personelModu && (p === 'yukle' || p === 'kayit' || p === 'yukleme' || p === 'kisiler')) {
+  // Personel modu — operasyon ve yönetim sayfalarına erişim engeli
+  if (window._personelModu && (p === 'yukle' || p === 'kayit' || p === 'yukleme' || p === 'tir')) {
     toast('Bu sayfaya erişim yetkiniz yok!', 'error');
     return;
   }
@@ -2705,6 +2865,10 @@ function yuklemeTab(tab) {
 
 function renderAll() {
   _allKisiler = window._kisilerData || {};
+  if (window._personelModu) {
+    personelOzetKartlariKur();
+    personelGunlukOzetRender();
+  }
   updateDashboard();
   mahalleFiltreGuncelle();
   renderKisilerTable();
@@ -4172,9 +4336,9 @@ function closeMahalleModal() {
 }
 
 function bugunTeslimListesi() {
-  var today = new Date().toDateString();
+  var today = bugunIsoYerel();
   return Object.values(_allKisiler || {}).filter(function(x) {
-    return x && x.teslimEdildi && x.teslimTarihi && new Date(x.teslimTarihi).toDateString() === today;
+    return x && x.teslimEdildi && x.teslimTarihi && teslimGunAnahtar(x) === today && personelKendiTeslimiMi(x);
   }).sort(function(a, b) {
     return new Date(b.teslimTarihi) - new Date(a.teslimTarihi);
   });
@@ -5712,8 +5876,7 @@ function raporRender() {
 
   // Personel kendi teslimatını görsün
   if (window._aktifRol === 'personel' && window._aktifKullanici) {
-    var benimAd = window._aktifKullanici.ad || window._aktifKullanici.tel;
-    liste = liste.filter(k => k.teslimEden === benimAd || k.teslimEden === window._aktifKullanici.tel);
+    liste = liste.filter(function(k) { return personelKendiTeslimiMi(k); });
   }
 
   _raporFiltreli = liste;
@@ -5759,7 +5922,9 @@ function raporRender() {
 }
 
 function updateRaporlar(){
-  const k=Object.values(_allKisiler);
+  const k=Object.values(_allKisiler).filter(function(x) {
+    return window._personelModu ? personelKendiTeslimiMi(x) : true;
+  });
   const t=k.length, te=k.filter(x=>x.teslimEdildi).length, be=t-te, or=t>0?Math.round(te/t*100):0;
   ['r-toplam','r-teslim','r-bekliyor','r-oran'].forEach((id,i)=>document.getElementById(id).textContent=[t,te,be,or+'%'][i]);
 
@@ -5860,6 +6025,10 @@ function raporPersonelOzeti() {
 // ===== EXPORT =====
 function exportCSV(filtre){
   let k=Object.values(_allKisiler);
+  if (window._personelModu) {
+    var bugun = bugunIsoYerel();
+    k = k.filter(function(x) { return x.teslimEdildi && teslimGunAnahtar(x) === bugun && personelKendiTeslimiMi(x); });
+  }
   var baslik = 'TÜM KAYITLAR RAPORU';
   var dosya = 'Rapor-Tum-Kayitlar';
   var alt = k.length.toLocaleString('tr-TR') + ' toplam kayıt';
@@ -5897,7 +6066,7 @@ function exportCSVFiltreli() {
 function raporGunExcelIndir(gun) {
   if (!gun) return;
   var liste = Object.values(_allKisiler || {}).filter(function(k) {
-    return k && k.teslimEdildi && k.teslimTarihi && k.teslimTarihi.slice(0, 10) === gun;
+    return k && k.teslimEdildi && k.teslimTarihi && teslimGunAnahtar(k) === gun && personelKendiTeslimiMi(k);
   });
   var d = new Date(gun + 'T12:00:00');
   var gunTr = isNaN(d.getTime()) ? gun : d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -5989,7 +6158,7 @@ function exportCSVGunluk() {
   // Hangi gün raporu isteniyor — tarih filtresi varsa o gün, yoksa bugün
   const bas = document.getElementById('rapor-tarih-bas').value;
   const bit = document.getElementById('rapor-tarih-bit').value;
-  const kisiler = Object.values(_allKisiler).filter(function(k){ return k.teslimEdildi; });
+  const kisiler = Object.values(_allKisiler).filter(function(k){ return k.teslimEdildi && personelKendiTeslimiMi(k); });
 
   var liste = kisiler;
   if (bas) liste = liste.filter(function(k){ return k.teslimTarihi && k.teslimTarihi.slice(0,10) >= bas; });
