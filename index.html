@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714290000">
+<meta name="version" content="20260714300000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -459,7 +459,11 @@
     background:var(--surface2);border:1px solid var(--border);color:var(--text);
     font-size:0.78rem;font-weight:600;white-space:nowrap;
   }
-  .rapor-grid-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,0.56fr);gap:1rem;align-items:start;}
+  .rapor-grid-2{display:grid;grid-template-columns:1fr;gap:1rem;align-items:start;}
+  .rapor-grid-2 > div:last-child{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start;
+  }
+  .rapor-grid-2 > div:last-child .card{margin-bottom:0;}
   .rapor-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:0.9rem;}
   .rapor-card-head .card-title{margin:0;}
   .rapor-card-sub{font-size:0.82rem;color:var(--muted);line-height:1.35;margin-top:0.18rem;}
@@ -489,9 +493,22 @@
   .rapor-filtre-ozet span{font-size:0.84rem;color:var(--muted);}
   .rapor-table-card{padding:0;overflow:hidden;}
   .rapor-table-top{padding:1rem 1rem 0;}
-  .rapor-table-wrap{max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--border);}
-  .rapor-table{min-width:880px;}
+  .rapor-table-wrap{max-height:500px;overflow:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--border);}
+  .rapor-table{width:100%;min-width:0;table-layout:fixed;font-size:0.8rem;}
   .rapor-table thead th{position:sticky;top:0;z-index:4;background:var(--surface2);}
+  .rapor-table th,.rapor-table td{padding:0.5rem 0.45rem;}
+  .rapor-table th:nth-child(1),.rapor-table td:nth-child(1){width:13%;}
+  .rapor-table th:nth-child(2),.rapor-table td:nth-child(2){width:19%;}
+  .rapor-table th:nth-child(3),.rapor-table td:nth-child(3){width:18%;}
+  .rapor-table th:nth-child(4),.rapor-table td:nth-child(4){width:12%;}
+  .rapor-table th:nth-child(5),.rapor-table td:nth-child(5){width:15%;}
+  .rapor-table th:nth-child(6),.rapor-table td:nth-child(6){width:14%;}
+  .rapor-table th:nth-child(7),.rapor-table td:nth-child(7){width:9%;text-align:center;}
+  .rapor-table td{overflow:hidden;text-overflow:ellipsis;}
+  .rapor-table .rapor-ad{font-weight:800;white-space:normal;line-height:1.2;}
+  .rapor-table .rapor-mah{white-space:normal;line-height:1.2;}
+  .rapor-table .rapor-tarih{font-family:var(--mono);font-size:0.76rem;line-height:1.25;color:var(--text);}
+  .rapor-table .rapor-saat{display:block;color:var(--muted);font-size:0.72rem;margin-top:0.1rem;}
   .rapor-table tbody tr:hover td{background:rgba(78,205,196,0.06);}
   .rapor-more-row td{background:var(--surface) !important;text-align:center;padding:0.85rem !important;}
   .rapor-side-list{display:grid;gap:0.55rem;}
@@ -510,7 +527,7 @@
   .rapor-action-desc{font-size:0.78rem;color:var(--muted);line-height:1.35;flex:1;}
   .rapor-action .btn{width:100%;justify-content:center;padding:0.55rem 0.7rem;}
   @media(max-width:980px){
-    .rapor-grid-2{grid-template-columns:1fr;}
+    .rapor-grid-2 > div:last-child{grid-template-columns:1fr;}
     .rapor-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
   }
   @media(max-width:640px){
@@ -519,6 +536,15 @@
     .rapor-actions{grid-template-columns:1fr;}
     .rapor-tur-item{grid-template-columns:1fr;gap:0.45rem;}
     .rapor-tur-meta{justify-content:flex-start;}
+    .rapor-table{font-size:0.74rem;}
+    .rapor-table th,.rapor-table td{padding:0.42rem 0.32rem;}
+    .rapor-table th:nth-child(1),.rapor-table td:nth-child(1){display:none;}
+    .rapor-table th:nth-child(2),.rapor-table td:nth-child(2){width:25%;}
+    .rapor-table th:nth-child(3),.rapor-table td:nth-child(3){width:24%;}
+    .rapor-table th:nth-child(4),.rapor-table td:nth-child(4){width:16%;}
+    .rapor-table th:nth-child(5),.rapor-table td:nth-child(5){width:18%;}
+    .rapor-table th:nth-child(6),.rapor-table td:nth-child(6){width:17%;}
+    .rapor-table th:nth-child(7),.rapor-table td:nth-child(7){display:none;}
   }
   @media(max-width:768px){
     .panel-sticky,.rapor-sticky{top:var(--nav-h);padding-top:0.4rem;padding-bottom:0.55rem;}
@@ -1624,8 +1650,8 @@
       </div>
       <div class="rapor-table-wrap">
         <table class="rapor-table">
-        <thead><tr><th>TC No</th><th>Ad</th><th>Soyad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Eden</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
-          <tbody id="rapor-teslim-table"><tr><td colspan="9" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
+        <thead><tr><th>TC No</th><th>Ad Soyad</th><th>Mahalle</th><th>Durum</th><th>Teslim Eden</th><th>Teslim Zamanı</th><th>Not</th></tr></thead>
+          <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
       </div>
       <div id="rapor-teslim-count" class="text-muted" style="padding:0.7rem 1rem;font-size:0.8rem;"></div>
@@ -5109,7 +5135,7 @@ function raporRender() {
   document.getElementById('rapor-teslim-count').textContent = liste.length.toLocaleString('tr-TR') + ' kayıt listeleniyor';
 
   if (liste.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="text-muted text-center" style="padding:2rem">Seçili aralıkta teslim kaydı bulunamadı</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Seçili aralıkta teslim kaydı bulunamadı</td></tr>';
     return;
   }
 
@@ -5120,21 +5146,20 @@ function raporRender() {
     const d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
     const tarih = d ? d.toLocaleDateString('tr-TR') : '—';
     const saat  = d ? d.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '—';
+    const notBadge = k.zorlaIslendi ? '<span class="badge badge-red">Zorla</span>' : '<span style="color:var(--muted)">—</span>';
     return '<tr>'
       + '<td class="kisi-tc" style="font-size:0.85rem">' + escapeHtml(k.tc) + '</td>'
-      + '<td class="kisi-ad"><b>' + escapeHtml(_getAd(k)) + '</b></td>'
-      + '<td class="kisi-ad">' + escapeHtml(_getSoyad(k)) + '</td>'
-      + '<td style="font-size:0.85rem">' + (escapeHtml(k.adres)||'—') + '</td>'
+      + '<td class="rapor-ad">' + escapeHtml(k.adsoyad || ((_getAd(k) + ' ' + _getSoyad(k)).trim())) + '</td>'
+      + '<td class="rapor-mah">' + (escapeHtml(k.adres)||'—') + '</td>'
       + '<td><span class="badge badge-green">✅ Teslim</span></td>'
       + '<td style="font-size:0.85rem;color:var(--accent2)">' + (escapeHtml(k.teslimEden)||'—') + '</td>'
-      + '<td style="font-size:0.85rem">' + tarih + '</td>'
-      + '<td class="tc-no" style="font-size:0.85rem;color:var(--muted)">' + saat + '</td>'
-      + '<td style="text-align:center">' + (k.zorlaIslendi ? '<span class="badge badge-red">⚠️</span>' : '') + '</td>'
+      + '<td class="rapor-tarih">' + tarih + '<span class="rapor-saat">' + saat + '</span></td>'
+      + '<td>' + notBadge + '</td>'
       + '</tr>';
   }).join('');
 
   if (kalan > 0) {
-    tbody.innerHTML += '<tr class="rapor-more-row"><td colspan="9">'
+    tbody.innerHTML += '<tr class="rapor-more-row"><td colspan="7">'
       + '<button class="btn btn-outline btn-sm" onclick="_raporSayfa++;raporRender()">'
       + '▼ ' + kalan + ' kayıt daha göster</button></td></tr>';
   }
