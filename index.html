@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714180000">
+<meta name="version" content="20260714182000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -229,10 +229,7 @@
   .rapor-sticky{position:sticky;top:3.55rem;z-index:90;background:var(--bg);padding:0.55rem 0 0.75rem;margin:0 0 1rem;border-bottom:1px solid var(--border);box-shadow:0 10px 18px -14px rgba(0,0,0,0.65);}
   .rapor-sticky .stats-grid{margin-bottom:0.75rem;}
   .rapor-sticky .card{margin-bottom:0;}
-  #page-tir.page{max-width:1180px;}
-  .tir-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.65rem;}
-  .tir-form-grid .form-group{margin:0;}
-  .tir-form-grid label{font-size:0.68rem;margin-bottom:0.25rem;}
+  #page-tir.page{max-width:1180px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
   .tir-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .tir-table{font-size:0.78rem;min-width:980px;}
   .tir-table th{white-space:nowrap;font-size:0.65rem;}
@@ -240,10 +237,22 @@
   .tir-fark-pos{color:var(--danger);font-weight:700;}
   .tir-fark-neg{color:var(--accent2);font-weight:700;}
   .tir-fark-0{color:var(--muted);}
+  .tir-entry-bar{position:fixed;left:0;right:0;bottom:0;z-index:85;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -8px 24px -12px rgba(0,0,0,0.55);padding:0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom));}
+  .tir-entry-hint{font-size:0.72rem;color:var(--muted);padding:0 0.25rem 0.3rem;display:flex;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;}
+  .tir-entry-hint b{color:var(--accent);font-weight:600;}
+  .tir-entry-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .tir-entry-row{display:grid;grid-template-columns:64px 110px 70px 80px 110px 118px 90px 118px 90px 80px 130px 120px 70px 90px;gap:0;min-width:1340px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg);}
+  .tir-entry-row input,.tir-entry-row select{width:100%;border:none;border-right:1px solid var(--border);border-radius:0;background:var(--surface2);color:var(--text);font-family:var(--font);font-size:0.78rem;font-weight:500;padding:0.45rem 0.35rem;outline:none;min-width:0;height:36px;}
+  .tir-entry-row input:last-child,.tir-entry-row select:last-child{border-right:none;}
+  .tir-entry-row input:focus,.tir-entry-row select:focus{background:rgba(245,166,35,0.12);box-shadow:inset 0 0 0 1px var(--accent);}
+  .tir-entry-row input[readonly]{color:var(--accent);opacity:0.95;}
+  .tir-duzen-aktif .tir-entry-hint b{color:var(--accent2);}
   @media(max-width:768px){
     .panel-sticky{top:2.65rem;padding:0.4rem 0 0.55rem;margin-bottom:0.75rem;}
     .rapor-sticky{top:2.65rem;padding:0.4rem 0 0.55rem;margin-bottom:0.75rem;}
     .rapor-sticky .stats-grid{margin-bottom:0.55rem;}
+    .tir-entry-bar{bottom:calc(3.55rem + env(safe-area-inset-bottom));}
+    #page-tir.page{padding-bottom:calc(9.5rem + env(safe-area-inset-bottom));}
   }
 
   /* ===== MAHALLE ÖZETİ KARTLARI — tek satır ===== */
@@ -489,11 +498,11 @@
 <nav>
   <div class="nav-brand" onclick="window.location.reload()" style="cursor:pointer" title="Sayfayı Yenile"><span style="color:var(--accent)">⬡ YARDIM</span><span style="color:var(--text);font-size:0.9em">TAKİP</span></div>
   <button class="nav-btn active" onclick="showPage('dashboard',this)">📊 Panel</button>
+  <button class="nav-btn" onclick="showPage('tir',this)">🚛 TIR</button>
   <button class="nav-btn" onclick="showPage('yukleme',this)">📥 Yükleme</button>
   <button class="nav-btn" onclick="showPage('tara',this)">📷 Tara & Teslim</button>
   <button class="nav-btn" onclick="showPage('kisiler',this)">👥 Kişiler</button>
   <button class="nav-btn" onclick="showPage('raporlar',this)">📈 Raporlar</button>
-  <button class="nav-btn" onclick="showPage('tir',this)">🚛 TIR</button>
   <div class="nav-sag" style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
     <div id="firebase-status" title="Veritabanı durumu" style="width:10px;height:10px;border-radius:50%;background:#888;flex-shrink:0;cursor:default"></div>
     <button id="ayar-btn-nav" onclick="ayarModalAc()" class="ayar-btn-nav" title="Ayarlar" aria-label="Ayarlar">⚙️</button>
@@ -506,6 +515,9 @@
     <button class="bnav-btn active" id="bnav-dashboard" onclick="showPage('dashboard',this,'bnav-dashboard')">
       <span class="bnav-icon">📊</span><span>Panel</span>
     </button>
+    <button class="bnav-btn" id="bnav-tir" onclick="showPage('tir',this,'bnav-tir')">
+      <span class="bnav-icon">🚛</span><span>TIR</span>
+    </button>
     <button class="bnav-btn" id="bnav-tara" onclick="showPage('tara',this,'bnav-tara')">
       <span class="bnav-icon">📷</span><span>Tara</span>
     </button>
@@ -514,9 +526,6 @@
     </button>
     <button class="bnav-btn" id="bnav-raporlar" onclick="showPage('raporlar',this,'bnav-raporlar')">
       <span class="bnav-icon">📈</span><span>Raporlar</span>
-    </button>
-    <button class="bnav-btn" id="bnav-tir" onclick="showPage('tir',this,'bnav-tir')">
-      <span class="bnav-icon">🚛</span><span>TIR</span>
     </button>
     <button class="bnav-btn" id="bnav-yukleme" onclick="showPage('yukleme',this,'bnav-yukleme')">
       <span class="bnav-icon">📥</span><span>Yükleme</span>
@@ -1145,62 +1154,22 @@
     </div>
   </div>
 
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.8rem">
-      <div>
-        <div class="card-title" style="margin-bottom:0.25rem">🚛 TIR Teslim / Tesellüm</div>
-        <div class="text-muted" style="font-size:0.78rem">Özalp SYDV kömür çıkış ve teslimat izleme</div>
+  <div class="card" style="padding:0.75rem 0.85rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap">
+      <div style="min-width:0;flex:1">
+        <div class="card-title" style="margin-bottom:0.35rem">🚛 TIR Teslim / Tesellüm</div>
+        <input type="text" id="tir-alt-baslik" placeholder="Liste başlığı — örn: ARALIK AYI/Liste 1" onchange="tirMetaKaydet()" style="max-width:420px;font-size:0.85rem;padding:0.35rem 0.55rem">
       </div>
       <div class="flex gap-1 flex-wrap">
-        <button class="btn btn-outline btn-sm" onclick="tirExcelIceAktar()">📥 Excel İçe Aktar</button>
-        <button class="btn btn-sm" onclick="tirExcelDisaAktar()" style="background:var(--accent2);color:#111;border:none">📤 Excel Dışa Aktar</button>
+        <input type="text" id="tir-ara" placeholder="Ara..." oninput="tirRender()" style="max-width:160px;font-size:0.85rem;padding:0.35rem 0.55rem">
+        <button class="btn btn-outline btn-sm" onclick="tirExcelIceAktar()">📥 İçe Aktar</button>
+        <button class="btn btn-sm" onclick="tirExcelDisaAktar()" style="background:var(--accent2);color:#111;border:none">📤 Dışa Aktar</button>
         <input type="file" id="tir-excel-input" accept=".xlsx,.xls" style="display:none" onchange="tirExcelDosyaOku(event)">
       </div>
     </div>
-
-    <div class="tir-form-grid" style="margin-bottom:0.85rem">
-      <div class="form-group" style="grid-column:1/-1">
-        <label>Liste Başlığı</label>
-        <input type="text" id="tir-alt-baslik" placeholder="örn: ARALIK AYI/Liste 1" onchange="tirMetaKaydet()">
-      </div>
-    </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">➕ Yeni TIR Kaydı</div>
-    <input type="hidden" id="tir-duzen-id" value="">
-    <div class="tir-form-grid">
-      <div class="form-group"><label>Sıra No</label><input type="text" id="tir-sira" placeholder="Otomatik"></div>
-      <div class="form-group"><label>Firma</label><input type="text" id="tir-firma" value="Y. Anadolu"></div>
-      <div class="form-group"><label>İl</label><input type="text" id="tir-il" value="VAN"></div>
-      <div class="form-group"><label>İlçe</label><input type="text" id="tir-ilce" value="ÖZALP"></div>
-      <div class="form-group"><label>Plaka / Vagon</label><input type="text" id="tir-plaka" placeholder="34 ABC 123" style="text-transform:uppercase"></div>
-      <div class="form-group"><label>Sevk Çıkış Tarihi</label><input type="date" id="tir-sevk-tarih"></div>
-      <div class="form-group"><label>Sevk Miktar (kg)</label><input type="number" id="tir-sevk-miktar" min="0" step="10" oninput="tirFarkHesaplaForm()"></div>
-      <div class="form-group"><label>Teslim Tarihi</label><input type="date" id="tir-teslim-tarih"></div>
-      <div class="form-group"><label>Teslim Miktar (kg)</label><input type="number" id="tir-teslim-miktar" min="0" step="10" oninput="tirFarkHesaplaForm()"></div>
-      <div class="form-group"><label>Fiş No</label><input type="text" id="tir-fis" placeholder="10174"></div>
-      <div class="form-group"><label>İrsaliye No</label><input type="text" id="tir-irsaliye" placeholder="YAI2026000000788"></div>
-      <div class="form-group"><label>Fark (kg)</label><input type="text" id="tir-fark" readonly style="color:var(--accent)"></div>
-      <div class="form-group"><label>Tartı Durumu</label>
-        <select id="tir-tarti">
-          <option value="">—</option>
-          <option value="TARTILDI">TARTILDI</option>
-        </select>
-      </div>
-      <div class="form-group" style="grid-column:1/-1"><label>Not</label><input type="text" id="tir-not" placeholder="örn: BOŞALTILDI DAĞITILMADI"></div>
-    </div>
-    <div class="flex gap-1 flex-wrap" style="margin-top:0.85rem">
-      <button class="btn btn-primary" id="tir-kaydet-btn" onclick="tirKaydet()">💾 Kaydet</button>
-      <button class="btn btn-outline" onclick="tirFormTemizle()">Temizle</button>
-    </div>
-  </div>
-
-  <div class="card" style="padding:0;overflow:hidden">
-    <div style="padding:0.8rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap">
-      <div class="card-title" style="margin:0">Kayıt Listesi</div>
-      <input type="text" id="tir-ara" placeholder="Plaka / fiş / irsaliye ara..." oninput="tirRender()" style="max-width:220px;font-size:0.85rem;padding:0.35rem 0.55rem">
-    </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:0">
     <div class="tir-table-wrap">
       <table class="tir-table">
         <thead>
@@ -1214,6 +1183,36 @@
           <tr><td colspan="15" class="text-muted text-center" style="padding:1.5rem">Henüz TIR kaydı yok</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Alt satır: Excel benzeri hücre girişi (sadece TIR sayfasında görünür) -->
+  <div id="tir-entry-bar" class="tir-entry-bar" style="display:none">
+    <input type="hidden" id="tir-duzen-id" value="">
+    <div class="tir-entry-hint">
+      <span id="tir-entry-mod">Yeni kayıt · hücrelere yazın, <b>Enter</b> ile listeye ekleyin · <b>Tab</b> ile ilerleyin</span>
+      <span><button type="button" class="btn btn-outline btn-sm" style="padding:0.15rem 0.45rem;font-size:0.7rem" onclick="tirFormTemizle()">Temizle</button></span>
+    </div>
+    <div class="tir-entry-scroll">
+      <div class="tir-entry-row" id="tir-entry-row" onkeydown="tirEntryKeydown(event)">
+        <input id="tir-sira" type="text" placeholder="Sıra" title="Sıra No" data-tir-cell>
+        <input id="tir-firma" type="text" value="Y. Anadolu" placeholder="Firma" title="Firma" data-tir-cell>
+        <input id="tir-il" type="text" value="VAN" placeholder="İl" title="İl" data-tir-cell>
+        <input id="tir-ilce" type="text" value="ÖZALP" placeholder="İlçe" title="İlçe" data-tir-cell>
+        <input id="tir-plaka" type="text" placeholder="Plaka" title="Plaka" style="text-transform:uppercase" data-tir-cell>
+        <input id="tir-sevk-tarih" type="date" title="Sevk Tarihi" data-tir-cell>
+        <input id="tir-sevk-miktar" type="number" placeholder="Sevk kg" title="Sevk kg" min="0" step="10" oninput="tirFarkHesaplaForm()" data-tir-cell>
+        <input id="tir-teslim-tarih" type="date" title="Teslim Tarihi" data-tir-cell>
+        <input id="tir-teslim-miktar" type="number" placeholder="Teslim kg" title="Teslim kg" min="0" step="10" oninput="tirFarkHesaplaForm()" data-tir-cell>
+        <input id="tir-fis" type="text" placeholder="Fiş" title="Fiş No" data-tir-cell>
+        <input id="tir-irsaliye" type="text" placeholder="İrsaliye" title="İrsaliye" data-tir-cell>
+        <input id="tir-not" type="text" placeholder="Not" title="Not" data-tir-cell>
+        <input id="tir-fark" type="text" placeholder="Fark" title="Fark" readonly tabindex="-1">
+        <select id="tir-tarti" title="Tartı" data-tir-cell>
+          <option value="">Tartı</option>
+          <option value="TARTILDI">TARTILDI</option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
@@ -1703,6 +1702,14 @@ function showPage(p, btn) {
   if (btn) btn.classList.add('active');
   if (p === 'raporlar') updateRaporlar();
   if (p === 'tir' && typeof tirRender === 'function') tirRender();
+  var tirBar = document.getElementById('tir-entry-bar');
+  if (tirBar) tirBar.style.display = (p === 'tir') ? 'block' : 'none';
+  if (p === 'tir') {
+    setTimeout(function() {
+      var pl = document.getElementById('tir-plaka');
+      if (pl && !document.getElementById('tir-duzen-id').value) pl.focus();
+    }, 120);
+  }
   // Otomatik kamera (ayar açık ise)
   if (p === 'tara') {
     try {
@@ -4316,8 +4323,21 @@ function tirFormTemizle() {
   document.getElementById('tir-fark').value = '';
   document.getElementById('tir-tarti').value = '';
   document.getElementById('tir-not').value = '';
-  var btn = document.getElementById('tir-kaydet-btn');
-  if (btn) btn.textContent = '💾 Kaydet';
+  var bar = document.getElementById('tir-entry-bar');
+  if (bar) bar.classList.remove('tir-duzen-aktif');
+  var mod = document.getElementById('tir-entry-mod');
+  if (mod) mod.innerHTML = 'Yeni kayıt · hücrelere yazın, <b>Enter</b> ile listeye ekleyin · <b>Tab</b> ile ilerleyin';
+}
+
+function tirEntryKeydown(e) {
+  if (e.key !== 'Enter') return;
+  if (e.target && e.target.tagName === 'SELECT') return;
+  e.preventDefault();
+  tirKaydet();
+}
+
+function tirEntryHucreleri() {
+  return Array.from(document.querySelectorAll('#tir-entry-row [data-tir-cell]'));
 }
 
 function tirFormdanVeri() {
@@ -4368,6 +4388,10 @@ async function tirKaydet() {
     await window.dbTirKaydet(veri, id);
     toast(id ? 'TIR kaydı güncellendi' : 'TIR kaydı eklendi');
     tirFormTemizle();
+    setTimeout(function() {
+      var el = document.getElementById('tir-plaka');
+      if (el) el.focus();
+    }, 50);
   } catch (e) {
     toast('Kayıt hatası: ' + e.message, 'error');
   }
@@ -4391,10 +4415,14 @@ function tirDuzenle(id) {
   document.getElementById('tir-not').value = k.not || '';
   document.getElementById('tir-tarti').value = k.tartiDurumu || '';
   tirFarkHesaplaForm();
-  var btn = document.getElementById('tir-kaydet-btn');
-  if (btn) btn.textContent = '💾 Güncelle';
-  try { document.getElementById('page-tir').scrollTo({ top: 0, behavior: 'smooth' }); } catch(_) {}
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  var bar = document.getElementById('tir-entry-bar');
+  if (bar) bar.classList.add('tir-duzen-aktif');
+  var mod = document.getElementById('tir-entry-mod');
+  if (mod) mod.innerHTML = 'Düzenleme: <b>' + escapeHtml(k.plaka || id) + '</b> · değiştirip <b>Enter</b> ile kaydedin';
+  setTimeout(function() {
+    var el = document.getElementById('tir-plaka');
+    if (el) { el.focus(); el.select(); }
+  }, 50);
 }
 
 async function tirSil(id) {
