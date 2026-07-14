@@ -10,7 +10,7 @@ permissions:
 
 concurrency:
   group: deploy-ghpages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -25,6 +25,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: .
-          exclude_assets: '.github,.gitignore,.deploy-watch.ps1'
-          force_orphan: false
+          # force_orphan: her seferinde temiz commit — commit_refs / non-ff hatalarını önler
+          force_orphan: true
           enable_jekyll: false
+          exclude_assets: '.github,.gitignore,.deploy-watch.ps1,node_modules,.git'
+          commit_message: 'deploy: ${{ github.sha }}'
