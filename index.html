@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714234500">
+<meta name="version" content="20260714235000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -300,7 +300,15 @@
   .pkh-val.pkh-kalan.asim{color:var(--accent);}
   .pkh-val.pkh-pct{color:var(--accent);}
   .tir-hedef-kart{position:relative;padding-bottom:2.1rem;}
-  .tir-hedef-kart .stat-val{font-size:1.15rem;}
+  .tir-hedef-kart .tir-hedef-satir{
+    display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;align-items:end;
+  }
+  .tir-hedef-kart .stat-val{font-size:1.05rem;margin-bottom:0.15rem;}
+  .tir-hedef-kart .stat-label{font-size:0.62rem;}
+  #tir-stat-teslim{color:var(--success);}
+  #tir-stat-kalan{color:var(--danger);}
+  #tir-stat-kalan.sifir{color:var(--success);}
+  #tir-stat-kalan.asim{color:var(--accent);}
   .tir-hedef-edit{
     position:absolute;right:0.55rem;bottom:0.45rem;
     font-size:0.68rem;padding:0.18rem 0.45rem;border-radius:5px;
@@ -308,6 +316,7 @@
     cursor:pointer;font-weight:600;line-height:1.2;
   }
   .tir-hedef-edit:hover{border-color:var(--accent);color:var(--accent);}
+  [data-theme="light"] #tir-stat-teslim{color:#1a7a3a;}
   @media(max-width:720px){
     .panel-komur-hedef{grid-template-columns:repeat(2,minmax(0,1fr));}
   }
@@ -1499,8 +1508,16 @@
       <div class="stat-card"><div class="stat-val" id="tir-stat-teslim">0</div><div class="stat-label">Teslim (kg)</div></div>
       <div class="stat-card"><div class="stat-val" id="tir-stat-fark">0</div><div class="stat-label">Fark (kg)</div></div>
       <div class="stat-card tir-hedef-kart">
-        <div class="stat-val" id="tir-stat-hedef">—</div>
-        <div class="stat-label">Gelmesi Gereken (kg)</div>
+        <div class="tir-hedef-satir">
+          <div>
+            <div class="stat-val" id="tir-stat-hedef">—</div>
+            <div class="stat-label">Gelmesi Gereken</div>
+          </div>
+          <div>
+            <div class="stat-val" id="tir-stat-kalan">—</div>
+            <div class="stat-label">Kalan</div>
+          </div>
+        </div>
         <button type="button" class="tir-hedef-edit" onclick="tirHedefModalAc()" title="Hedef kömürü düzenle">✎ Düzenle</button>
       </div>
     </div>
@@ -5696,8 +5713,26 @@ function tirRender() {
   setTxt('tir-stat-sevk', Math.round(sevkToplam).toLocaleString('tr-TR'));
   setTxt('tir-stat-teslim', Math.round(teslimToplam).toLocaleString('tr-TR'));
   setTxt('tir-stat-fark', Math.round(farkToplam).toLocaleString('tr-TR'));
-  var hedef = tirHedefKg();
+  var ozetKomur = (typeof tirKomurOzetHesapla === 'function')
+    ? tirKomurOzetHesapla()
+    : { hedef: tirHedefKg(), kalan: null };
+  var hedef = ozetKomur.hedef || 0;
   setTxt('tir-stat-hedef', hedef > 0 ? Math.round(hedef).toLocaleString('tr-TR') : '—');
+  var kalanEl = document.getElementById('tir-stat-kalan');
+  if (kalanEl) {
+    kalanEl.classList.remove('sifir', 'asim');
+    if (!hedef || ozetKomur.kalan === null || ozetKomur.kalan === undefined) {
+      kalanEl.textContent = '—';
+    } else if (Math.abs(ozetKomur.kalan) < 0.5) {
+      kalanEl.textContent = '0';
+      kalanEl.classList.add('sifir');
+    } else if (ozetKomur.kalan < 0) {
+      kalanEl.textContent = Math.round(Math.abs(ozetKomur.kalan)).toLocaleString('tr-TR') + ' aşım';
+      kalanEl.classList.add('asim');
+    } else {
+      kalanEl.textContent = Math.round(ozetKomur.kalan).toLocaleString('tr-TR');
+    }
+  }
 
   var alt = document.getElementById('tir-alt-baslik');
   if (alt && document.activeElement !== alt) alt.value = tirMeta().altBaslik || '';
