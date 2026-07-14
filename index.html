@@ -166,7 +166,19 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 
-  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;position:sticky;top:0;z-index:100;min-height:var(--nav-h);box-sizing:border-box;}
+  nav{
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:0 1.5rem;
+    display:flex;
+    align-items:center;
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    min-height:var(--nav-h);
+    box-sizing:border-box;
+  }
+  #ana-uygulama{padding-top:var(--nav-h);}
   /* ALT NAV — mobil */
   .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:99999;padding:0 0.25rem;padding-bottom:env(safe-area-inset-bottom);transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);will-change:transform;}
   .bottom-nav-inner{display:flex;justify-content:space-around;align-items:stretch;}
@@ -225,15 +237,14 @@
   .kisi-ad,.person-val,td,.mah-ozet-ad{font-family:var(--font);letter-spacing:0;font-feature-settings:"kern" 1,"liga" 1;}
   .tc-no,.kisi-tc{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:0.01em;}
 
-  /* ===== STICKY ÖZET: nav altını da opak kaplar (satır sızması olmaz) ===== */
+  /* ===== STICKY ÖZET: sabit nav'ın hemen altında, opak ===== */
   .panel-sticky,.rapor-sticky{
     position:sticky;
-    top:0;
+    top:var(--nav-h);
     z-index:90;
     background:var(--bg);
-    /* stuck iken viewport tepesinden kaplar; margin ile normal akışta görünüm bozulmaz */
-    padding:calc(var(--nav-h) + 0.55rem) 1.5rem 0.75rem;
-    margin:calc(-1 * var(--nav-h)) -1.5rem 1rem;
+    padding:0.55rem 1.5rem 0.75rem;
+    margin:0 -1.5rem 1rem;
     width:auto;
     border-bottom:1px solid var(--border);
     box-shadow:0 12px 20px -10px rgba(0,0,0,0.55);
@@ -278,11 +289,7 @@
   .tir-tarih-pop .tir-pop-gun{font-size:0.68rem;padding:0.2rem 0.4rem;border:1px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text);cursor:pointer;}
   .tir-tarih-pop .tir-pop-gun:hover,.tir-tarih-pop .tir-pop-gun.secili{border-color:var(--accent);color:var(--accent);background:rgba(245,166,35,0.12);}
   @media(max-width:768px){
-    .panel-sticky,.rapor-sticky{
-      padding-top:calc(var(--nav-h) + 0.4rem);
-      padding-bottom:0.55rem;
-      margin-top:calc(-1 * var(--nav-h));
-    }
+    .panel-sticky,.rapor-sticky{top:var(--nav-h);padding-top:0.4rem;padding-bottom:0.55rem;}
     .tir-entry-bar{bottom:calc(3.55rem + env(safe-area-inset-bottom));}
     #page-tir.page{padding-bottom:calc(9.5rem + env(safe-area-inset-bottom));}
   }
@@ -473,7 +480,6 @@
     .panel-sticky,.rapor-sticky{
       padding-left:0.4rem;padding-right:0.4rem;
       margin-left:-0.4rem;margin-right:-0.4rem;
-      margin-top:calc(-1 * var(--nav-h));
     }
     .card{padding:0.7rem 0.6rem;margin-bottom:0.7rem;border-radius:10px;}
     .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:0.7rem;}
@@ -491,7 +497,6 @@
     .panel-sticky,.rapor-sticky{
       padding-left:0.3rem;padding-right:0.3rem;
       margin-left:-0.3rem;margin-right:-0.3rem;
-      margin-top:calc(-1 * var(--nav-h));
     }
     .card{padding:0.6rem 0.5rem;}
     th,td{padding:0.4rem 0.3rem;}
