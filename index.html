@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714172000">
+<meta name="version" content="20260714173000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -226,8 +226,13 @@
   /* ===== PANEL STICKY ÖZET ===== */
   .panel-sticky{position:sticky;top:3.55rem;z-index:90;background:var(--bg);padding:0.55rem 0 0.75rem;margin:0 0 1rem;border-bottom:1px solid var(--border);box-shadow:0 10px 18px -14px rgba(0,0,0,0.65);}
   .panel-sticky .stats-grid{margin-bottom:0;}
+  .rapor-sticky{position:sticky;top:3.55rem;z-index:90;background:var(--bg);padding:0.55rem 0 0.75rem;margin:0 0 1rem;border-bottom:1px solid var(--border);box-shadow:0 10px 18px -14px rgba(0,0,0,0.65);}
+  .rapor-sticky .stats-grid{margin-bottom:0.75rem;}
+  .rapor-sticky .card{margin-bottom:0;}
   @media(max-width:768px){
     .panel-sticky{top:2.65rem;padding:0.4rem 0 0.55rem;margin-bottom:0.75rem;}
+    .rapor-sticky{top:2.65rem;padding:0.4rem 0 0.55rem;margin-bottom:0.75rem;}
+    .rapor-sticky .stats-grid{margin-bottom:0.55rem;}
   }
 
   /* ===== MAHALLE ÖZETİ KARTLARI — tek satır ===== */
@@ -1054,15 +1059,17 @@
 
 <!-- ========== RAPORLAR ========== -->
 <div id="page-raporlar" class="page">
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-val" id="r-toplam">-</div><div class="stat-label">Toplam Kayıt</div></div>
-    <div class="stat-card"><div class="stat-val" id="r-teslim">-</div><div class="stat-label">Teslim Edildi</div></div>
-    <div class="stat-card"><div class="stat-val" id="r-bekliyor">-</div><div class="stat-label">Bekliyor</div></div>
-    <div class="stat-card"><div class="stat-val" id="r-oran">-</div><div class="stat-label">Teslim Oranı</div></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Yardım Türüne Göre Detay</div>
-    <div id="rapor-tur-detay" style="display:grid;gap:0.8rem;"></div>
+  <div class="rapor-sticky">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val" id="r-toplam">-</div><div class="stat-label">Toplam Kayıt</div></div>
+      <div class="stat-card"><div class="stat-val" id="r-teslim">-</div><div class="stat-label">Teslim Edildi</div></div>
+      <div class="stat-card"><div class="stat-val" id="r-bekliyor">-</div><div class="stat-label">Bekliyor</div></div>
+      <div class="stat-card"><div class="stat-val" id="r-oran">-</div><div class="stat-label">Teslim Oranı</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Yardım Türüne Göre Detay</div>
+      <div id="rapor-tur-detay" style="display:grid;gap:0.8rem;"></div>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">📅 Teslim Geçmişi</div>
