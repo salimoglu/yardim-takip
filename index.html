@@ -850,7 +850,7 @@
       <div class="modal-title">✅ Kayıt Oluşturuldu!</div>
       <p class="text-muted mb-2">QR kodu yazdırın ve kişiye verin.</p>
       <div style="display:flex;justify-content:center;margin:1.5rem 0;">
-        <div class="qr-box"><div id="qr-code-display"></div><div class="qr-name" id="qr-name-display"></div><div style="color:#555;font-size:0.75rem;font-family:monospace" id="qr-tc-display"></div></div>
+        <div class="qr-box"><div id="qr-code-display"></div><div class="qr-name" id="qr-name-display"></div><div class="kisi-tc" style="color:#555;font-size:0.8rem" id="qr-tc-display"></div></div>
       </div>
       <div class="flex gap-1 flex-wrap">
         <button class="btn btn-primary" onclick="window.print()">🖨️ Yazdır</button>
@@ -2559,7 +2559,7 @@ function mahalleDetayYazdir() {
     ${liste.map((x,i)=>`<tr>
       <td style="color:#aaa">${i+1}</td>
       <td><b>${x.adsoyad}</b></td>
-      <td style="font-family:monospace">${x.tc}</td>
+      <td class="kisi-tc">${x.tc}</td>
       <td>${x.teslimEdildi&&x.teslimTarihi?new Date(x.teslimTarihi).toLocaleDateString('tr-TR'):'⏳ Bekliyor'}</td>
     </tr>`).join('')}
   </tbody>
