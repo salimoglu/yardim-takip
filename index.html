@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714350000">
+<meta name="version" content="20260714360000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -859,7 +859,7 @@
     .pkh-val{font-size:0.86rem;overflow:visible;text-overflow:clip;white-space:normal;line-height:1.1;}
     .komur-ist-card{padding:0.55rem;margin-left:-0.1rem;margin-right:-0.1rem;}
     .komur-ist-wrap{overflow:auto;-webkit-overflow-scrolling:touch;}
-    .komur-ist-tablo{min-width:760px;font-size:0.78rem;}
+    .komur-ist-tablo{min-width:680px;font-size:0.78rem;}
     .komur-ist-tablo th{font-size:0.62rem;padding:0.42rem 0.25rem;}
     .komur-ist-tablo td{font-size:0.74rem;padding:0.36rem 0.25rem;}
     .komur-ist-tablo .ki-sayi{font-size:0.76rem;}
@@ -1276,7 +1276,6 @@
             <th class="ki-tarih">Tarih</th>
             <th>Gelen<br>Kamyon</th>
             <th>Toplam Gelen<br>kg Vakıf</th>
-            <th>Dağıtılan<br>Torba</th>
             <th>Fiş<br>Sayısı</th>
             <th>Elden Fiş<br>/ Kuran</th>
             <th>Torba<br>Ort.</th>
@@ -1285,7 +1284,7 @@
           </tr>
         </thead>
         <tbody id="komur-ist-body">
-          <tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Yükleniyor...</td></tr>
+          <tr><td colspan="9" class="text-muted text-center" style="padding:1.5rem">Yükleniyor...</td></tr>
         </tbody>
         <tfoot id="komur-ist-foot"></tfoot>
       </table>
@@ -3632,7 +3631,7 @@ function komurIstatistikRender() {
 
   var satirlar = komurIstatistikHesapla();
   if (satirlar.length === 0) {
-    body.innerHTML = '<tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Henüz TIR veya teslim kaydı yok</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" class="text-muted text-center" style="padding:1.5rem">Henüz TIR veya teslim kaydı yok</td></tr>';
     if (foot) foot.innerHTML = '';
     var pin0 = document.getElementById('komur-thead-pin');
     if (pin0) pin0.style.display = 'none';
@@ -3647,7 +3646,6 @@ function komurIstatistikRender() {
       + '<td class="ki-tarih"><span class="ki-tarih-tik" title="Bu gün gelen TIR\'ları gör" onclick="komurGunTirModalAc(\'' + gunSafe + '\')">' + kiGunTr(s.gun) + '</span></td>'
       + '<td class="ki-sayi">' + (s.kamyon ? kiFmtInt(s.kamyon) : '') + '</td>'
       + '<td class="ki-sayi">' + (s.kg ? kiFmtInt(s.kg) : '') + '</td>'
-      + '<td class="ki-sayi">' + (s.torba ? kiFmtInt(s.torba) : '') + '</td>'
       + '<td class="ki-sayi">' + (s.fis ? kiFmtInt(s.fis) : '') + '</td>'
       + '<td><input class="ki-elden-inp" type="text" inputmode="numeric" pattern="[0-9]*" value="' + eldenVal + '" placeholder="" title="Elden fiş / kuran" oninput="this.value=this.value.replace(/\\D/g,\'\')" onchange="kiEldenKaydet(\'' + gunSafe + '\', this)" onkeydown="if(event.key===\'Enter\'){this.blur()}"></td>'
       + '<td class="ki-ort" title="kg ÷ dağıtılan torba (elden hariç)">' + kiFmtOrt(s.torbaOrt) + '</td>'
@@ -3665,7 +3663,6 @@ function komurIstatistikRender() {
       + '<td colspan="2">TOPLAM</td>'
       + '<td class="ki-sayi">' + kiFmtInt(tKamyon) + '</td>'
       + '<td class="ki-sayi">' + kiFmtInt(tKg) + '</td>'
-      + '<td class="ki-sayi">' + kiFmtInt(tTorba) + '</td>'
       + '<td class="ki-sayi">' + kiFmtInt(tFis) + '</td>'
       + '<td class="ki-sayi">' + kiFmtInt(tElden) + '</td>'
       + '<td class="ki-ort">' + kiFmtOrt(tTorba > 0 ? tKg / tTorba : null) + '</td>'
