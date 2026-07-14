@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714300000">
+<meta name="version" content="20260714310000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -480,9 +480,15 @@
     border:1px solid rgba(245,166,35,0.25);border-radius:7px;padding:0.18rem 0.45rem;
   }
   .rapor-filtre-panel{
-    display:grid;grid-template-columns:1fr 1fr auto;gap:0.75rem;align-items:end;
+    display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:0.75rem;align-items:end;
     padding:0.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-bottom:0.75rem;
   }
+  .rapor-tarih-sec-btn{
+    width:100%;justify-content:space-between;background:var(--surface);border:1px solid var(--border);
+    color:var(--text);padding:0.65rem 0.8rem;border-radius:8px;font-weight:700;
+  }
+  .rapor-tarih-sec-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .rapor-tarih-sec-btn span{font-family:var(--mono);font-size:0.82rem;color:var(--accent2);font-weight:700;}
   .rapor-hizli-secim{display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;}
   .rapor-filtre-ozet{
     display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
@@ -1633,12 +1639,13 @@
         </div>
         <div class="rapor-filtre-panel">
       <div>
-        <label>Başlangıç Tarihi</label>
-        <input type="date" id="rapor-tarih-bas" onchange="raporFiltrele()">
-      </div>
-      <div>
-        <label>Bitiş Tarihi</label>
-        <input type="date" id="rapor-tarih-bit" onchange="raporFiltrele()">
+        <label>Teslim Tarihi Aralığı</label>
+        <input type="hidden" id="rapor-tarih-bas">
+        <input type="hidden" id="rapor-tarih-bit">
+        <button type="button" class="btn rapor-tarih-sec-btn" id="rapor-tarih-sec-btn" onclick="raporTarihPopAc(event)">
+          <span id="rapor-tarih-sec-metin">Tüm teslim tarihleri</span>
+          <b>Takvimden Seç ▾</b>
+        </button>
       </div>
       <div class="rapor-hizli-secim">
         <button class="btn btn-outline btn-sm" onclick="raporBugun()">Bugün</button>
@@ -1713,6 +1720,23 @@
         <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 Excel</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- RAPOR TARİH ARALIĞI TAKVİMİ -->
+<div id="rapor-tarih-pop" class="tir-tarih-pop" onclick="event.stopPropagation()">
+  <div class="tir-pop-baslik">Teslim tarihi aralığı</div>
+  <div class="tir-pop-secim" id="rapor-cal-secim">İlk tık: başlangıç · İkinci tık: bitiş</div>
+  <div class="tir-cal-nav">
+    <button type="button" onclick="raporCalAyKaydir(-1)" title="Önceki ay">‹</button>
+    <div class="tir-cal-ay" id="rapor-cal-ay">—</div>
+    <button type="button" onclick="raporCalAyKaydir(1)" title="Sonraki ay">›</button>
+  </div>
+  <div class="tir-cal-grid" id="rapor-cal-grid"></div>
+  <div class="tir-pop-ipucu">İlk tarih başlangıç, ikinci tarih bitiş olur. Tek gün için aynı günü iki kez seçebilirsiniz.</div>
+  <div class="tir-pop-aksiyon">
+    <button type="button" class="btn btn-outline btn-sm" onclick="raporTemizle()">Temizle</button>
+    <button type="button" class="btn btn-primary btn-sm" onclick="raporTarihUygula()">Uygula</button>
   </div>
 </div>
 
@@ -5081,6 +5105,7 @@ function raporBugun() {
   const bugun = new Date().toISOString().slice(0,10);
   document.getElementById('rapor-tarih-bas').value = bugun;
   document.getElementById('rapor-tarih-bit').value = bugun;
+  raporTarihSecimYaz();
   raporFiltrele();
 }
 
@@ -5090,14 +5115,160 @@ function raporSon7Gun() {
   bas.setDate(bit.getDate() - 6);
   document.getElementById('rapor-tarih-bas').value = bas.toISOString().slice(0,10);
   document.getElementById('rapor-tarih-bit').value = bit.toISOString().slice(0,10);
+  raporTarihSecimYaz();
   raporFiltrele();
 }
 
 function raporTemizle() {
   document.getElementById('rapor-tarih-bas').value = '';
   document.getElementById('rapor-tarih-bit').value = '';
+  if (window._raporCal) { window._raporCal.bas = ''; window._raporCal.bit = ''; window._raporCal.adim = 0; }
+  raporTarihPopKapat();
+  raporTarihSecimYaz();
   raporFiltrele();
 }
+
+window._raporCal = { yil: null, ay: null, bas: '', bit: '', adim: 0 };
+
+function raporTarihSecimYaz() {
+  var bas = (document.getElementById('rapor-tarih-bas') || {}).value || '';
+  var bit = (document.getElementById('rapor-tarih-bit') || {}).value || '';
+  var metin = 'Tüm teslim tarihleri';
+  if (bas && bit) metin = bas === bit ? tirGunTr(bas) : (tirGunTr(bas) + ' → ' + tirGunTr(bit));
+  else if (bas || bit) metin = tirGunTr(bas || bit);
+  var el = document.getElementById('rapor-tarih-sec-metin');
+  if (el) el.textContent = metin;
+}
+
+function raporCalSecimYaz() {
+  var el = document.getElementById('rapor-cal-secim');
+  if (!el) return;
+  var c = window._raporCal || {};
+  if (c.bas && c.bit) el.innerHTML = '<b>' + tirGunTr(c.bas) + '</b> → <b>' + tirGunTr(c.bit) + '</b>';
+  else if (c.bas) el.innerHTML = 'Başlangıç: <b>' + tirGunTr(c.bas) + '</b> · bitiş gününü seçin';
+  else el.textContent = 'İlk tık: başlangıç · İkinci tık: bitiş';
+}
+
+function raporCalCiz() {
+  var c = window._raporCal;
+  if (c.yil == null || c.ay == null) {
+    var now = new Date();
+    c.yil = now.getFullYear();
+    c.ay = now.getMonth();
+  }
+  var ayEl = document.getElementById('rapor-cal-ay');
+  if (ayEl) ayEl.textContent = new Date(c.yil, c.ay, 1).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+  var grid = document.getElementById('rapor-cal-grid');
+  if (!grid) return;
+  var gunAdlari = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+  var html = gunAdlari.map(function(g) { return '<div class="tir-cal-gunad">' + g + '</div>'; }).join('');
+  var ilk = new Date(c.yil, c.ay, 1);
+  var baslangicGun = (ilk.getDay() + 6) % 7;
+  var gunSayisi = new Date(c.yil, c.ay + 1, 0).getDate();
+  var oncekiAyGun = new Date(c.yil, c.ay, 0).getDate();
+  var hucreler = [];
+  for (var i = 0; i < baslangicGun; i++) {
+    var d0 = oncekiAyGun - baslangicGun + 1 + i;
+    var ay0 = c.ay - 1, y0 = c.yil;
+    if (ay0 < 0) { ay0 = 11; y0--; }
+    hucreler.push({ iso: tirCalIso(y0, ay0, d0), gun: d0, baska: true });
+  }
+  for (var d = 1; d <= gunSayisi; d++) hucreler.push({ iso: tirCalIso(c.yil, c.ay, d), gun: d, baska: false });
+  var nextDay = 1;
+  while (hucreler.length % 7 !== 0) {
+    var ay1 = c.ay + 1, y1 = c.yil;
+    if (ay1 > 11) { ay1 = 0; y1++; }
+    hucreler.push({ iso: tirCalIso(y1, ay1, nextDay), gun: nextDay, baska: true });
+    nextDay++;
+  }
+  var bas = c.bas || '', bit = c.bit || '';
+  if (bas && bit && bas > bit) { var t = bas; bas = bit; bit = t; }
+  html += hucreler.map(function(h) {
+    var cls = ['tir-cal-gun'];
+    if (h.baska) cls.push('baska');
+    if (bas && bit && h.iso >= bas && h.iso <= bit) cls.push('aralik');
+    if (bas && h.iso === bas) cls.push('baslangic');
+    if (bit && h.iso === bit) cls.push('bitis');
+    if (bas && bit && bas === bit && h.iso === bas) cls.push('tek');
+    return '<button type="button" class="' + cls.join(' ') + '" onclick="raporCalGunTikla(\'' + h.iso + '\')">' + h.gun + '</button>';
+  }).join('');
+  grid.innerHTML = html;
+  raporCalSecimYaz();
+}
+
+function raporCalAyKaydir(delta) {
+  var c = window._raporCal;
+  c.ay += delta;
+  if (c.ay < 0) { c.ay = 11; c.yil--; }
+  if (c.ay > 11) { c.ay = 0; c.yil++; }
+  raporCalCiz();
+}
+
+function raporCalGunTikla(iso) {
+  var c = window._raporCal;
+  if (!c.bas || (c.bas && c.bit)) {
+    c.bas = iso; c.bit = ''; c.adim = 1; raporCalCiz(); return;
+  }
+  c.bit = iso;
+  if (c.bas > c.bit) { var t = c.bas; c.bas = c.bit; c.bit = t; }
+  c.adim = 2;
+  raporCalCiz();
+  setTimeout(function() { raporTarihUygula(); }, 120);
+}
+
+function raporTarihPopAc(ev) {
+  if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+  var pop = document.getElementById('rapor-tarih-pop');
+  if (!pop) return;
+  if (pop.classList.contains('acik')) { raporTarihPopKapat(); return; }
+  var c = window._raporCal;
+  c.bas = (document.getElementById('rapor-tarih-bas') || {}).value || '';
+  c.bit = (document.getElementById('rapor-tarih-bit') || {}).value || '';
+  c.adim = (c.bas && c.bit) ? 2 : (c.bas ? 1 : 0);
+  var odak = c.bas || c.bit || '';
+  if (odak) { var p = odak.split('-'); c.yil = +p[0]; c.ay = +p[1] - 1; }
+  else { var now = new Date(); c.yil = now.getFullYear(); c.ay = now.getMonth(); }
+  raporCalCiz();
+  pop.classList.add('acik');
+  var btn = document.getElementById('rapor-tarih-sec-btn');
+  var rect = btn ? btn.getBoundingClientRect() : { left: 40, bottom: 120, top: 80 };
+  var sol = Math.min(rect.left, window.innerWidth - 300);
+  if (sol < 8) sol = 8;
+  var ust = rect.bottom + 6;
+  if (ust + 340 > window.innerHeight) ust = Math.max(8, rect.top - 340);
+  pop.style.left = sol + 'px';
+  pop.style.top = ust + 'px';
+}
+
+function raporTarihPopKapat() {
+  var pop = document.getElementById('rapor-tarih-pop');
+  if (pop) pop.classList.remove('acik');
+}
+
+function raporTarihUygula() {
+  var c = window._raporCal || {};
+  var bas = (c.bas || '').trim();
+  var bit = (c.bit || '').trim();
+  if (bas && !bit) bit = bas;
+  if (bit && !bas) bas = bit;
+  if (bas && bit && bas > bit) { var t = bas; bas = bit; bit = t; }
+  document.getElementById('rapor-tarih-bas').value = bas;
+  document.getElementById('rapor-tarih-bit').value = bit;
+  raporTarihPopKapat();
+  raporTarihSecimYaz();
+  raporFiltrele();
+}
+
+document.addEventListener('click', function(e) {
+  var pop = document.getElementById('rapor-tarih-pop');
+  if (!pop || !pop.classList.contains('acik')) return;
+  if (pop.contains(e.target)) return;
+  if (e.target.closest && e.target.closest('#rapor-tarih-sec-btn')) return;
+  raporTarihPopKapat();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') raporTarihPopKapat();
+});
 
 var _raporSayfa = 0;
 var _raporSayfaBoyutu = 10;
@@ -5110,6 +5281,7 @@ function raporFiltrele() {
 function raporRender() {
   const bas = document.getElementById('rapor-tarih-bas').value;
   const bit = document.getElementById('rapor-tarih-bit').value;
+  raporTarihSecimYaz();
   const kisiler = Object.values(_allKisiler);
   let liste = kisiler.filter(k => k.teslimEdildi)
     .sort((a,b) => new Date(b.teslimTarihi) - new Date(a.teslimTarihi));
