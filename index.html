@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714211500">
+<meta name="version" content="20260714213000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -252,27 +252,27 @@
   }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
   /* Gelen kömür istatistik tablosu */
-  .komur-ist-card{padding:0.75rem 0.7rem 0.85rem;overflow:visible;}
-  .komur-ist-baslik{display:flex;align-items:baseline;justify-content:space-between;gap:0.75rem;margin-bottom:0.55rem;flex-wrap:wrap;}
-  .komur-ist-baslik .card-title{margin:0;}
-  .komur-ist-wrap{overflow:auto;max-height:min(58vh,560px);border:1px solid var(--border);border-radius:8px;}
-  .komur-ist-tablo{width:100%;border-collapse:collapse;font-size:0.68rem;table-layout:fixed;}
-  .komur-ist-tablo th{position:sticky;top:0;z-index:2;background:var(--surface2);color:var(--muted);font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.4rem 0.25rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.2;vertical-align:middle;}
-  .komur-ist-tablo td{padding:0.28rem 0.25rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .komur-ist-card{padding:0.85rem 0.85rem 1rem;overflow:visible;}
+  .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
+  .komur-ist-baslik .card-title{margin:0;font-size:0.95rem;}
+  .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
+  .komur-ist-tablo{width:100%;border-collapse:collapse;font-size:1.02rem;table-layout:fixed;}
+  .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
+  .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
   .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
-  .komur-ist-tablo .ki-no{width:2.2rem;color:var(--muted);}
-  .komur-ist-tablo .ki-tarih{width:5.4rem;font-variant-numeric:tabular-nums;}
-  .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.66rem;}
+  .komur-ist-tablo .ki-no{width:2.6rem;color:var(--muted);}
+  .komur-ist-tablo .ki-tarih{width:6.2rem;font-variant-numeric:tabular-nums;}
+  .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.99rem;}
   .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
-  .komur-ist-tablo .ki-saha{text-align:left;font-size:0.62rem;white-space:normal;line-height:1.25;max-width:0;}
-  .komur-ist-tablo .ki-elden-inp{width:100%;max-width:54px;margin:0 auto;display:block;text-align:center;font-size:0.66rem;font-family:var(--mono);padding:0.2rem 0.15rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+  .komur-ist-tablo .ki-saha{text-align:left;font-size:0.93rem;white-space:normal;line-height:1.3;max-width:0;}
+  .komur-ist-tablo .ki-elden-inp{width:100%;max-width:64px;margin:0 auto;display:block;text-align:center;font-size:0.99rem;font-family:var(--mono);padding:0.28rem 0.2rem;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text);}
   .komur-ist-tablo .ki-elden-inp:focus{border-color:var(--accent);outline:none;}
-  .komur-ist-ayar{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;font-size:0.72rem;color:var(--muted);}
-  .komur-ist-ayar input{width:52px;padding:0.25rem 0.35rem;font-size:0.78rem;text-align:center;font-family:var(--mono);}
-  .komur-ist-tablo tfoot td{position:sticky;bottom:0;z-index:2;background:#3a2e12;color:var(--accent);font-weight:700;border-top:2px solid var(--accent);padding:0.4rem 0.25rem;}
+  .komur-ist-ayar{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);}
+  .komur-ist-ayar input{width:56px;padding:0.3rem 0.4rem;font-size:0.9rem;text-align:center;font-family:var(--mono);}
+  .komur-ist-tablo tfoot td{background:#3a2e12;color:var(--accent);font-weight:700;border-top:2px solid var(--accent);padding:0.55rem 0.35rem;font-size:1.02rem;}
   [data-theme="light"] .komur-ist-tablo tfoot td{background:#fef3d5;color:#8a5a00;}
   [data-theme="light"] .komur-ist-tablo .ki-ort{background:#fff3b0;}
-  #page-dashboard.page{max-width:1180px;}
+  #page-dashboard.page{max-width:1280px;}
   #page-tir .panel-sticky{padding-bottom:0.55rem;}
   #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
@@ -829,6 +829,7 @@
         <input type="number" id="ki-torba-per-fis" min="1" step="1" value="50" onchange="kiTorbaPerFisKaydet()" title="Sistem fişi başına torba">
         <span>torba</span>
         <span style="opacity:0.7">· ortalamalar elden fiş hariç</span>
+        <button type="button" class="btn btn-sm" onclick="komurIstatistikExcelAktar()" style="background:var(--accent2);color:#111;border:none;margin-left:0.35rem">📤 Excel</button>
       </div>
     </div>
     <div class="komur-ist-wrap">
@@ -2900,6 +2901,113 @@ function komurIstatistikRender() {
       + '<td></td>'
       + '</tr>';
   }
+}
+
+function komurIstatistikExcelAktar() {
+  var XS = window.XlsxStyle || window.XLSX;
+  if (!XS) { toast('Excel kütüphanesi yüklenmedi!', 'error'); return; }
+  var satirlar = komurIstatistikHesapla();
+  if (!satirlar.length) { toast('Dışa aktarılacak veri yok!', 'error'); return; }
+
+  var COLS = 10;
+  var thin = { style: 'thin', color: { rgb: '000000' } };
+  var border = { top: thin, bottom: thin, left: thin, right: thin };
+  var fillSari = { patternType: 'solid', fgColor: { rgb: 'FFF3B0' } };
+  var fillBaslik = { patternType: 'solid', fgColor: { rgb: '1A3A6B' } };
+  var fillToplam = { patternType: 'solid', fgColor: { rgb: 'FFE08A' } };
+  var fillZebra = { patternType: 'solid', fgColor: { rgb: 'F7F7F7' } };
+
+  function sty(opt) {
+    opt = opt || {};
+    var s = {
+      font: { name: 'Arial', bold: !!opt.bold, sz: opt.sz || 10, color: opt.color ? { rgb: opt.color } : undefined },
+      alignment: { horizontal: opt.hz || 'center', vertical: 'center', wrapText: opt.wrap !== false },
+      border: opt.noBorder ? undefined : border
+    };
+    if (opt.fill) s.fill = opt.fill;
+    return s;
+  }
+
+  var donemAd = ((document.getElementById('panel-donem-ad') || {}).textContent || '').trim() || 'Dönem';
+  var torbaPer = kiTorbaPerFis();
+  var wsData = [];
+  wsData.push(['ÖZALP SYDV — GELEN KÖMÜR İSTATİSTİĞİ', '', '', '', '', '', '', '', '', '']);
+  wsData.push([donemAd + ' · 1 fiş = ' + torbaPer + ' torba · ortalamalar elden fiş hariç', '', '', '', '', '', '', '', '', '']);
+  wsData.push([
+    'No', 'Tarih', 'Gelen Kamyon Sayısı', 'Toplam Gelen kg Vakıf', 'Dağıtılan Torba Sayısı',
+    'Fiş Sayısı', 'Elden Fiş / Kuran', 'Torba Ort.', 'Fiş Ortalaması', 'SYDV Saha Çalışanı'
+  ]);
+
+  var tKamyon = 0, tKg = 0, tTorba = 0, tFis = 0, tElden = 0;
+  satirlar.forEach(function(s, i) {
+    tKamyon += s.kamyon; tKg += s.kg; tTorba += s.torba; tFis += s.fis; tElden += s.elden;
+    wsData.push([
+      i + 1,
+      kiGunTr(s.gun),
+      s.kamyon || '',
+      s.kg || '',
+      s.torba || '',
+      s.fis || '',
+      s.elden || '',
+      s.torbaOrt == null ? '' : Math.round(s.torbaOrt * 100) / 100,
+      s.fisOrt == null ? '' : Math.round(s.fisOrt * 100) / 100,
+      s.saha.join(' / ')
+    ]);
+  });
+
+  wsData.push([
+    '', 'TOPLAM',
+    tKamyon, tKg, tTorba, tFis, tElden,
+    tTorba > 0 ? Math.round((tKg / tTorba) * 100) / 100 : '',
+    tFis > 0 ? Math.round((tKg / tFis) * 100) / 100 : '',
+    ''
+  ]);
+
+  var ws = XS.utils.aoa_to_sheet(wsData);
+  ws['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: COLS - 1 } },
+    { s: { r: 1, c: 0 }, e: { r: 1, c: COLS - 1 } }
+  ];
+  ws['!cols'] = [
+    { wch: 5 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 14 },
+    { wch: 10 }, { wch: 12 }, { wch: 11 }, { wch: 13 }, { wch: 28 }
+  ];
+  ws['!rows'] = [{ hpt: 26 }, { hpt: 18 }, { hpt: 32 }];
+  for (var i = 0; i < satirlar.length; i++) ws['!rows'].push({ hpt: 18 });
+  ws['!rows'].push({ hpt: 20 });
+  ws['!pageSetup'] = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 9 };
+  ws['!printOptions'] = { horizontalCentered: true };
+  ws['!margins'] = { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.15, footer: 0.15 };
+
+  var n = satirlar.length;
+  var rTot = 3 + n;
+  for (var R = 0; R < wsData.length; R++) {
+    for (var C = 0; C < COLS; C++) {
+      var addr = XS.utils.encode_cell({ r: R, c: C });
+      if (!ws[addr]) ws[addr] = { t: 's', v: '' };
+      if (R === 0) ws[addr].s = sty({ bold: true, sz: 14, fill: fillBaslik, color: 'FFFFFF', noBorder: true });
+      else if (R === 1) ws[addr].s = sty({ bold: true, sz: 10, hz: 'left', noBorder: true });
+      else if (R === 2) ws[addr].s = sty({ bold: true, sz: 9, fill: fillBaslik, color: 'FFFFFF' });
+      else if (R === rTot) ws[addr].s = sty({ bold: true, sz: 10, fill: fillToplam });
+      else {
+        var isOrt = (C === 7 || C === 8);
+        var isSaha = (C === 9);
+        ws[addr].s = sty({
+          sz: 10,
+          hz: isSaha ? 'left' : 'center',
+          fill: isOrt ? fillSari : ((R % 2 === 0) ? fillZebra : undefined),
+          bold: isOrt
+        });
+        if (typeof ws[addr].v === 'number') ws[addr].t = 'n';
+      }
+    }
+  }
+
+  var wb = XS.utils.book_new();
+  XS.utils.book_append_sheet(wb, ws, 'Gelen Kömür');
+  var tarih = new Date().toISOString().slice(0, 10);
+  XS.writeFile(wb, 'Gelen-Komur-Istatistik-' + tarih + '.xlsx');
+  toast('Excel indirildi');
 }
 
 function updateDashboard(){
