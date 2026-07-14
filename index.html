@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714225500">
+<meta name="version" content="20260714230000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -318,8 +318,20 @@
   .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
   .komur-ist-baslik .card-title{margin:0;font-size:0.95rem;}
   .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
-  .komur-ist-tablo{width:100%;border-collapse:collapse;font-size:1.02rem;table-layout:fixed;}
-  .komur-ist-tablo thead th{position:static;}
+  /* separate: sticky thead collapse ile bozulmasın */
+  .komur-ist-tablo{width:100%;border-collapse:separate;border-spacing:0;font-size:1.02rem;table-layout:fixed;}
+  .komur-ist-tablo thead th{
+    position:sticky;
+    top:var(--komur-thead-top, calc(var(--nav-h) + 12rem));
+    z-index:40;
+    background:var(--surface2);
+    box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.45);
+  }
+  /* Mahalle özete gelince (ozet-modu) tablo başlığı sabit kalmaz */
+  #page-dashboard #panel-sticky.ozet-modu ~ #komur-ist-card .komur-ist-tablo thead th{
+    position:static;
+    box-shadow:none;
+  }
   .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
   .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
   .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
@@ -339,6 +351,7 @@
   .komur-ist-tablo tfoot td{background:#3a2e12;color:var(--accent);font-weight:700;border-top:2px solid var(--accent);padding:0.55rem 0.35rem;font-size:1.02rem;}
   [data-theme="light"] .komur-ist-tablo tfoot td{background:#fef3d5;color:#8a5a00;}
   [data-theme="light"] .komur-ist-tablo .ki-ort{background:#fff3b0;}
+  [data-theme="light"] .komur-ist-tablo thead th{background:#f0ebe0;box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.12);}
   #page-dashboard.page{max-width:1280px;}
   #page-tir .panel-sticky{padding-bottom:0.55rem;}
   #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
@@ -3318,6 +3331,13 @@ function panelStickyYukseklikAyarla() {
   var spacer = document.getElementById('panel-sticky-spacer');
   if (!sticky || !spacer) return;
   spacer.style.height = sticky.offsetHeight + 'px';
+  // Tablo başlığı, sabit panel bandının hemen altında dursun
+  var top = Math.round(sticky.getBoundingClientRect().bottom);
+  if (top < 1) {
+    var nav = getComputedStyle(document.documentElement).getPropertyValue('--nav-h');
+    top = Math.round(sticky.offsetHeight + (parseFloat(nav) || 56));
+  }
+  document.documentElement.style.setProperty('--komur-thead-top', top + 'px');
 }
 
 function panelStickyModGuncelle() {
