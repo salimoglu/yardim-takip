@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714260000">
+<meta name="version" content="20260714270000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -443,6 +443,83 @@
   .tir-cal-gun.tek{border-radius:6px;}
   .tir-tarih-pop .tir-pop-aksiyon{display:flex;gap:0.4rem;justify-content:flex-end;margin-top:0.65rem;}
   .tir-tarih-pop .tir-pop-ipucu{font-size:0.68rem;color:var(--muted);margin-top:0.35rem;}
+
+  /* ===== RAPORLAR ===== */
+  #page-raporlar.page{max-width:1180px;}
+  .rapor-hero{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+    background:linear-gradient(135deg,rgba(245,166,35,0.16),rgba(78,205,196,0.08));
+    border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;
+  }
+  .rapor-hero h2{font-size:1.15rem;font-weight:700;margin:0 0 0.2rem;color:var(--text);}
+  .rapor-hero p{font-size:0.88rem;color:var(--muted);line-height:1.45;margin:0;max-width:680px;}
+  .rapor-chip-row{display:flex;gap:0.45rem;flex-wrap:wrap;align-items:center;}
+  .rapor-chip{
+    display:inline-flex;align-items:center;gap:0.3rem;padding:0.32rem 0.65rem;border-radius:100px;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    font-size:0.78rem;font-weight:600;white-space:nowrap;
+  }
+  .rapor-grid-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,0.56fr);gap:1rem;align-items:start;}
+  .rapor-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:0.9rem;}
+  .rapor-card-head .card-title{margin:0;}
+  .rapor-card-sub{font-size:0.82rem;color:var(--muted);line-height:1.35;margin-top:0.18rem;}
+  .rapor-tur-list{display:grid;gap:0.65rem;}
+  .rapor-tur-item{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.75rem;align-items:center;
+    padding:0.75rem 0.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  }
+  .rapor-tur-ad{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rapor-tur-meta{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;justify-content:flex-end;}
+  .rapor-mini-stat{font-size:0.73rem;color:var(--muted);font-weight:600;}
+  .rapor-pct{
+    font-family:var(--mono);font-weight:800;color:var(--accent);background:rgba(245,166,35,0.12);
+    border:1px solid rgba(245,166,35,0.25);border-radius:7px;padding:0.18rem 0.45rem;
+  }
+  .rapor-filtre-panel{
+    display:grid;grid-template-columns:1fr 1fr auto;gap:0.75rem;align-items:end;
+    padding:0.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px;margin-bottom:0.75rem;
+  }
+  .rapor-hizli-secim{display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;}
+  .rapor-filtre-ozet{
+    display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;
+    background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);
+    border-radius:10px;padding:0.65rem 0.75rem;margin-bottom:0.85rem;
+  }
+  .rapor-filtre-ozet b{color:var(--accent2);font-weight:800;}
+  .rapor-filtre-ozet span{font-size:0.84rem;color:var(--muted);}
+  .rapor-table-card{padding:0;overflow:hidden;}
+  .rapor-table-top{padding:1rem 1rem 0;}
+  .rapor-table-wrap{max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--border);}
+  .rapor-table{min-width:880px;}
+  .rapor-table thead th{position:sticky;top:0;z-index:4;background:var(--surface2);}
+  .rapor-table tbody tr:hover td{background:rgba(78,205,196,0.06);}
+  .rapor-more-row td{background:var(--surface) !important;text-align:center;padding:0.85rem !important;}
+  .rapor-side-list{display:grid;gap:0.55rem;}
+  .rapor-gun-item,.rapor-personel-item{
+    background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  }
+  .rapor-gun-item{display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0.75rem;gap:0.75rem;}
+  .rapor-gun-ad{font-weight:700;font-size:0.88rem;}
+  .rapor-gun-sayi{font-family:var(--mono);font-weight:800;color:var(--accent);}
+  .rapor-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0.75rem;}
+  .rapor-action{
+    background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:0.85rem;
+    display:flex;flex-direction:column;align-items:flex-start;gap:0.55rem;min-height:136px;
+  }
+  .rapor-action-title{font-weight:800;color:var(--text);line-height:1.2;}
+  .rapor-action-desc{font-size:0.78rem;color:var(--muted);line-height:1.35;flex:1;}
+  .rapor-action .btn{width:100%;justify-content:center;padding:0.55rem 0.7rem;}
+  @media(max-width:980px){
+    .rapor-grid-2{grid-template-columns:1fr;}
+    .rapor-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media(max-width:640px){
+    .rapor-hero{flex-direction:column;padding:0.85rem;}
+    .rapor-filtre-panel{grid-template-columns:1fr;}
+    .rapor-actions{grid-template-columns:1fr;}
+    .rapor-tur-item{grid-template-columns:1fr;gap:0.45rem;}
+    .rapor-tur-meta{justify-content:flex-start;}
+  }
   @media(max-width:768px){
     .panel-sticky,.rapor-sticky{top:var(--nav-h);padding-top:0.4rem;padding-bottom:0.55rem;}
     .tir-entry-bar{bottom:calc(3.55rem + env(safe-area-inset-bottom));}
@@ -1496,14 +1573,39 @@
       <div class="stat-card"><div class="stat-val" id="r-oran">-</div><div class="stat-label">Teslim Oranı</div></div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Yardım Türüne Göre Detay</div>
-    <div id="rapor-tur-detay" style="display:grid;gap:0.8rem;"></div>
+
+  <div class="rapor-hero">
+    <div>
+      <h2>Rapor Merkezi</h2>
+      <p>Teslim durumunu takip edin, tarih aralığına göre listeyi süzün ve ihtiyacınız olan raporu tek dokunuşla indirin.</p>
+    </div>
+    <div class="rapor-chip-row">
+      <span class="rapor-chip">1. Özetleri kontrol et</span>
+      <span class="rapor-chip">2. Tarih seç</span>
+      <span class="rapor-chip">3. Rapor indir</span>
+    </div>
   </div>
+
   <div class="card">
-    <div class="card-title">📅 Teslim Geçmişi</div>
-    <!-- Tarih Filtresi -->
-    <div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:0.8rem;margin-bottom:1rem;align-items:end" class="flex-wrap">
+    <div class="rapor-card-head">
+      <div>
+        <div class="card-title">Yardım Türüne Göre Durum</div>
+        <div class="rapor-card-sub">Her yardım türünde toplam kayıt, teslim edilen ve kalan kişi sayısı.</div>
+      </div>
+    </div>
+    <div id="rapor-tur-detay" class="rapor-tur-list"></div>
+  </div>
+
+  <div class="rapor-grid-2">
+    <div class="card rapor-table-card">
+      <div class="rapor-table-top">
+        <div class="rapor-card-head">
+          <div>
+            <div class="card-title">📅 Teslim Geçmişi</div>
+            <div class="rapor-card-sub">Tarih aralığı seçerek teslim edilmiş kayıtları listeleyin.</div>
+          </div>
+        </div>
+        <div class="rapor-filtre-panel">
       <div>
         <label>Başlangıç Tarihi</label>
         <input type="date" id="rapor-tarih-bas" onchange="raporFiltrele()">
@@ -1512,38 +1614,78 @@
         <label>Bitiş Tarihi</label>
         <input type="date" id="rapor-tarih-bit" onchange="raporFiltrele()">
       </div>
-      <div>
+      <div class="rapor-hizli-secim">
         <button class="btn btn-outline btn-sm" onclick="raporBugun()">Bugün</button>
-      </div>
-      <div>
+        <button class="btn btn-outline btn-sm" onclick="raporSon7Gun()">Son 7 Gün</button>
         <button class="btn btn-outline btn-sm" onclick="raporTemizle()">Tümü</button>
       </div>
     </div>
-    <div id="rapor-filtre-ozet" style="font-size:0.82rem;color:var(--accent2);margin-bottom:0.8rem;font-weight:600"></div>
-    <div class="table-wrap">
-      <table>
+        <div id="rapor-filtre-ozet" class="rapor-filtre-ozet"></div>
+      </div>
+      <div class="rapor-table-wrap">
+        <table class="rapor-table">
         <thead><tr><th>TC No</th><th>Ad</th><th>Soyad</th><th>Mahalle</th><th>Teslim Durumu</th><th>Teslim Eden</th><th>Teslim Tarihi</th><th>Teslim Saati</th><th>Zorla</th></tr></thead>
-        <tbody id="rapor-teslim-table"><tr><td colspan="7" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
+          <tbody id="rapor-teslim-table"><tr><td colspan="9" class="text-muted text-center" style="padding:2rem">Yükleniyor...</td></tr></tbody>
       </table>
+      </div>
+      <div id="rapor-teslim-count" class="text-muted" style="padding:0.7rem 1rem;font-size:0.8rem;"></div>
     </div>
-    <div id="rapor-teslim-count" class="text-muted" style="margin-top:0.8rem;font-size:0.8rem;"></div>
+
+    <div>
+      <div class="card">
+        <div class="rapor-card-head">
+          <div>
+            <div class="card-title">Günlük Özet</div>
+            <div class="rapor-card-sub">Teslimat yapılan günlerdeki toplam adetler.</div>
+          </div>
+        </div>
+        <div id="rapor-gunluk" class="rapor-side-list"></div>
+      </div>
+      <div class="card" id="personel-ozet-card">
+        <div class="rapor-card-head">
+          <div>
+            <div class="card-title">👤 Personel Bazlı Özet</div>
+            <div class="rapor-card-sub">Personel performansı ve bugün yaptığı teslimatlar.</div>
+          </div>
+        </div>
+        <div id="rapor-personel" class="rapor-side-list"></div>
+      </div>
+    </div>
   </div>
+
   <div class="card">
-    <div class="card-title">Günlük Özet</div>
-    <div id="rapor-gunluk" style="display:grid;gap:0.6rem;"></div>
-  </div>
-  <div class="card" id="personel-ozet-card">
-    <div class="card-title">👤 Personel Bazlı Özet</div>
-    <div id="rapor-personel" style="display:grid;gap:0.5rem;"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Dışa Aktar</div>
-    <div class="flex gap-1 flex-wrap">
-      <button class="btn btn-outline" onclick="exportCSV('tum')">📄 Tüm Liste</button>
-      <button class="btn btn-outline" onclick="exportCSV('teslim')">📄 Teslim Edilenler</button>
-      <button class="btn btn-outline" onclick="exportCSV('bekliyor')">📄 Bekleyenler</button>
-      <button class="btn btn-outline" onclick="exportCSVFiltreli()">📄 Filtrelenmiş Liste</button>
-      <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 Günlük Rapor</button>
+    <div class="rapor-card-head">
+      <div>
+        <div class="card-title">Raporlama ve Dışa Aktar</div>
+        <div class="rapor-card-sub">Hangi dosyaya ihtiyacınız varsa açıklamasına göre seçin. Dosyalar CSV olarak indirilir.</div>
+      </div>
+    </div>
+    <div class="rapor-actions">
+      <div class="rapor-action">
+        <div class="rapor-action-title">Tüm Kayıtlar</div>
+        <div class="rapor-action-desc">Sistemdeki bütün kişi listesini teslim durumu ile birlikte indirir.</div>
+        <button class="btn btn-outline" onclick="exportCSV('tum')">📄 İndir</button>
+      </div>
+      <div class="rapor-action">
+        <div class="rapor-action-title">Teslim Edilenler</div>
+        <div class="rapor-action-desc">Sadece teslim işlemi tamamlanan kişileri ve teslim bilgilerini içerir.</div>
+        <button class="btn btn-outline" onclick="exportCSV('teslim')">✅ İndir</button>
+      </div>
+      <div class="rapor-action">
+        <div class="rapor-action-title">Bekleyenler</div>
+        <div class="rapor-action-desc">Henüz teslim almamış kayıtları hızlı kontrol için dışa aktarır.</div>
+        <button class="btn btn-outline" onclick="exportCSV('bekliyor')">⏳ İndir</button>
+      </div>
+      <div class="rapor-action">
+        <div class="rapor-action-title">Filtrelenmiş Liste</div>
+        <div class="rapor-action-desc">Yukarıdaki tarih aralığında ekranda görünen teslim geçmişini indirir.</div>
+        <button class="btn btn-outline" onclick="exportCSVFiltreli()">🔎 İndir</button>
+      </div>
+      <div class="rapor-action">
+        <div class="rapor-action-title">Günlük Rapor</div>
+        <div class="rapor-action-desc">Seçili tarih aralığı varsa onu, yoksa bugünün teslimatlarını raporlar.</div>
+        <button class="btn btn-outline" onclick="exportCSVGunluk()">📅 İndir</button>
+      </div>
     </div>
   </div>
 </div>
@@ -4899,6 +5041,15 @@ function raporBugun() {
   raporFiltrele();
 }
 
+function raporSon7Gun() {
+  var bit = new Date();
+  var bas = new Date();
+  bas.setDate(bit.getDate() - 6);
+  document.getElementById('rapor-tarih-bas').value = bas.toISOString().slice(0,10);
+  document.getElementById('rapor-tarih-bit').value = bit.toISOString().slice(0,10);
+  raporFiltrele();
+}
+
 function raporTemizle() {
   document.getElementById('rapor-tarih-bas').value = '';
   document.getElementById('rapor-tarih-bit').value = '';
@@ -4932,15 +5083,16 @@ function raporRender() {
   _raporFiltreli = liste;
 
   const ozet = document.getElementById('rapor-filtre-ozet');
-  var ozetMesaj = (bas || bit) ? '📅 ' + (bas||'—') + ' → ' + (bit||'—') + ' | ' : '';
-  if (window._aktifRol === 'personel') ozetMesaj += '👤 Kendi teslimatlarım | ';
-  ozet.textContent = ozetMesaj + liste.length + ' kayıt';
+  var aralik = (bas || bit) ? ((bas || 'Başlangıç') + ' → ' + (bit || 'Bitiş')) : 'Tüm teslim tarihleri';
+  var rolMetin = window._aktifRol === 'personel' ? 'Sadece kendi teslimatlarım' : 'Tüm personeller';
+  ozet.innerHTML = '<div><b>' + liste.length.toLocaleString('tr-TR') + ' kayıt</b> bulundu</div>'
+    + '<span>📅 ' + escapeHtml(aralik) + ' · 👤 ' + escapeHtml(rolMetin) + '</span>';
 
   const tbody = document.getElementById('rapor-teslim-table');
-  document.getElementById('rapor-teslim-count').textContent = liste.length + ' kayıt listeleniyor';
+  document.getElementById('rapor-teslim-count').textContent = liste.length.toLocaleString('tr-TR') + ' kayıt listeleniyor';
 
   if (liste.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-muted text-center" style="padding:2rem">Kayıt bulunamadı</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-muted text-center" style="padding:2rem">Seçili aralıkta teslim kaydı bulunamadı</td></tr>';
     return;
   }
 
@@ -4965,8 +5117,8 @@ function raporRender() {
   }).join('');
 
   if (kalan > 0) {
-    tbody.innerHTML += '<tr><td colspan="8" style="text-align:center;padding:0.8rem">'
-      + '<button onclick="_raporSayfa++;raporRender()" style="padding:0.4rem 1.2rem;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:0.82rem">'
+    tbody.innerHTML += '<tr class="rapor-more-row"><td colspan="9">'
+      + '<button class="btn btn-outline btn-sm" onclick="_raporSayfa++;raporRender()">'
       + '▼ ' + kalan + ' kayıt daha göster</button></td></tr>';
   }
 }
@@ -4980,26 +5132,43 @@ function updateRaporlar(){
   k.forEach(x=>{if(!tur[x.yardimturu])tur[x.yardimturu]={t:0,te:0};tur[x.yardimturu].t++;if(x.teslimEdildi)tur[x.yardimturu].te++;});
   document.getElementById('rapor-tur-detay').innerHTML=Object.keys(tur).length===0
     ?'<div class="text-muted">Henüz kayıt yok</div>'
-    :Object.entries(tur).map(([n,v])=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:1rem;align-items:center;padding:0.6rem;background:var(--surface2);border-radius:8px"><span style="font-weight:600">${n}</span><span class="text-muted" style="font-size:0.8rem">${v.t} toplam</span><span style="color:var(--success);font-size:0.8rem;font-weight:600">${v.te} teslim</span><span style="color:var(--accent);font-family:var(--mono);font-size:0.8rem">${Math.round(v.te/v.t*100)}%</span></div>`).join('');
+    :Object.entries(tur).sort(function(a,b){ return b[1].t - a[1].t; }).map(function(item) {
+      var n = item[0] || 'Belirtilmemiş';
+      var v = item[1];
+      var kalan = v.t - v.te;
+      var pct = v.t > 0 ? Math.round(v.te / v.t * 100) : 0;
+      return '<div class="rapor-tur-item">'
+        + '<div class="rapor-tur-ad">' + escapeHtml(n) + '</div>'
+        + '<div class="rapor-tur-meta">'
+          + '<span class="rapor-mini-stat">' + v.t.toLocaleString('tr-TR') + ' toplam</span>'
+          + '<span class="rapor-mini-stat" style="color:var(--success)">' + v.te.toLocaleString('tr-TR') + ' teslim</span>'
+          + '<span class="rapor-mini-stat" style="color:var(--danger)">' + kalan.toLocaleString('tr-TR') + ' bekliyor</span>'
+          + '<span class="rapor-pct">%' + pct + '</span>'
+        + '</div>'
+      + '</div>';
+    }).join('');
 
   // Günlük özet
   const gunler = {};
   k.filter(x=>x.teslimEdildi).forEach(x => {
-    const gun = new Date(x.teslimTarihi).toLocaleDateString('tr-TR', {day:'2-digit',month:'long',year:'numeric'});
+    if (!x.teslimTarihi) return;
+    const gun = x.teslimTarihi.slice(0,10);
     gunler[gun] = (gunler[gun]||0) + 1;
   });
   const gunlukEl = document.getElementById('rapor-gunluk');
-  const gunSirali = Object.entries(gunler).sort((a,b) => {
-    const pa = Object.keys(gunler).indexOf(a[0]);
-    return new Date(b[0]) - new Date(a[0]);
-  });
+  const gunSirali = Object.entries(gunler).sort((a,b) => b[0].localeCompare(a[0]));
   gunlukEl.innerHTML = gunSirali.length === 0
     ? '<div class="text-muted">Henüz teslim yok</div>'
-    : gunSirali.map(([gun, sayi]) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0.8rem;background:var(--surface2);border-radius:8px">
-          <span style="font-weight:600;font-size:0.9rem">📅 ${gun}</span>
-          <span style="font-family:var(--mono);font-weight:700;color:var(--accent)">${sayi} teslim</span>
-        </div>`).join('');
+    : gunSirali.slice(0, 14).map(function(item) {
+      var gun = item[0];
+      var sayi = item[1];
+      var d = new Date(gun + 'T12:00:00');
+      var gunTr = d.toLocaleDateString('tr-TR', {day:'2-digit', month:'long', year:'numeric'});
+      return '<div class="rapor-gun-item">'
+        + '<span class="rapor-gun-ad">📅 ' + escapeHtml(gunTr) + '</span>'
+        + '<span class="rapor-gun-sayi">' + sayi.toLocaleString('tr-TR') + ' teslim</span>'
+      + '</div>';
+    }).join('');
 
   raporFiltrele();
   raporPersonelOzeti();
@@ -5036,10 +5205,10 @@ function raporPersonelOzeti() {
             + '<td style="font-size:0.78rem">' + (escapeHtml(x.adres)||'—') + '</td>'
             + '<td style="font-family:var(--mono);font-size:0.78rem">' + (d ? d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}) : '—') + '</td></tr>';
         }).join('');
-    return '<div style="background:var(--surface2);border-radius:8px;overflow:hidden;margin-bottom:2px">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.9rem;cursor:pointer" onclick="personelDetayAc(\'' + pid + '\')">'
+    return '<div class="rapor-personel-item">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.65rem 0.75rem;cursor:pointer;gap:0.75rem" onclick="personelDetayAc(\'' + pid + '\')">'
         + '<div style="font-weight:700;font-size:0.9rem">👤 ' + safeAd + '</div>'
-        + '<div style="display:flex;gap:1rem;align-items:center">'
+        + '<div style="display:flex;gap:0.75rem;align-items:center;flex-shrink:0">'
           + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--accent);font-size:1.1rem">' + p.bugun.length + '</div><div style="font-size:0.6rem;color:var(--muted)">BUGÜN</div></div>'
           + '<div style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--muted);font-size:1.1rem">' + p.toplam.length + '</div><div style="font-size:0.6rem;color:var(--muted)">TOPLAM</div></div>'
           + '<span style="color:var(--muted);font-size:0.8rem">▼</span>'
