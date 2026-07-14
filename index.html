@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260707183000">
+<meta name="version" content="20260714160000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -219,26 +219,27 @@
   .table-wrap{overflow-x:auto;}
 
   /* ===== MAHALLE ÖZETİ KARTLARI — tek satır ===== */
+  .panel-donem-baslik{display:flex;align-items:baseline;justify-content:space-between;gap:0.75rem;margin-bottom:0.9rem;padding:0 0.1rem;}
+  .panel-donem-baslik h2{margin:0;font-size:1.05rem;font-weight:600;color:var(--text);letter-spacing:-0.01em;line-height:1.3;}
+  .panel-donem-baslik .panel-donem-ad{color:var(--accent);font-weight:600;}
+  .panel-donem-baslik .panel-donem-etiket{font-size:0.75rem;font-weight:500;color:var(--muted);}
   .mah-ozet-card{cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.75rem;display:flex;align-items:center;gap:0.7rem;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
   .mah-ozet-card:hover{border-color:var(--accent);background:var(--surface);}
-  .mah-ozet-ad{flex:0 0 auto;min-width:0;max-width:200px;font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.01em;color:var(--text);}
-  .mah-ozet-bar-wrap{flex:1;min-width:50px;display:flex;align-items:center;gap:0.55rem;}
-  .mah-ozet-bar{flex:1;height:8px;background:var(--surface);border-radius:100px;overflow:hidden;position:relative;min-width:30px;}
-  .mah-ozet-fill{height:100%;border-radius:100px;transition:width 0.4s ease;}
-  .mah-ozet-pct{font-family:var(--mono);font-size:0.88rem;font-weight:800;min-width:44px;text-align:right;letter-spacing:0.02em;line-height:1;flex-shrink:0;}
+  .mah-ozet-ad{flex:1;min-width:0;font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0.01em;color:var(--text);}
+  .mah-ozet-pct{font-family:var(--mono);font-size:0.88rem;font-weight:600;min-width:44px;text-align:right;letter-spacing:0.02em;line-height:1;flex-shrink:0;}
   .mah-ozet-pct.zero{opacity:0.55;}
   .mah-ozet-badges{display:flex;gap:0.35rem;flex-shrink:0;}
   .mah-b{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:48px;padding:0.24rem 0.45rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);line-height:1.05;}
-  .mah-b b{font-family:var(--mono);font-size:0.9rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--text);}
-  .mah-b i{font-size:0.55rem;font-style:normal;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px;}
+  .mah-b b{font-family:var(--mono);font-size:0.9rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);}
+  .mah-b i{font-size:0.55rem;font-style:normal;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:1px;}
   .mah-b-a b{color:var(--success);}
   .mah-b-k b{color:var(--danger);}
   .mah-b-k.zero b{color:var(--muted);}
   @media(max-width:640px){
+    .panel-donem-baslik{margin-bottom:0.7rem;}
+    .panel-donem-baslik h2{font-size:0.95rem;}
     .mah-ozet-card{padding:0.48rem 0.6rem;gap:0.5rem;}
-    .mah-ozet-ad{max-width:108px;font-size:0.8rem;}
-    .mah-ozet-bar-wrap{gap:0.4rem;min-width:40px;}
-    .mah-ozet-bar{height:6px;}
+    .mah-ozet-ad{font-size:0.8rem;}
     .mah-ozet-pct{font-size:0.76rem;min-width:36px;}
     .mah-b{min-width:38px;padding:0.2rem 0.3rem;border-radius:6px;}
     .mah-b b{font-size:0.8rem;}
@@ -247,8 +248,7 @@
   }
   @media(max-width:420px){
     .mah-ozet-card{padding:0.42rem 0.5rem;gap:0.38rem;}
-    .mah-ozet-ad{max-width:88px;font-size:0.72rem;}
-    .mah-ozet-bar-wrap{gap:0.3rem;min-width:34px;}
+    .mah-ozet-ad{font-size:0.72rem;}
     .mah-ozet-pct{font-size:0.7rem;min-width:32px;}
     .mah-b{min-width:32px;padding:0.16rem 0.22rem;}
     .mah-b b{font-size:0.72rem;}
@@ -638,6 +638,10 @@
 
 <!-- ========== DASHBOARD ========== -->
 <div id="page-dashboard" class="page active">
+  <div class="panel-donem-baslik">
+    <h2>📊 <span class="panel-donem-ad" id="panel-donem-ad">—</span></h2>
+    <span class="panel-donem-etiket">Aktif dönem</span>
+  </div>
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-val" id="stat-toplam">-</div><div class="stat-label">Toplam Kayıt</div></div>
     <div class="stat-card"><div class="stat-val" id="stat-teslim">-</div><div class="stat-label">Teslim Edildi</div></div>
@@ -646,9 +650,6 @@
     <div class="stat-card">
       <div id="stat-pct" class="stat-val">-%</div>
       <div class="stat-label">Dağıtım Oranı</div>
-      <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:0.5rem">
-        <div id="stat-pct-bar" style="height:100%;width:0%;background:var(--accent);border-radius:3px;transition:width 0.6s ease"></div>
-      </div>
     </div>
   </div>
   <div class="card">
@@ -1203,6 +1204,14 @@
     return remove(ref(db, yol));
   };
 
+  window.panelDonemBaslikGuncelle = function() {
+    var el = document.getElementById('panel-donem-ad');
+    if (!el) return;
+    var meta = window._aktifDonemMeta || {};
+    var ad = meta.ad || window._aktifDonem || '—';
+    el.textContent = ad;
+  };
+
   window.donemSec = function(donemId) {
     if (window._donemUnsub) { window._donemUnsub(); window._donemUnsub=null; }
     window._aktifDonem = donemId;
@@ -1212,6 +1221,7 @@
     if (sel) sel.value = donemId;
     var uyari = document.getElementById('donem-kapali-uyari');
     if (uyari) uyari.style.display = (meta.durum !== 'aktif') ? 'block' : 'none';
+    if (window.panelDonemBaslikGuncelle) window.panelDonemBaslikGuncelle();
     window._donemUnsub = onValue(ref(db, 'donemler/'+donemId+'/kisiler'), function(snap) {
       window._kisilerData = snap.val() || {};
       renderAll();
@@ -2293,8 +2303,7 @@ function updateDashboard(){
   const renk = pct===100?'var(--success)':pct>50?'var(--accent)':'var(--danger)';
   document.getElementById('stat-pct').textContent = '%'+pct;
   document.getElementById('stat-pct').style.color = renk;
-  document.getElementById('stat-pct-bar').style.width = pct+'%';
-  document.getElementById('stat-pct-bar').style.background = renk;
+  if (window.panelDonemBaslikGuncelle) window.panelDonemBaslikGuncelle();
 
   const son=k.filter(x=>x.teslimEdildi).sort((a,b)=>new Date(b.teslimTarihi)-new Date(a.teslimTarihi)).slice(0,10);
   document.getElementById('son-teslimler').innerHTML=son.length===0
@@ -2354,10 +2363,7 @@ function updateDashboard(){
     const kaldiCls = bekliyor === 0 ? ' zero' : '';
     return `<div class="mah-ozet-card" onclick="mahalleDeta('${attr}')">
       <div class="mah-ozet-ad" title="${safeM}">${safeM}</div>
-      <div class="mah-ozet-bar-wrap">
-        <div class="mah-ozet-bar"><div class="mah-ozet-fill" style="width:${pct}%;background:${renk}"></div></div>
-        <span class="mah-ozet-pct${pctCls}" style="color:${renk}">%${pct}</span>
-      </div>
+      <span class="mah-ozet-pct${pctCls}" style="color:${renk}">%${pct}</span>
       <div class="mah-ozet-badges">
         <span class="mah-b mah-b-t"><b>${d.toplam.toLocaleString('tr-TR')}</b><i>toplam</i></span>
         <span class="mah-b mah-b-a"><b>${d.teslim.toLocaleString('tr-TR')}</b><i>aldı</i></span>
