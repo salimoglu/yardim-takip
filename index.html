@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714232000">
+<meta name="version" content="20260714233000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -317,21 +317,26 @@
   .komur-ist-baslik{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.7rem;flex-wrap:wrap;}
   .komur-ist-baslik .card-title{margin:0;font-size:0.95rem;}
   .komur-ist-wrap{overflow:visible;border:1px solid var(--border);border-radius:8px;}
-  /* separate: sticky thead collapse ile bozulmasın — tablo bitince doğal bırakır */
   .komur-ist-tablo{width:100%;border-collapse:separate;border-spacing:0;font-size:1.02rem;table-layout:fixed;}
-  .komur-ist-tablo thead th{
-    position:sticky;
-    top:var(--komur-thead-top, calc(var(--nav-h) + 12rem));
-    z-index:40;
-    background:var(--surface2);
-    box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.45);
+  .komur-ist-tablo thead th{position:static;box-shadow:none;}
+  /* JS sabit kopya: sticky CSS panelle çakışmasın diye */
+  #komur-thead-pin{
+    display:none;position:fixed;left:0;right:0;z-index:80;
+    background:var(--surface2);border-bottom:1px solid var(--border);
+    box-shadow:0 8px 16px -12px rgba(0,0,0,0.55);pointer-events:none;
   }
-  /* Mahalle özetinde: tablo başlığı ASLA sabit kalmasın (çakışma engeli) */
-  #page-dashboard #panel-sticky.ozet-modu ~ #komur-ist-card .komur-ist-tablo thead th{
-    position:static !important;
-    top:auto !important;
-    box-shadow:none !important;
-    z-index:auto !important;
+  #komur-thead-pin .komur-thead-pin-inner{max-width:1280px;margin:0 auto;padding:0 1.5rem;box-sizing:border-box;}
+  #komur-thead-pin table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:1.02rem;margin:0;}
+  #komur-thead-pin th{
+    background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;
+    border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;
+  }
+  @media(max-width:600px){
+    #komur-thead-pin .komur-thead-pin-inner{padding:0 0.4rem;}
+  }
+  @media(max-width:420px){
+    #komur-thead-pin .komur-thead-pin-inner{padding:0 0.3rem;}
   }
   .komur-ist-tablo th{background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;padding:0.55rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;white-space:normal;line-height:1.25;vertical-align:middle;}
   .komur-ist-tablo td{padding:0.45rem 0.35rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle;white-space:nowrap;}
@@ -950,6 +955,7 @@
     </div>
   </div>
 
+  <div id="komur-thead-pin" aria-hidden="true"><div class="komur-thead-pin-inner"><table class="komur-ist-tablo"><thead id="komur-thead-pin-head"></thead></table></div></div>
   <div class="card komur-ist-card" id="komur-ist-card">
     <div class="komur-ist-wrap">
       <table class="komur-ist-tablo">
@@ -3182,6 +3188,8 @@ function komurIstatistikRender() {
   if (satirlar.length === 0) {
     body.innerHTML = '<tr><td colspan="10" class="text-muted text-center" style="padding:1.5rem">Henüz TIR veya teslim kaydı yok</td></tr>';
     if (foot) foot.innerHTML = '';
+    var pin0 = document.getElementById('komur-thead-pin');
+    if (pin0) pin0.style.display = 'none';
     return;
   }
 
@@ -3218,6 +3226,8 @@ function komurIstatistikRender() {
       + '<td></td>'
       + '</tr>';
   }
+  if (typeof komurTheadPinSenkron === 'function') komurTheadPinSenkron();
+  if (typeof komurTheadPinGuncelle === 'function') komurTheadPinGuncelle();
 }
 
 function komurIstatistikExcelAktar() {
@@ -3332,36 +3342,77 @@ function panelStickyYukseklikAyarla() {
   var spacer = document.getElementById('panel-sticky-spacer');
   if (!sticky || !spacer) return;
   spacer.style.height = sticky.offsetHeight + 'px';
-  var top = Math.round(sticky.getBoundingClientRect().bottom);
-  if (top < 1) {
-    var nav = getComputedStyle(document.documentElement).getPropertyValue('--nav-h');
-    top = Math.round(sticky.offsetHeight + (parseFloat(nav) || 56));
+}
+
+function komurTheadPinSenkron() {
+  var src = document.querySelector('#komur-ist-card .komur-ist-tablo thead');
+  var dst = document.getElementById('komur-thead-pin-head');
+  if (!src || !dst) return;
+  dst.innerHTML = src.innerHTML;
+  var srcTh = src.querySelectorAll('th');
+  var dstTh = dst.querySelectorAll('th');
+  for (var i = 0; i < srcTh.length && i < dstTh.length; i++) {
+    dstTh[i].style.width = srcTh[i].getBoundingClientRect().width + 'px';
   }
-  document.documentElement.style.setProperty('--komur-thead-top', top + 'px');
+}
+
+function komurTheadPinGuncelle() {
+  var pin = document.getElementById('komur-thead-pin');
+  var sticky = document.getElementById('panel-sticky');
+  var card = document.getElementById('komur-ist-card');
+  var thead = card ? card.querySelector('.komur-ist-tablo thead') : null;
+  var dash = document.getElementById('page-dashboard');
+  if (!pin || !sticky || !card || !thead || !dash || !dash.classList.contains('active')) {
+    if (pin) pin.style.display = 'none';
+    return;
+  }
+
+  // Mahalle / özet modunda pin yok
+  if (sticky.classList.contains('ozet-modu')) {
+    pin.style.display = 'none';
+    return;
+  }
+
+  var stickyBottom = sticky.getBoundingClientRect().bottom;
+  var theadRect = thead.getBoundingClientRect();
+  var cardRect = card.getBoundingClientRect();
+  var pinH = pin.offsetHeight || theadRect.height || 48;
+
+  // Orijinal başlık üst bandın üstüne çıktıysa ve tablo hâlâ görünürse pin göster
+  var baslikGecti = theadRect.bottom <= stickyBottom + 1;
+  var tabloDevam = cardRect.bottom > stickyBottom + pinH + 8;
+  if (baslikGecti && tabloDevam) {
+    if (pin.style.display !== 'block') {
+      komurTheadPinSenkron();
+      pin.style.display = 'block';
+    }
+    pin.style.top = Math.round(stickyBottom) + 'px';
+  } else {
+    pin.style.display = 'none';
+  }
 }
 
 function panelStickyModGuncelle() {
   var sticky = document.getElementById('panel-sticky');
   var mahalle = document.getElementById('mahalle-ozet-card');
-  var komurCard = document.getElementById('komur-ist-card');
   var dash = document.getElementById('page-dashboard');
   if (!sticky || !mahalle || !dash) return;
   if (!dash.classList.contains('active')) return;
 
   var stickyBottom = sticky.getBoundingClientRect().bottom;
-  var komurBottom = komurCard ? komurCard.getBoundingClientRect().bottom : 0;
   var mahalleTop = mahalle.getBoundingClientRect().top;
   var ozetSimdi = sticky.classList.contains('ozet-modu');
 
-  // Mahalle yaklasinca komur bandi + thead birlikte kapanir
-  var ozetOlsun;
-  if (ozetSimdi) {
-    ozetOlsun = mahalleTop < stickyBottom + 200;
-  } else {
-    ozetOlsun = mahalleTop <= stickyBottom + 16 || komurBottom <= stickyBottom + 28;
-  }
+  // Sadece mahalle konumuna göre — geniş histerezis
+  var ozetOlsun = ozetSimdi
+    ? (mahalleTop < stickyBottom + 220)
+    : (mahalleTop <= stickyBottom + 8);
 
   if (ozetSimdi !== ozetOlsun) {
+    // Önce pin kapansın ki çakışma olmasın
+    var pin = document.getElementById('komur-thead-pin');
+    if (pin) pin.style.display = 'none';
+
     var hOnceki = sticky.offsetHeight;
     sticky.classList.toggle('ozet-modu', ozetOlsun);
     void sticky.offsetHeight;
@@ -3372,8 +3423,8 @@ function panelStickyModGuncelle() {
     if (delta !== 0) window.scrollBy(0, -delta);
   }
 
-  // Her kaydirmada guncelle — eski top hedef kartlarla thead cakismasina yol aciyordu
   panelStickyYukseklikAyarla();
+  komurTheadPinGuncelle();
 }
 
 function panelStickyModKur() {
@@ -3392,7 +3443,10 @@ function panelStickyModKur() {
     });
   }
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
+  window.addEventListener('resize', function() {
+    komurTheadPinSenkron();
+    onScroll();
+  }, { passive: true });
   panelStickyModGuncelle();
 }
 
