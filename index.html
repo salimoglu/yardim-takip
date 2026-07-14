@@ -1317,27 +1317,49 @@
   };
 
   // ===== TIR TESELLÜM =====
+  // Not: bazı projelerde rules yalnızca kisiler/meta yazımına izin verir.
+  // Bu yüzden TIR verisini meta/tirModulu altında tutuyoruz.
   window._tirUnsub = null;
   window._tirData = { meta: {}, kayitlar: {} };
+
+  function tirSanitize(veri) {
+    var out = {};
+    Object.keys(veri || {}).forEach(function(k) {
+      var v = veri[k];
+      if (v === undefined || v === null) return;
+      out[k] = v;
+    });
+    return out;
+  }
+
+  function tirYol(alt) {
+    return dbYol('meta/tirModulu' + (alt ? '/' + alt : ''));
+  }
+
   window.dbTirKaydet = async function(veri, id) {
+    var temiz = tirSanitize(veri);
     if (id) {
-      await update(ref(db, dbYol('tir/kayitlar/' + id)), veri);
+      await update(ref(db, tirYol('kayitlar/' + id)), temiz);
       return id;
     }
-    var newRef = push(ref(db, dbYol('tir/kayitlar')));
-    await set(newRef, veri);
+    var newRef = push(ref(db, tirYol('kayitlar')));
+    await set(newRef, temiz);
     return newRef.key;
   };
   window.dbTirSil = async function(id) {
-    return remove(ref(db, dbYol('tir/kayitlar/' + id)));
+    return remove(ref(db, tirYol('kayitlar/' + id)));
   };
   window.dbTirMetaKaydet = async function(meta) {
-    return set(ref(db, dbYol('tir/meta')), meta);
+    return set(ref(db, tirYol('meta')), tirSanitize(meta || {}));
   };
   window.dbTirTopluYaz = async function(kayitlar, meta) {
-    await set(ref(db, dbYol('tir')), {
-      meta: meta || {},
-      kayitlar: kayitlar || {}
+    var temizKayitlar = {};
+    Object.keys(kayitlar || {}).forEach(function(k) {
+      temizKayitlar[k] = tirSanitize(kayitlar[k]);
+    });
+    await set(ref(db, tirYol()), {
+      meta: tirSanitize(meta || {}),
+      kayitlar: temizKayitlar
     });
   };
   window.dbTopluYaz = async function(kayitlar, onProgress) {
@@ -1399,7 +1421,7 @@
       renderAll();
     });
     if (window._tirUnsub) { try { window._tirUnsub(); } catch(_){} window._tirUnsub = null; }
-    window._tirUnsub = onValue(ref(db, 'donemler/'+donemId+'/tir'), function(snap) {
+    window._tirUnsub = onValue(ref(db, 'donemler/'+donemId+'/meta/tirModulu'), function(snap) {
       var v = snap.val() || {};
       window._tirData = { meta: v.meta || {}, kayitlar: v.kayitlar || {} };
       if (typeof tirRender === 'function') tirRender();
@@ -4156,6 +4178,10 @@ function tirMeta() {
   return Object.assign({}, _TIR_META_DEFAULT, (window._tirData && window._tirData.meta) || {});
 }
 
+function tirNotMetin(k) {
+  return (k && (k.notu || k.not)) || '';
+}
+
 function tirKayitListesi() {
   var raw = (window._tirData && window._tirData.kayitlar) || {};
   return Object.keys(raw).map(function(id) {
@@ -4241,7 +4267,7 @@ function tirRender() {
   var q = ((document.getElementById('tir-ara') || {}).value || '').toLowerCase().trim();
   if (q) {
     liste = liste.filter(function(k) {
-      return [k.plaka, k.fisNo, k.irsaliyeNo, k.firma, k.not, k.siraNo]
+      return [k.plaka, k.fisNo, k.irsaliyeNo, k.firma, tirNotMetin(k), k.siraNo]
         .join(' ').toLowerCase().includes(q);
     });
   }
@@ -4286,7 +4312,7 @@ function tirRender() {
       + '<td>' + tirKgGoster(k.teslimMiktar) + '</td>'
       + '<td>' + escapeHtml(k.fisNo || '') + '</td>'
       + '<td style="font-size:0.72rem">' + escapeHtml(k.irsaliyeNo || '') + '</td>'
-      + '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis" title="' + escapeHtml(k.not || '') + '">' + escapeHtml(k.not || '') + '</td>'
+      + '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis" title="' + escapeHtml(tirNotMetin(k)) + '">' + escapeHtml(tirNotMetin(k)) + '</td>'
       + '<td class="' + farkCls + '">' + (fark === null ? '—' : fark.toLocaleString('tr-TR')) + '</td>'
       + '<td>' + escapeHtml(k.tartiDurumu || '') + '</td>'
       + '<td style="white-space:nowrap">'
@@ -4348,29 +4374,30 @@ function tirFormdanVeri() {
   if (!tarti && fark !== null && fark !== 0) tarti = 'TARTILDI';
   var sevkT = document.getElementById('tir-sevk-tarih').value;
   var teslimT = document.getElementById('tir-teslim-tarih').value;
-  return {
+  var veri = {
     siraNo: (document.getElementById('tir-sira').value || '').trim(),
     firma: (document.getElementById('tir-firma').value || '').trim(),
     il: (document.getElementById('tir-il').value || '').trim(),
     ilce: (document.getElementById('tir-ilce').value || '').trim(),
     plaka: (document.getElementById('tir-plaka').value || '').trim().toUpperCase(),
-    sevkTarihi: sevkT ? sevkT + 'T12:00:00.000Z' : '',
-    sevkMiktar: sevk,
-    teslimTarihi: teslimT ? teslimT + 'T12:00:00.000Z' : '',
-    teslimMiktar: teslim,
+    sevkTarihi: sevkT ? (sevkT + 'T12:00:00.000Z') : '',
+    teslimTarihi: teslimT ? (teslimT + 'T12:00:00.000Z') : '',
     fisNo: (document.getElementById('tir-fis').value || '').trim(),
     irsaliyeNo: (document.getElementById('tir-irsaliye').value || '').trim(),
-    not: (document.getElementById('tir-not').value || '').trim(),
-    fark: fark,
-    tartiDurumu: tarti
+    notu: (document.getElementById('tir-not').value || '').trim(),
+    tartiDurumu: tarti || ''
   };
+  if (sevk !== null) veri.sevkMiktar = sevk;
+  if (teslim !== null) veri.teslimMiktar = teslim;
+  if (fark !== null) veri.fark = fark;
+  return veri;
 }
 
 async function tirKaydet() {
   if (!window._firebaseHazir || !window.dbTirKaydet) { toast('Veritabanı bağlanıyor...', 'error'); return; }
   var veri = tirFormdanVeri();
   if (!veri.plaka) { toast('Plaka zorunlu!', 'error'); return; }
-  if (veri.sevkMiktar === null && veri.teslimMiktar === null) { toast('En az bir miktar girin!', 'error'); return; }
+  if (veri.sevkMiktar == null && veri.teslimMiktar == null) { toast('En az bir miktar girin!', 'error'); return; }
 
   if (!veri.siraNo) {
     var max = 0;
@@ -4393,7 +4420,9 @@ async function tirKaydet() {
       if (el) el.focus();
     }, 50);
   } catch (e) {
-    toast('Kayıt hatası: ' + e.message, 'error');
+    console.error('TIR kayıt hatası:', e);
+    var msg = (e && (e.code || e.message)) ? String(e.code || '') + ' ' + String(e.message || '') : String(e);
+    toast('Kayıt hatası: ' + msg.trim(), 'error');
   }
 }
 
@@ -4412,7 +4441,7 @@ function tirDuzenle(id) {
   document.getElementById('tir-teslim-miktar').value = k.teslimMiktar != null ? k.teslimMiktar : '';
   document.getElementById('tir-fis').value = k.fisNo || '';
   document.getElementById('tir-irsaliye').value = k.irsaliyeNo || '';
-  document.getElementById('tir-not').value = k.not || '';
+  document.getElementById('tir-not').value = tirNotMetin(k);
   document.getElementById('tir-tarti').value = k.tartiDurumu || '';
   tirFarkHesaplaForm();
   var bar = document.getElementById('tir-entry-bar');

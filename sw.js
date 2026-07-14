@@ -1,4 +1,4 @@
-const CACHE = 'yardim-takip-v27';
+const CACHE = 'yardim-takip-v28';
 const ASSETS = [
   '/yardim-takip/',
   '/yardim-takip/index.html',
