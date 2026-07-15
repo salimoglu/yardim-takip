@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260715090000">
+<meta name="version" content="20260715090800">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -540,11 +540,7 @@
   .rapor-action .btn{width:100%;justify-content:center;padding:0.55rem 0.7rem;}
   .personel-gunluk-ozet{display:none;}
   body.personel-saha .personel-gunluk-ozet{display:block;}
-  body.personel-saha #page-dashboard > :not(.personel-gunluk-ozet),
-  body.personel-saha #page-kisiler > :not(.personel-gunluk-ozet),
   body.personel-saha #page-raporlar > :not(.personel-gunluk-ozet){display:none !important;}
-  body.personel-saha #page-dashboard,
-  body.personel-saha #page-kisiler,
   body.personel-saha #page-raporlar{max-width:760px;}
   .personel-ozet-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.85rem;}
   .personel-ozet-title{font-size:1.05rem;font-weight:800;color:var(--accent);margin-bottom:0.2rem;}
@@ -2754,7 +2750,7 @@ function personelGunlukTeslimleri(gun) {
 }
 
 function personelOzetKartlariKur() {
-  ['dashboard', 'tara', 'kisiler', 'raporlar'].forEach(function(page) {
+  ['raporlar'].forEach(function(page) {
     var hedef = document.getElementById('page-' + page);
     if (!hedef || document.getElementById('personel-ozet-' + page)) return;
     var card = document.createElement('div');
@@ -2819,7 +2815,7 @@ function personelGunlukOzetHtml(page) {
 
 function personelGunlukOzetRender() {
   if (!window._personelModu) return;
-  ['dashboard', 'tara', 'kisiler', 'raporlar'].forEach(function(page) {
+  ['raporlar'].forEach(function(page) {
     var el = document.getElementById('personel-ozet-' + page);
     if (el) el.innerHTML = personelGunlukOzetHtml(page);
   });
