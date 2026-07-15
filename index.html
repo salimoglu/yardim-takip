@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260714430000">
+<meta name="version" content="20260715090000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1009,9 +1009,9 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:0.8rem">
       <div>
-        <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Telefon No</label>
-        <input type="tel" id="giris-tel" placeholder="05xxxxxxxxx" maxlength="11"
-          style="width:100%;margin-top:0.3rem;padding:0.7rem 0.9rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:var(--mono);letter-spacing:0.05em"
+        <label style="font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Kullanıcı Adı</label>
+        <input type="text" id="giris-tel" placeholder="ornek: salim"
+          style="width:100%;margin-top:0.3rem;padding:0.7rem 0.9rem;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:1rem;font-family:var(--mono);letter-spacing:0.03em;text-transform:lowercase"
           onkeydown="if(event.key==='Enter')document.getElementById('giris-sifre').focus()">
       </div>
       <div>
@@ -1229,7 +1229,7 @@
       <button class="ayar-submodal-close" onclick="personelEkleModalKapat()" aria-label="Kapat">✕</button>
     </div>
     <div class="ayar-submodal-body">
-      <div><label for="yeni-p-tel">Telefon</label><input type="text" id="yeni-p-tel" placeholder="05xxxxxxxxx" maxlength="11" inputmode="numeric" style="font-family:var(--mono)"></div>
+      <div><label for="yeni-p-tel">Kullanıcı Adı</label><input type="text" id="yeni-p-tel" placeholder="ornek: mustafa" style="font-family:var(--mono);text-transform:lowercase"></div>
       <div><label for="yeni-p-ad">Ad Soyad</label><input type="text" id="yeni-p-ad" placeholder="Ad Soyad"></div>
       <div><label for="yeni-p-rol">Rol</label>
         <select id="yeni-p-rol">
@@ -1257,7 +1257,7 @@
     </div>
     <div class="ayar-submodal-body">
       <input type="hidden" id="edit-p-eski-tel">
-      <div><label for="edit-p-tel">Telefon / Kullanıcı adı</label><input type="text" id="edit-p-tel" placeholder="05xxxxxxxxx" maxlength="11" inputmode="numeric" style="font-family:var(--mono)"></div>
+      <div><label for="edit-p-tel">Kullanıcı Adı</label><input type="text" id="edit-p-tel" placeholder="ornek: mustafa" style="font-family:var(--mono);text-transform:lowercase"></div>
       <div><label for="edit-p-ad">Ad Soyad</label><input type="text" id="edit-p-ad" placeholder="Ad Soyad"></div>
       <div><label for="edit-p-rol">Rol</label>
         <select id="edit-p-rol">
@@ -1271,7 +1271,7 @@
       <div><label for="edit-p-yeni-sifre">Yeni şifre</label>
         <input type="password" id="edit-p-yeni-sifre" placeholder="Boş bırakırsanız değişmez">
       </div>
-      <div class="personel-edit-note">Ad ve rol hemen güncellenir. Telefon veya şifre değişikliği için Auth hesabını doğrulamak gerekir; yeni eklenen personellerde bu otomatik yapılır.</div>
+      <div class="personel-edit-note">Kullanıcı adı küçük harfe çevrilir; boşluk ve Türkçe karakterler sadeleştirilir. Örn: “Mustafa Şarkır” kullanıcı adı için “mustafa” yazabilirsiniz.</div>
       <div id="personel-edit-hata" style="color:var(--danger);font-size:0.8rem;min-height:1rem"></div>
     </div>
     <div class="ayar-submodal-footer">
@@ -2243,6 +2243,7 @@
     }
     var teslimEden = window._aktifKullanici ? (window._aktifKullanici.ad || window._aktifKullanici.tel) : 'Bilinmiyor';
     var teslimEdenTel = window._aktifKullanici ? (window._aktifKullanici.tel || '') : '';
+    var teslimEdenKullaniciAdi = window._aktifKullanici ? (window._aktifKullanici.kullaniciAdi || window._aktifKullanici.tel || '') : '';
     var teslimEdenUid = window._aktifKullanici ? (window._aktifKullanici.uid || '') : '';
     return update(ref(db, dbYol('kisiler/'+tc)), {
       teslimEdildi: true,
@@ -2250,6 +2251,7 @@
       zorlaIslendi: !!zorla,
       teslimEden: teslimEden,
       teslimEdenTel: teslimEdenTel,
+      teslimEdenKullaniciAdi: teslimEdenKullaniciAdi,
       teslimEdenUid: teslimEdenUid
     });
   };
@@ -2476,11 +2478,37 @@
   window._firebaseConfig = firebaseConfig;
   window._db = db;
 
+  function kullaniciAdiTemizle(x) {
+    return String(x || '')
+      .trim()
+      .toLocaleLowerCase('tr-TR')
+      .replace(/[ç]/g, 'c').replace(/[ğ]/g, 'g').replace(/[ı]/g, 'i')
+      .replace(/[ö]/g, 'o').replace(/[ş]/g, 's').replace(/[ü]/g, 'u')
+      .replace(/[^a-z0-9._-]/g, '');
+  }
+  function authEmailForKullanici(k) {
+    return kullaniciAdiTemizle(k) + '@yardim.com';
+  }
+  async function adminKullaniciAdiniSalimYap(eskiKey, kul) {
+    if (!kul || kul.rol !== 'admin' || eskiKey === 'salim') return { key: eskiKey, kul: kul };
+    var yeniKayit = Object.assign({}, kul, { kullaniciAdi: 'salim', tel: 'salim', ad: kul.ad || 'Salim' });
+    await set(ref(db, 'kullanicilar/salim'), yeniKayit);
+    if (kul.sifre) {
+      try {
+        await createUserWithEmailAndPassword(personelAuth, authEmailForKullanici('salim'), kul.sifre);
+        await signOut(personelAuth);
+      } catch(e) {
+        try { await signOut(personelAuth); } catch(_) {}
+      }
+    }
+    return { key: 'salim', kul: yeniKayit };
+  }
+
   // Auth state — giriş yapılmış mı?
   onAuthStateChanged(auth, async function(user) {
     if (user) {
       try {
-        var tel = user.email.replace('@yardim.com','');
+        var tel = kullaniciAdiTemizle(user.email.replace('@yardim.com',''));
         var kulSnap = await get(ref(db, 'kullanicilar/'+tel));
         var kul = kulSnap.val();
         if (!kul || kul.pasif === true) {
@@ -2489,9 +2517,12 @@
           if (gh) gh.textContent = 'Bu kullanıcı pasif veya silinmiş.';
           return;
         }
+        var adminGecis = await adminKullaniciAdiniSalimYap(tel, kul);
+        tel = adminGecis.key;
+        kul = adminGecis.kul;
         var rol = kul.rol || 'personel'; // varsayılan personel (güvenli)
         var kullaniciAd = kul.ad || tel;
-        window._aktifKullanici = { tel: tel, ad: kullaniciAd, rol: rol, uid: user.uid };
+        window._aktifKullanici = { tel: tel, kullaniciAdi: tel, ad: kullaniciAd, rol: rol, uid: user.uid };
         window._aktifRol = rol;
         document.getElementById('giris-ekrani').style.display = 'none';
         document.getElementById('ana-uygulama').style.display = 'block';
@@ -2500,7 +2531,7 @@
       } catch(e) {
         console.error('Rol okuma hatası:', e);
         // Hata durumunda güvenli mod — personel yetkisi ver, admin değil
-        window._aktifKullanici = { tel: tel, ad: tel, rol: 'personel', uid: user.uid };
+        window._aktifKullanici = { tel: tel, kullaniciAdi: tel, ad: tel, rol: 'personel', uid: user.uid };
         window._aktifRol = 'personel';
         document.getElementById('giris-ekrani').style.display = 'none';
         document.getElementById('ana-uygulama').style.display = 'block';
@@ -2513,13 +2544,16 @@
     }
   });
 
-  async function dbSifreyleGirisDene(tel, sifre) {
-    var snap = await get(ref(db, 'kullanicilar/' + tel));
+  async function dbSifreyleGirisDene(kullaniciAdi, sifre) {
+    var snap = await get(ref(db, 'kullanicilar/' + kullaniciAdi));
     var kul = snap.val();
     if (!kul || kul.pasif === true || String(kul.sifre || '') !== String(sifre || '')) return false;
+    var adminGecis = await adminKullaniciAdiniSalimYap(kullaniciAdi, kul);
+    kullaniciAdi = adminGecis.key;
+    kul = adminGecis.kul;
     var rol = kul.rol === 'admin' ? 'admin' : 'personel';
-    var kullaniciAd = kul.ad || tel;
-    window._aktifKullanici = { tel: tel, ad: kullaniciAd, rol: rol, uid: 'db-' + tel, dbOturum: true };
+    var kullaniciAd = kul.ad || kullaniciAdi;
+    window._aktifKullanici = { tel: kullaniciAdi, kullaniciAdi: kullaniciAdi, ad: kullaniciAd, rol: rol, uid: 'db-' + kullaniciAdi, dbOturum: true };
     window._aktifRol = rol;
     document.getElementById('giris-ekrani').style.display = 'none';
     document.getElementById('ana-uygulama').style.display = 'block';
@@ -2528,9 +2562,9 @@
     return true;
   }
 
-  async function eksikAuthHesabiOlustur(tel, sifre) {
+  async function eksikAuthHesabiOlustur(kullaniciAdi, sifre) {
     try {
-      await createUserWithEmailAndPassword(auth, tel + '@yardim.com', sifre);
+      await createUserWithEmailAndPassword(auth, authEmailForKullanici(kullaniciAdi), sifre);
       return true;
     } catch(e) {
       if (e && e.code === 'auth/email-already-in-use') return false;
@@ -2539,12 +2573,13 @@
   }
 
   window.girisYap = async function() {
-    var tel = document.getElementById('giris-tel').value.trim().replace(/[^0-9]/g,'');
+    var tel = kullaniciAdiTemizle(document.getElementById('giris-tel').value);
     var sifre = document.getElementById('giris-sifre').value;
     var hata = document.getElementById('giris-hata');
     hata.textContent = '';
-    if (!tel || !sifre) { hata.textContent = 'Telefon ve şifre zorunlu!'; return; }
-    var email = tel + '@yardim.com';
+    if (!tel || !sifre) { hata.textContent = 'Kullanıcı adı ve şifre zorunlu!'; return; }
+    if (tel.length < 3) { hata.textContent = 'Kullanıcı adı en az 3 karakter olmalı!'; return; }
+    var email = authEmailForKullanici(tel);
     var btn = document.getElementById('giris-btn');
     try {
       btn.disabled = true;
@@ -2581,7 +2616,7 @@
         }
       }
       if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') {
-        hata.textContent = 'Telefon veya şifre hatalı!';
+        hata.textContent = 'Kullanıcı adı veya şifre hatalı!';
       } else if (e.code === 'auth/too-many-requests') {
         hata.textContent = 'Çok fazla deneme! Lütfen bekleyin.';
       } else {
@@ -2691,7 +2726,7 @@ function personelKimlikNormalize(v) {
 
 function aktifPersonelKimlikleri() {
   var u = window._aktifKullanici || {};
-  var liste = [u.ad, u.tel, u.uid].filter(Boolean).map(personelKimlikNormalize).filter(Boolean);
+  var liste = [u.ad, u.tel, u.kullaniciAdi, u.uid].filter(Boolean).map(personelKimlikNormalize).filter(Boolean);
   return new Set(liste);
 }
 
@@ -2701,9 +2736,11 @@ function personelKendiTeslimiMi(k) {
   if (!kimlikler.size) return false;
   var teslimEden = personelKimlikNormalize(k.teslimEden);
   var teslimTel = personelKimlikNormalize(k.teslimEdenTel);
+  var teslimKullaniciAdi = personelKimlikNormalize(k.teslimEdenKullaniciAdi);
   var teslimUid = personelKimlikNormalize(k.teslimEdenUid);
   return (teslimEden && kimlikler.has(teslimEden))
     || (teslimTel && kimlikler.has(teslimTel))
+    || (teslimKullaniciAdi && kimlikler.has(teslimKullaniciAdi))
     || (teslimUid && kimlikler.has(teslimUid));
 }
 
@@ -5077,7 +5114,7 @@ function donemListeYukle() {
   }
 }
 
-// Telefon 05322549139 -> 0532 254 91 39
+// Eski sayısal kullanıcı adları için okunabilir gösterim
 function _telFmt(t) {
   if (!t) return '—';
   var s = String(t).replace(/\D/g,'');
@@ -5096,8 +5133,8 @@ function ayarModalYukle() {
     var rol  = window._aktifRol || 'personel';
     var isAd = window._aktifRol === 'admin';
     var adRaw = (k.ad || '').trim();
-    var tel   = k.tel || '';
-    var telFmt = _telFmt(tel);
+    var tel   = k.kullaniciAdi || k.tel || '';
+    var telFmt = tel;
 
     var telDigits = tel.replace(/\D/g,'');
     var isAdMeaningful = adRaw && adRaw.replace(/\D/g,'') !== telDigits;
@@ -5108,7 +5145,7 @@ function ayarModalYukle() {
     var badgeEl = document.getElementById('ayar-rol-badge');
 
     if (adEl) adEl.textContent = isAdMeaningful ? adRaw : (isAd ? 'Yönetici' : 'Personel');
-    if (telEl) telEl.textContent = telFmt;
+    if (telEl) telEl.textContent = '@' + telFmt;
     if (badgeEl) {
       badgeEl.textContent = isAd ? '👑 Admin' : '👤 Personel';
       badgeEl.classList.toggle('personel', !isAd);
@@ -5335,7 +5372,12 @@ async function personelListeYukle() {
 }
 
 function personelTelTemizle(x) {
-  return String(x || '').replace(/[^0-9]/g, '');
+  return String(x || '')
+    .trim()
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[ç]/g, 'c').replace(/[ğ]/g, 'g').replace(/[ı]/g, 'i')
+    .replace(/[ö]/g, 'o').replace(/[ş]/g, 's').replace(/[ü]/g, 'u')
+    .replace(/[^a-z0-9._-]/g, '');
 }
 function personelAuthEmail(tel) {
   return personelTelTemizle(tel) + '@yardim.com';
@@ -5363,7 +5405,7 @@ async function personelAuthOlustur(tel, sifre) {
       } catch(loginErr) {
         await personelAuthCikis();
         if (loginErr && (loginErr.code === 'auth/wrong-password' || loginErr.code === 'auth/invalid-credential')) {
-          throw new Error('Bu telefon Firebase Auth tarafında zaten kayıtlı ama girilen şifreyle eşleşmiyor. DB şifresi kaydedilmedi; mevcut Auth şifresini kullanın veya farklı telefon/kullanıcı adıyla ekleyin.');
+          throw new Error('Bu kullanıcı adı Firebase Auth tarafında zaten kayıtlı ama girilen şifreyle eşleşmiyor. DB şifresi kaydedilmedi; mevcut Auth şifresini kullanın veya farklı kullanıcı adıyla ekleyin.');
         }
         throw loginErr;
       }
@@ -5374,7 +5416,7 @@ async function personelAuthOlustur(tel, sifre) {
 }
 async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
   var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-  if (!mevcutSifre) throw new Error('Telefon veya şifre değiştirmek için mevcut şifre gerekir.');
+  if (!mevcutSifre) throw new Error('Kullanıcı adı veya şifre değiştirmek için mevcut şifre gerekir.');
   try {
     await mod.signInWithEmailAndPassword(window._personelAuth, personelAuthEmail(eskiTel), mevcutSifre);
     var user = window._personelAuth.currentUser;
@@ -5405,7 +5447,7 @@ async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
       }
     }
     await personelAuthCikis();
-    if (e && e.code === 'auth/email-already-in-use') throw new Error('Bu telefon/kullanıcı adı zaten kullanılıyor.');
+    if (e && e.code === 'auth/email-already-in-use') throw new Error('Bu kullanıcı adı zaten kullanılıyor.');
     throw e;
   }
 }
@@ -5413,7 +5455,7 @@ async function personelAuthGuncelle(eskiTel, yeniTel, mevcutSifre, yeniSifre) {
 async function personelGirisOnar(telEncoded) {
   if (window._aktifRol !== 'admin') { toast('Admin yetkisi gerekli!', 'error'); return; }
   var tel = personelTelTemizle(decodeURIComponent(telEncoded || ''));
-  if (!tel) { toast('Telefon bulunamadı', 'error'); return; }
+  if (!tel) { toast('Kullanıcı adı bulunamadı', 'error'); return; }
   try {
     var p = await window._dbGet('kullanicilar/' + tel);
     if (!p) { toast('Personel kaydı bulunamadı', 'error'); return; }
@@ -5464,19 +5506,21 @@ async function personelSil(tel) {
 }
 
 async function yeniPersonelEkle() {
-  var tel    = document.getElementById('yeni-p-tel').value.trim().replace(/[^0-9]/g,'');
+  var tel    = personelTelTemizle(document.getElementById('yeni-p-tel').value);
   var ad     = document.getElementById('yeni-p-ad').value.trim();
   var rol    = document.getElementById('yeni-p-rol').value;
   var sifre  = document.getElementById('yeni-p-sifre').value;
   var hataEl = document.getElementById('personel-hata');
   hataEl.textContent = '';
-  if (!tel || tel.length < 10) { hataEl.textContent = 'Geçerli telefon girin!'; return; }
+  if (!tel || tel.length < 3) { hataEl.textContent = 'Kullanıcı adı en az 3 karakter olmalı!'; return; }
   if (!sifre || sifre.length < 6) { hataEl.textContent = 'Şifre en az 6 karakter olmalı!'; return; }
   try {
+    var mevcut = await window._dbGet('kullanicilar/' + tel);
+    if (mevcut) throw new Error('Bu kullanıcı adı zaten kayıtlı. Düzenle butonunu kullanın.');
     // Secondary Auth kullanılır; admin oturumu yeni personele geçmez.
     var authSonuc = await personelAuthOlustur(tel, sifre);
     // Kullanicilar DB'ye kaydet
-    await window._dbSet('kullanicilar/' + tel, { ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
+    await window._dbSet('kullanicilar/' + tel, { kullaniciAdi: tel, ad: ad||tel, rol: rol, tel: tel, sifre: sifre });
     toast('✅ ' + (ad||tel) + (authSonuc === 'created' ? ' eklendi!' : ' güncellendi!'));
     document.getElementById('yeni-p-tel').value = '';
     document.getElementById('yeni-p-ad').value = '';
@@ -5498,7 +5542,7 @@ async function personelDuzenleKaydet() {
   var yeniSifre = document.getElementById('edit-p-yeni-sifre').value;
   var hataEl = document.getElementById('personel-edit-hata');
   if (hataEl) hataEl.textContent = '';
-  if (!eskiTel || !yeniTel || yeniTel.length < 10) { if (hataEl) hataEl.textContent = 'Geçerli telefon/kullanıcı adı girin!'; return; }
+  if (!eskiTel || !yeniTel || yeniTel.length < 3) { if (hataEl) hataEl.textContent = 'Kullanıcı adı en az 3 karakter olmalı!'; return; }
   if (yeniSifre && yeniSifre.length < 6) { if (hataEl) hataEl.textContent = 'Yeni şifre en az 6 karakter olmalı!'; return; }
 
   try {
@@ -5510,7 +5554,7 @@ async function personelDuzenleKaydet() {
 
     if (telDegisti) {
       var mevcutYeni = await window._dbGet('kullanicilar/' + yeniTel);
-      if (mevcutYeni) throw new Error('Bu telefon/kullanıcı adı başka bir personelde kayıtlı.');
+      if (mevcutYeni) throw new Error('Bu kullanıcı adı başka bir personelde kayıtlı.');
     }
 
     if (authDegisti) {
@@ -5520,6 +5564,7 @@ async function personelDuzenleKaydet() {
     var yeniKayit = Object.assign({}, eskiKayit, {
       ad: ad || yeniTel,
       rol: rol,
+      kullaniciAdi: yeniTel,
       tel: yeniTel
     });
     if (yeniSifre) yeniKayit.sifre = yeniSifre;
