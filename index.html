@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260715090800">
+<meta name="version" content="20260715091400">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -558,6 +558,10 @@
   .personel-ozet-table td{padding:0.52rem 0.55rem;border-top:1px solid var(--border);font-size:0.86rem;vertical-align:middle;}
   .personel-ozet-table td:first-child,.personel-ozet-table th:first-child{text-align:center;width:38px;color:var(--muted);}
   .personel-ozet-empty{padding:1.1rem;text-align:center;color:var(--muted);background:var(--surface2);border:1px dashed var(--border);border-radius:10px;}
+  .personel-gecmis-gun{margin-top:1rem;padding-top:0.9rem;border-top:1px solid var(--border);}
+  .personel-gecmis-head{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.6rem;flex-wrap:wrap;}
+  .personel-gecmis-head b{font-size:0.95rem;color:var(--text);}
+  .personel-gecmis-head span{font-family:var(--mono);font-weight:800;color:var(--accent2);background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:0.25rem 0.55rem;font-size:0.78rem;}
   @media(max-width:980px){
     .rapor-grid-2 > div:last-child{grid-template-columns:1fr;}
     .rapor-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -2749,6 +2753,66 @@ function personelGunlukTeslimleri(gun) {
   });
 }
 
+function personelTumTeslimleri() {
+  return Object.values(_allKisiler || {}).filter(function(k) {
+    return k && k.teslimEdildi && k.teslimTarihi && personelKendiTeslimiMi(k);
+  }).sort(function(a, b) {
+    return new Date(b.teslimTarihi) - new Date(a.teslimTarihi);
+  });
+}
+
+function personelTeslimGunGruplari() {
+  var gruplar = {};
+  personelTumTeslimleri().forEach(function(k) {
+    var gun = teslimGunAnahtar(k);
+    if (!gun) return;
+    if (!gruplar[gun]) gruplar[gun] = [];
+    gruplar[gun].push(k);
+  });
+  return Object.keys(gruplar).sort(function(a, b) { return b.localeCompare(a); }).map(function(gun) {
+    return { gun: gun, liste: gruplar[gun] };
+  });
+}
+
+function personelOzetMahalleHtml(liste) {
+  var mahalleler = {};
+  (liste || []).forEach(function(k) {
+    var m = (k.adres || 'Belirtilmemiş').trim() || 'Belirtilmemiş';
+    mahalleler[m] = (mahalleler[m] || 0) + 1;
+  });
+  return Object.entries(mahalleler).sort(function(a, b) { return trSort(a[0], b[0]); }).map(function(item) {
+    return '<div class="personel-mah-item" title="' + escapeHtml(item[0]) + '">'
+      + '<span>' + escapeHtml(item[0]) + '</span>'
+      + '<b>' + item[1].toLocaleString('tr-TR') + '</b>'
+    + '</div>';
+  }).join('');
+}
+
+function personelOzetTabloRows(liste, bosMetin) {
+  return (!liste || liste.length === 0)
+    ? '<tr><td colspan="5" class="text-muted text-center" style="padding:1.2rem">' + escapeHtml(bosMetin || 'Teslim kaydı yok') + '</td></tr>'
+    : liste.map(function(k, i) {
+      var d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
+      var saat = d && !isNaN(d.getTime()) ? d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '—';
+      return '<tr>'
+        + '<td>' + (i + 1) + '</td>'
+        + '<td><b>' + escapeHtml(k.adsoyad || '—') + '</b></td>'
+        + '<td>' + (escapeHtml(k.adres) || '—') + '</td>'
+        + '<td><span class="badge badge-blue">' + (escapeHtml(k.yardimturu) || '—') + '</span></td>'
+        + '<td class="tc-no">' + saat + '</td>'
+      + '</tr>';
+    }).join('');
+}
+
+function personelOzetTabloHtml(liste, bosMetin) {
+  return '<div class="personel-ozet-table-wrap" style="margin-top:0.85rem">'
+    + '<table class="personel-ozet-table">'
+      + '<thead><tr><th>#</th><th>Ad Soyad</th><th>Mahalle</th><th>Yardım</th><th>Saat</th></tr></thead>'
+      + '<tbody>' + personelOzetTabloRows(liste, bosMetin) + '</tbody>'
+    + '</table>'
+  + '</div>';
+}
+
 function personelOzetKartlariKur() {
   ['raporlar'].forEach(function(page) {
     var hedef = document.getElementById('page-' + page);
@@ -2768,49 +2832,37 @@ function personelOzetKartlariKaldir() {
 
 function personelGunlukOzetHtml(page) {
   var liste = personelGunlukTeslimleri();
+  var gunGruplari = personelTeslimGunGruplari();
+  var gecmisGruplar = gunGruplari.filter(function(g) { return g.gun !== bugunIsoYerel(); });
   var tarihTr = new Date(bugunIsoYerel() + 'T12:00:00').toLocaleDateString('tr-TR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
   var kullanici = (window._aktifKullanici && (window._aktifKullanici.ad || window._aktifKullanici.tel)) || 'Saha Personeli';
-  var mahalleler = {};
-  liste.forEach(function(k) {
-    var m = (k.adres || 'Belirtilmemiş').trim() || 'Belirtilmemiş';
-    mahalleler[m] = (mahalleler[m] || 0) + 1;
-  });
-  var mahHtml = Object.entries(mahalleler).sort(function(a, b) { return trSort(a[0], b[0]); }).map(function(item) {
-    return '<div class="personel-mah-item" title="' + escapeHtml(item[0]) + '">'
-      + '<span>' + escapeHtml(item[0]) + '</span>'
-      + '<b>' + item[1].toLocaleString('tr-TR') + '</b>'
-    + '</div>';
-  }).join('');
-  var rows = liste.length === 0
-    ? '<tr><td colspan="5" class="text-muted text-center" style="padding:1.2rem">Bugün size ait teslim kaydı yok</td></tr>'
-    : liste.map(function(k, i) {
-      var d = k.teslimTarihi ? new Date(k.teslimTarihi) : null;
-      var saat = d && !isNaN(d.getTime()) ? d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '—';
-      return '<tr>'
-        + '<td>' + (i + 1) + '</td>'
-        + '<td><b>' + escapeHtml(k.adsoyad || '—') + '</b></td>'
-        + '<td>' + (escapeHtml(k.adres) || '—') + '</td>'
-        + '<td><span class="badge badge-blue">' + (escapeHtml(k.yardimturu) || '—') + '</span></td>'
-        + '<td class="tc-no">' + saat + '</td>'
-      + '</tr>';
+  var mahHtml = personelOzetMahalleHtml(liste);
+  var gecmisHtml = gecmisGruplar.length === 0
+    ? '<div class="personel-ozet-empty" style="margin-top:1rem">Geçmiş gün teslim kaydınız yok.</div>'
+    : gecmisGruplar.map(function(grup) {
+      var d = new Date(grup.gun + 'T12:00:00');
+      var gunTr = isNaN(d.getTime()) ? grup.gun : d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      var mah = personelOzetMahalleHtml(grup.liste);
+      return '<div class="personel-gecmis-gun">'
+        + '<div class="personel-gecmis-head"><b>📅 ' + escapeHtml(gunTr) + '</b><span>' + grup.liste.length.toLocaleString('tr-TR') + ' teslim</span></div>'
+        + (mah ? '<div class="personel-mah-grid">' + mah + '</div>' : '')
+        + personelOzetTabloHtml(grup.liste, 'Bu gün teslim kaydı yok')
+      + '</div>';
     }).join('');
   var modEtiket = page === 'tara' ? 'Tara-Teslim' : (page === 'kisiler' ? 'Kişiler' : (page === 'raporlar' ? 'Raporlar' : 'Panel'));
   return '<div class="personel-ozet-hero">'
     + '<div>'
       + '<div class="personel-ozet-title">👤 Günlük Teslim Özetim</div>'
-      + '<div class="personel-ozet-sub">' + escapeHtml(modEtiket) + ' modülünde sadece sizin bugünkü teslimleriniz gösteriliyor.<br><b>' + escapeHtml(kullanici) + '</b> · ' + escapeHtml(tarihTr) + '</div>'
+      + '<div class="personel-ozet-sub">' + escapeHtml(modEtiket) + ' modülünde bugünkü ve geçmiş günlük teslim özetleriniz gösteriliyor.<br><b>' + escapeHtml(kullanici) + '</b> · Bugün: ' + escapeHtml(tarihTr) + '</div>'
     + '</div>'
     + '<div class="personel-ozet-total"><b>' + liste.length.toLocaleString('tr-TR') + '</b><span>Bugün Teslim</span></div>'
   + '</div>'
   + (mahHtml ? '<div class="personel-mah-grid">' + mahHtml + '</div>' : '<div class="personel-ozet-empty">Bugün için mahalle özeti oluşmadı.</div>')
-  + '<div class="personel-ozet-table-wrap" style="margin-top:0.85rem">'
-    + '<table class="personel-ozet-table">'
-      + '<thead><tr><th>#</th><th>Ad Soyad</th><th>Mahalle</th><th>Yardım</th><th>Saat</th></tr></thead>'
-      + '<tbody>' + rows + '</tbody>'
-    + '</table>'
-  + '</div>';
+  + personelOzetTabloHtml(liste, 'Bugün size ait teslim kaydı yok')
+  + '<div class="personel-gecmis-gun"><div class="personel-ozet-title" style="font-size:0.98rem">📚 Geçmiş Günlerim</div></div>'
+  + gecmisHtml;
 }
 
 function personelGunlukOzetRender() {
