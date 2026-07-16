@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716210100">
+<meta name="version" content="20260716210600">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -413,8 +413,19 @@
   [data-theme="light"] .komur-ist-tablo .ki-ort{background:#fff3b0;}
   [data-theme="light"] .komur-ist-tablo thead th{background:#f0ebe0;box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.12);}
   #page-dashboard.page{max-width:1280px;}
-  #page-tir .panel-sticky{padding-bottom:0.55rem;}
-  #page-tir .panel-sticky .stats-grid{margin-bottom:0.45rem;}
+  /* TIR üst bandı sabit değil — sayfayla kayar */
+  #page-tir #tir-panel-sticky.panel-sticky,
+  #page-tir .panel-sticky{
+    position:static;
+    top:auto;
+    z-index:auto;
+    margin:0 0 0.55rem;
+    padding:0.1rem 0 0.4rem;
+    background:transparent;
+    border-bottom:none;
+    box-shadow:none;
+  }
+  #page-tir .panel-sticky .stats-grid{margin-bottom:0.4rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.55rem 0.75rem;}
   #page-tir .tir-toolbar-row{
     display:flex;align-items:center;gap:0.55rem;flex-wrap:nowrap;min-width:0;
@@ -1050,29 +1061,44 @@
     .rapor-action-desc{font-size:0.72rem;}
     .tir-tarih-pop{width:min(292px,calc(100vw - 16px));}
 
-    /* TIR: sığmayan alanlar yatay kaydırmalı */
+    /* TIR: kartlar kompakt, kaydırınca yukarı gider; tablo alanı büyür */
     #page-tir.page{padding-left:0.4rem;padding-right:0.4rem;padding-bottom:calc(9.8rem + env(safe-area-inset-bottom));}
-    #page-tir .panel-sticky{padding-left:0.4rem;padding-right:0.4rem;margin-left:-0.4rem;margin-right:-0.4rem;}
-    #page-tir .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.34rem;}
-    #page-tir .stat-card{padding:0.4rem 0.35rem;}
-    #page-tir .stat-val{font-size:0.92rem;}
-    #page-tir .stat-label{font-size:0.5rem;line-height:1.1;}
-    #page-tir .tir-hedef-kart{grid-column:1 / -1;padding-bottom:1.4rem;}
-    #page-tir .tir-hedef-kart .stat-val{font-size:0.9rem;}
-    #page-tir .tir-hedef-kart .stat-label{font-size:0.48rem;}
-    #page-tir .tir-hedef-edit{font-size:0.62rem;padding:0.14rem 0.38rem;bottom:0.35rem;right:0.4rem;}
-    #page-tir .tir-toolbar-card{padding:0.45rem 0.5rem;}
-    #page-tir .tir-toolbar-row{flex-wrap:wrap;gap:0.4rem;}
-    #page-tir .tir-toolbar-row .card-title{font-size:0.78rem;}
-    #page-tir .tir-toolbar-row #tir-alt-baslik{flex:1 1 140px;min-width:120px;max-width:none;font-size:0.78rem;padding:0.3rem 0.45rem;}
-    #page-tir .tir-toolbar-row .tir-filtre-satir{
-      display:flex;flex-wrap:nowrap;gap:0.3rem;width:auto;margin-left:0;flex:1 1 auto;
+    #page-tir #tir-panel-sticky.panel-sticky,
+    #page-tir .panel-sticky{
+      position:static;
+      padding:0.05rem 0 0.3rem;
+      margin:0 0 0.4rem;
+      background:transparent;
+      border-bottom:none;
+      box-shadow:none;
     }
-    #page-tir .tir-toolbar-row .tir-filtre-satir #tir-ara{max-width:110px;width:110px;font-size:0.72rem;padding:0.3rem 0.4rem;min-height:32px;}
-    #page-tir .tir-toolbar-row .tir-filtre-satir .btn{font-size:0.7rem;padding:0.3rem 0.45rem;min-height:32px;white-space:nowrap;}
+    #page-tir .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.28rem;margin-bottom:0.35rem;}
+    #page-tir .stat-card{padding:0.32rem 0.28rem;border-radius:6px;}
+    #page-tir .stat-val{font-size:0.82rem;margin-bottom:0.06rem;line-height:1.1;}
+    #page-tir .stat-label{font-size:0.46rem;line-height:1.08;letter-spacing:0;}
+    #page-tir .tir-hedef-kart{
+      grid-column:span 2;
+      padding:0.32rem 0.28rem 1.15rem;
+      position:relative;
+    }
+    #page-tir .tir-hedef-kart .tir-hedef-satir{gap:0.3rem;}
+    #page-tir .tir-hedef-kart .stat-val{font-size:0.8rem;}
+    #page-tir .tir-hedef-kart .stat-label{font-size:0.44rem;}
+    #page-tir .tir-hedef-edit{
+      font-size:0.58rem;padding:0.1rem 0.32rem;bottom:0.28rem;right:0.32rem;min-height:0;
+    }
+    #page-tir .tir-toolbar-card{padding:0.4rem 0.45rem;}
+    #page-tir .tir-toolbar-row{flex-wrap:wrap;gap:0.35rem;}
+    #page-tir .tir-toolbar-row .card-title{font-size:0.74rem;}
+    #page-tir .tir-toolbar-row #tir-alt-baslik{flex:1 1 120px;min-width:100px;max-width:none;font-size:0.74rem;padding:0.28rem 0.4rem;}
+    #page-tir .tir-toolbar-row .tir-filtre-satir{
+      display:flex;flex-wrap:nowrap;gap:0.28rem;width:auto;margin-left:0;flex:1 1 auto;
+    }
+    #page-tir .tir-toolbar-row .tir-filtre-satir #tir-ara{max-width:100px;width:100px;font-size:0.7rem;padding:0.28rem 0.35rem;min-height:30px;}
+    #page-tir .tir-toolbar-row .tir-filtre-satir .btn{font-size:0.66rem;padding:0.28rem 0.4rem;min-height:30px;white-space:nowrap;}
     #page-tir .tir-filtre-satir{display:flex;}
     #page-tir .tir-filtre-satir input,#page-tir .tir-filtre-satir .btn{max-width:none;width:auto;}
-    .tir-table-wrap{overflow:auto;max-height:var(--tir-table-max, calc(100vh - 17rem));}
+    .tir-table-wrap{overflow:auto;max-height:var(--tir-table-max, calc(100vh - 12rem));}
     .tir-table{min-width:920px;font-size:0.68rem;}
     .tir-table th{font-size:0.56rem;padding:0.34rem 0.25rem;}
     .tir-table td{padding:0.34rem 0.25rem;}
@@ -7645,9 +7671,8 @@ function tirKgGoster(n) {
 function tirTabloYukseklikAyarla() {
   var page = document.getElementById('page-tir');
   if (!page || !page.classList.contains('active')) return;
-  var panel = document.getElementById('tir-panel-sticky');
-  if (!panel) return;
-  var bottom = panel.getBoundingClientRect().bottom;
+  var nav = document.querySelector('#ana-uygulama > nav') || document.querySelector('nav');
+  var top = nav ? nav.getBoundingClientRect().bottom : 48;
   var entry = document.getElementById('tir-entry-bar');
   var entryH = (entry && entry.style.display !== 'none' && getComputedStyle(entry).display !== 'none')
     ? entry.getBoundingClientRect().height : 0;
@@ -7657,8 +7682,8 @@ function tirTabloYukseklikAyarla() {
     var bd = getComputedStyle(bnav).display;
     if (bd !== 'none') bnavH = bnav.getBoundingClientRect().height || 0;
   }
-  var avail = Math.floor(window.innerHeight - bottom - entryH - bnavH - 10);
-  document.documentElement.style.setProperty('--tir-table-max', Math.max(160, avail) + 'px');
+  var avail = Math.floor(window.innerHeight - top - entryH - bnavH - 12);
+  document.documentElement.style.setProperty('--tir-table-max', Math.max(180, avail) + 'px');
 }
 
 function tirTabloYukseklikKur() {
