@@ -1,7 +1,7 @@
 {
   "name": "Yardım Takip",
   "short_name": "YardımTakip",
-  "description": "Zalp Sosyal Yardım Vakfı Dağıtım Takip Sistemi",
+  "description": "Özalp Sosyal ve Yardımlaşma Vakfı Dağıtım Takip Sistemi",
   "start_url": "/yardim-takip/",
   "scope": "/yardim-takip/",
   "display": "standalone",

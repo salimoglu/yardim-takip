@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716201600">
+<meta name="version" content="20260716202300">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1002,7 +1002,7 @@
     <div style="text-align:center;margin-bottom:2rem">
       <div style="font-size:2rem;margin-bottom:0.5rem">⬡</div>
       <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">YARDIM<span style="color:var(--text)">TAKİP</span></div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Zalp Sosyal Yardım Vakfı</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Özalp Sosyal ve Yardımlaşma Vakfı</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.8rem">
       <div>
@@ -2641,6 +2641,10 @@ let _allKisiler = {};
 let _excelHeaders = [];
 let _excelRows = [];
 let _mappedRows = [];
+const VAKIF_ADI = 'Özalp Sosyal ve Yardımlaşma Vakfı';
+const VAKIF_ADI_BASKANLIK = 'Özalp Sosyal ve Yardımlaşma Vakfı Başkanlığı';
+const VAKIF_ADI_BASKANLIK_BUYUK = 'ÖZALP SOSYAL VE YARDIMLAŞMA VAKFI BAŞKANLIĞI';
+const VAKIF_TIR_TABLO_BASLIK = VAKIF_ADI + ' — GÜNLÜK KÖMÜR ÇIKIŞ VE TESLİMAT MİKTARLARI İZLEME TABLOSU';
 
 // ===== GÜVENLİK: XSS Koruması =====
 function escapeHtml(str) {
@@ -4100,7 +4104,7 @@ function komurIstatistikExcelAktar() {
   var donemAd = ((document.getElementById('panel-donem-ad') || {}).textContent || '').trim() || 'Dönem';
   var torbaPer = kiTorbaPerFis();
   var wsData = [];
-  wsData.push(['ÖZALP SYDV — GELEN KÖMÜR İSTATİSTİĞİ', '', '', '', '', '', '', '', '', '']);
+  wsData.push([VAKIF_ADI + ' — GELEN KÖMÜR İSTATİSTİĞİ', '', '', '', '', '', '', '', '', '']);
   wsData.push([donemAd + ' · 1 fiş = ' + torbaPer + ' torba · ortalamalar elden fiş hariç', '', '', '', '', '', '', '', '', '']);
   wsData.push([
     'No', 'Tarih', 'Gelen Kamyon Sayısı', 'Toplam Gelen kg Vakıf', 'Dağıtılan Torba Sayısı',
@@ -4646,7 +4650,7 @@ function panelListeExcelKaydet(opt) {
     || ((window._aktifDonemMeta && window._aktifDonemMeta.ad) || window._aktifDonem || 'Dönem');
   var olusturma = new Date().toLocaleString('tr-TR');
   var wsData = [];
-  wsData.push(['ÖZALP SYDV — ' + opt.raporBaslik].concat(Array(COLS - 1).fill('')));
+  wsData.push([VAKIF_ADI + ' — ' + opt.raporBaslik].concat(Array(COLS - 1).fill('')));
   wsData.push([donemAd + ' · ' + (opt.altBaslik || '') + ' · Oluşturma: ' + olusturma].concat(Array(COLS - 1).fill('')));
   wsData.push(opt.basliklar);
   liste.forEach(function(row) { wsData.push(row); });
@@ -4946,7 +4950,7 @@ function komurGunOzetYazdir(gun) {
     + '.saha-bos { text-align:center; font-size:10px; color:#999; font-style:italic; }'
     + '@media print { body { padding:0; width:auto; min-height:auto; } }'
     + '</style></head><body>'
-    + '<div class="kurum">Zalp Sosyal Yardım ve Dayanışma Vakfı — Günlük Kömür Özeti</div>'
+    + '<div class="kurum">' + escapeHtml(VAKIF_ADI) + ' — Günlük Kömür Özeti</div>'
     + '<div class="tarih">' + gunTr + '</div>'
     + '<div class="satir"><div class="etiket">TIR Sayısı</div><div class="deger buyuk">' + kiFmtInt(s.kamyon) + '</div></div>'
     + '<div class="satir"><div class="etiket">TIR Toplam Tonajı</div><div class="deger buyuk">' + tonajStr + ' ton</div>'
@@ -5003,7 +5007,7 @@ function ozetYazdir() {
   @media print { body { padding:8mm 10mm; } }
 </style></head><body>
 <h1>🏘️ Mahalle Özeti — Kömür Dağıtımı</h1>
-<div class="alt">Zalp Sosyal Yardım ve Dayanışma Vakfı &nbsp;|&nbsp; ${tarih} tarihli durum</div>
+<div class="alt">${VAKIF_ADI} &nbsp;|&nbsp; ${tarih} tarihli durum</div>
 <div class="ozet-bar">
   <div class="sb"><div class="sb-val">${toplamKisi.toLocaleString('tr-TR')}</div><div class="sb-lbl">Toplam Kişi</div></div>
   <div class="sb"><div class="sb-val" style="color:#27ae60">${toplamTeslim.toLocaleString('tr-TR')}</div><div class="sb-lbl">Teslim Aldı</div></div>
@@ -5076,7 +5080,7 @@ function mahalleDetayYazdir() {
   @media print { body { padding:7mm 9mm; } }
 </style></head><body>
 <h1>🏘️ ${madi} — ${baslik}</h1>
-<div class="alt">Zalp Sosyal Yardım ve Dayanışma Vakfı &nbsp;|&nbsp; ${tarih}</div>
+<div class="alt">${VAKIF_ADI} &nbsp;|&nbsp; ${tarih}</div>
 <div class="stat-row">
   <div class="st"><div class="st-val">${tumKisiler.length.toLocaleString('tr-TR')}</div><div class="st-lbl">Toplam</div></div>
   <div class="st"><div class="st-val" style="color:#27ae60">${teslimler.length.toLocaleString('tr-TR')}</div><div class="st-lbl">Aldı</div></div>
@@ -5131,7 +5135,7 @@ function teslimatListesiOlustur() {
   var wb = XS.utils.book_new();
   var wsData = [
     ['ÖZALP','','','','','','','','','','','',''],
-    ['SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI','','','','','','','','','','','',''],
+    [VAKIF_ADI_BASKANLIK_BUYUK,'','','','','','','','','','','',''],
     ['VAN','','','','','','','','','','','',''],
     ['KÖMÜR (' + donemAd.toUpperCase() + ') TESLİMAT LİSTESİ','','','','','','','','','','','',''],
     ['Mütevelli Heyeti Karar Tarihi :','','','','','','','','','','','',''],
@@ -6852,14 +6856,14 @@ body { background:#fff; font-family: Arial, sans-serif; margin:0; padding:0; }
     grup.forEach((k, idx) => {
       win.document.write(`
       <div class="fis">
-        <div class="fis-filigran">ÖZALP SYDV</div>
+        <div class="fis-filigran">${VAKIF_ADI}</div>
 
         <div class="fis-ust">
           <div class="fis-yil">${donemYil}</div>
         </div>
 
         <div class="fis-kurum">
-          Özalp Sosyal Yardımlaşma Ve Dayanışma<br>Vakıf Başkanlığı
+          ${VAKIF_ADI_BASKANLIK}
         </div>
 
         <div class="fis-baslik">${fisBaslik}</div>
@@ -7053,7 +7057,7 @@ function silIptal() {
 
 // ===== TIR TESELLÜM MODÜLÜ =====
 var _TIR_META_DEFAULT = {
-  baslik: 'ÖZALP SYDV GÜNLÜK KÖMÜR ÇIKIŞ VE TESLİMAT MİKTARLARI İZLEME TABLOSU',
+  baslik: VAKIF_TIR_TABLO_BASLIK,
   altBaslik: '',
   hedefKomurKg: 0,
   imza1: 'Zafer EROĞLU', imza1Unvan: 'Sos.Yrd.İnc.Gör.',
@@ -7898,7 +7902,7 @@ function tirExcelDisaAktar() {
     };
   }
 
-  var baslik = (tirMeta().baslik) || 'ÖZALP SYDV GÜNLÜK KÖMÜR ÇIKIŞ VE TESLİMAT MİKTARLARI İZLEME TABLOSU';
+  var baslik = (tirMeta().baslik) || VAKIF_TIR_TABLO_BASLIK;
   var bos11 = function() { return ['', '', '', '', '', '', '', '', '', '', '']; };
   var wsData = [];
   var r0 = bos11(); r0[0] = baslik; wsData.push(r0);
