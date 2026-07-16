@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716202300">
+<meta name="version" content="20260716203400">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -353,6 +353,37 @@
   .komur-ist-tablo .ki-no{width:2.6rem;color:var(--muted);}
   .komur-ist-tablo .ki-tarih{width:6.2rem;font-variant-numeric:tabular-nums;}
   .komur-ist-tablo .ki-tiklanabilir{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .gun-ozet-modal-box{max-width:min(520px,96vw);width:100%;max-height:92vh;display:flex;flex-direction:column;padding:0.85rem 0.9rem 1rem;}
+  .gun-ozet-modal-actions{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end;}
+  .gun-ozet-preview-wrap{overflow:auto;flex:1;display:flex;justify-content:center;padding:0.5rem 0.25rem;background:rgba(0,0,0,0.2);border-radius:10px;border:1px solid var(--border);}
+  .gun-ozet-kart{
+    width:148mm;min-height:210mm;max-width:100%;
+    background:#fff;color:#111;font-family:Arial,sans-serif;
+    padding:12mm 10mm;box-sizing:border-box;
+    display:flex;flex-direction:column;
+    border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.25);
+  }
+  .gun-ozet-kart .kurum{font-size:9px;color:#666;text-align:center;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:5mm;}
+  .gun-ozet-kart .tarih{font-size:22px;font-weight:900;text-align:center;color:#1a3a6b;margin-bottom:8mm;}
+  .gun-ozet-kart .satir{text-align:center;margin-bottom:6mm;}
+  .gun-ozet-kart .etiket{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;}
+  .gun-ozet-kart .deger{font-size:20px;font-weight:800;color:#111;font-variant-numeric:tabular-nums;}
+  .gun-ozet-kart .deger.buyuk{font-size:24px;color:#1a3a6b;}
+  .gun-ozet-kart .deger.alt{font-size:11px;color:#888;font-weight:600;margin-top:2px;}
+  .gun-ozet-kart .ort-wrap{display:flex;gap:6mm;justify-content:center;margin-bottom:8mm;}
+  .gun-ozet-kart .ort-kutu{flex:1;max-width:58mm;border:1px solid #ddd;border-radius:6px;padding:4mm 3mm;background:#f8f8f8;text-align:center;}
+  .gun-ozet-kart .saha-baslik{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:0.06em;text-align:center;margin-bottom:4mm;border-top:1px solid #ddd;padding-top:6mm;}
+  .gun-ozet-kart .saha-grid{display:flex;flex-wrap:wrap;gap:3mm;justify-content:center;margin-top:auto;padding-top:3mm;}
+  .gun-ozet-kart .saha-kart{flex:1 1 40%;min-width:52mm;max-width:64mm;text-align:center;border:1px solid #ccc;border-radius:5px;padding:3.5mm 2.5mm;background:#fafafa;}
+  .gun-ozet-kart .saha-ad{font-size:12px;font-weight:800;color:#1a3a6b;line-height:1.3;}
+  .gun-ozet-kart .saha-unvan{font-size:9px;color:#555;margin-top:2px;line-height:1.25;}
+  .gun-ozet-kart .saha-bos{text-align:center;font-size:10px;color:#999;font-style:italic;}
+  @media(max-width:640px){
+    .gun-ozet-kart{width:100%;min-height:0;padding:1.1rem 0.9rem;transform:scale(1);}
+    .gun-ozet-kart .tarih{font-size:1.25rem;margin-bottom:1rem;}
+    .gun-ozet-kart .deger.buyuk{font-size:1.35rem;}
+    .gun-ozet-kart .saha-kart{min-width:42%;}
+  }
   .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.99rem;}
   .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
   .komur-ist-tablo .ki-saha{text-align:left;font-size:0.93rem;white-space:normal;line-height:1.3;max-width:0;}
@@ -1002,7 +1033,7 @@
     <div style="text-align:center;margin-bottom:2rem">
       <div style="font-size:2rem;margin-bottom:0.5rem">⬡</div>
       <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">YARDIM<span style="color:var(--text)">TAKİP</span></div>
-      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Özalp Sosyal ve Yardımlaşma Vakfı</div>
+      <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Özalp Sosyal Yardımlaşma ve Dayanışma Vakfı</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.8rem">
       <div>
@@ -1496,6 +1527,26 @@
         </thead>
         <tbody id="komur-gun-tir-body"></tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- GÜNLÜK ÖZET KARTI MODAL (A5) -->
+<div id="komur-gun-ozet-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)komurGunOzetModalKapat()">
+  <div class="modal-box gun-ozet-modal-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;gap:0.75rem;flex-wrap:wrap">
+      <div>
+        <div id="komur-gun-ozet-baslik" style="font-size:1.05rem;font-weight:800;color:var(--accent)">📄 Günlük Özet</div>
+        <div id="komur-gun-ozet-count" class="text-muted" style="font-size:0.8rem;margin-top:0.2rem">A5 yazdırma boyutu</div>
+      </div>
+      <div class="gun-ozet-modal-actions">
+        <button type="button" class="btn btn-sm" onclick="komurGunOzetIndir()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)">⬇️ İndir</button>
+        <button type="button" class="btn btn-sm" onclick="komurGunOzetYazdir()" style="background:var(--accent2);color:#111;border:none">🖨️ Yazdır</button>
+        <button onclick="komurGunOzetModalKapat()" style="background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:0 4px" aria-label="Kapat">✕</button>
+      </div>
+    </div>
+    <div class="gun-ozet-preview-wrap">
+      <div id="komur-gun-ozet-kart" class="gun-ozet-kart"></div>
     </div>
   </div>
 </div>
@@ -2641,9 +2692,9 @@ let _allKisiler = {};
 let _excelHeaders = [];
 let _excelRows = [];
 let _mappedRows = [];
-const VAKIF_ADI = 'Özalp Sosyal ve Yardımlaşma Vakfı';
-const VAKIF_ADI_BASKANLIK = 'Özalp Sosyal ve Yardımlaşma Vakfı Başkanlığı';
-const VAKIF_ADI_BASKANLIK_BUYUK = 'ÖZALP SOSYAL VE YARDIMLAŞMA VAKFI BAŞKANLIĞI';
+const VAKIF_ADI = 'Özalp Sosyal Yardımlaşma ve Dayanışma Vakfı';
+const VAKIF_ADI_BASKANLIK = 'Özalp Sosyal Yardımlaşma ve Dayanışma Vakfı Başkanlığı';
+const VAKIF_ADI_BASKANLIK_BUYUK = 'ÖZALP SOSYAL YARDIMLAŞMA VE DAYANIŞMA VAKFI BAŞKANLIĞI';
 const VAKIF_TIR_TABLO_BASLIK = VAKIF_ADI + ' — GÜNLÜK KÖMÜR ÇIKIŞ VE TESLİMAT MİKTARLARI İZLEME TABLOSU';
 
 // ===== GÜVENLİK: XSS Koruması =====
@@ -4034,7 +4085,7 @@ function komurIstatistikRender() {
       : '';
     return '<tr>'
       + '<td class="ki-no">' + (i + 1) + '</td>'
-      + '<td class="ki-tarih"><span class="ki-tiklanabilir" title="Günlük özeti A5 yazdır" onclick="komurGunOzetYazdir(\'' + gunSafe + '\')">' + kiGunTr(s.gun) + '</span></td>'
+      + '<td class="ki-tarih"><span class="ki-tiklanabilir" title="Günlük özeti gör" onclick="komurGunOzetModalAc(\'' + gunSafe + '\')">' + kiGunTr(s.gun) + '</span></td>'
       + '<td class="ki-sayi">' + kamyonHtml + '</td>'
       + '<td class="ki-sayi">' + (s.kg ? kiFmtInt(s.kg) : '') + '</td>'
       + '<td class="ki-sayi">' + fisHtml + '</td>'
@@ -4903,19 +4954,13 @@ function komurGunSahaCalisanlari(gun) {
   });
 }
 
-function komurGunOzetYazdir(gun) {
-  if (!gun) return;
-  var satirlar = komurIstatistikHesapla();
-  var s = null;
-  for (var i = 0; i < satirlar.length; i++) {
-    if (satirlar[i].gun === gun) { s = satirlar[i]; break; }
-  }
-  if (!s) { toast('Bu güne ait veri yok', 'error'); return; }
+window._komurGunOzetSecili = '';
+window._komurGunOzetHtml = '';
 
-  var gunTr = kiGunTr(gun);
+function komurGunOzetIcerikHtml(s, gunTr) {
   var tonaj = (s.kg || 0) / 1000;
   var tonajStr = tonaj.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  var sahaListe = komurGunSahaCalisanlari(gun);
+  var sahaListe = komurGunSahaCalisanlari(s.gun);
   var sahaHtml = sahaListe.length === 0
     ? '<div class="saha-bos">Bu gün sahada çalışan kaydı yok</div>'
     : '<div class="saha-grid">' + sahaListe.map(function(p) {
@@ -4925,33 +4970,9 @@ function komurGunOzetYazdir(gun) {
         + '</div>';
     }).join('') + '</div>';
 
-  var win = window.open('', '_blank');
-  if (!win) { toast('Yazdırma penceresi açılamadı', 'error'); return; }
-  win.document.write('<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">'
-    + '<title>Günlük Özet — ' + gunTr + '</title>'
-    + '<style>'
-    + '@page { size: A5 portrait; margin: 12mm; }'
-    + '* { margin:0; padding:0; box-sizing:border-box; }'
-    + 'body { font-family: Arial, sans-serif; color:#111; background:#fff; width:148mm; min-height:210mm; margin:0 auto; padding:14mm 12mm; display:flex; flex-direction:column; }'
-    + '.kurum { font-size:9px; color:#666; text-align:center; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6mm; }'
-    + '.tarih { font-size:22px; font-weight:900; text-align:center; color:#1a3a6b; margin-bottom:10mm; }'
-    + '.satir { text-align:center; margin-bottom:7mm; }'
-    + '.etiket { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; }'
-    + '.deger { font-size:20px; font-weight:800; color:#111; font-variant-numeric:tabular-nums; }'
-    + '.deger.buyuk { font-size:24px; color:#1a3a6b; }'
-    + '.deger.alt { font-size:11px; color:#888; font-weight:600; margin-top:2px; }'
-    + '.ort-wrap { display:flex; gap:8mm; justify-content:center; margin-bottom:10mm; }'
-    + '.ort-kutu { flex:1; max-width:58mm; border:1px solid #ddd; border-radius:6px; padding:5mm 4mm; background:#f8f8f8; }'
-    + '.saha-baslik { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; text-align:center; margin-bottom:5mm; border-top:1px solid #ddd; padding-top:8mm; }'
-    + '.saha-grid { display:flex; flex-wrap:wrap; gap:4mm; justify-content:center; margin-top:auto; padding-top:4mm; }'
-    + '.saha-kart { flex:1 1 40%; min-width:58mm; max-width:64mm; text-align:center; border:1px solid #ccc; border-radius:5px; padding:4mm 3mm; background:#fafafa; }'
-    + '.saha-ad { font-size:12px; font-weight:800; color:#1a3a6b; line-height:1.3; }'
-    + '.saha-unvan { font-size:9px; color:#555; margin-top:2px; line-height:1.25; }'
-    + '.saha-bos { text-align:center; font-size:10px; color:#999; font-style:italic; }'
-    + '@media print { body { padding:0; width:auto; min-height:auto; } }'
-    + '</style></head><body>'
+  return ''
     + '<div class="kurum">' + escapeHtml(VAKIF_ADI) + ' — Günlük Kömür Özeti</div>'
-    + '<div class="tarih">' + gunTr + '</div>'
+    + '<div class="tarih">' + escapeHtml(gunTr) + '</div>'
     + '<div class="satir"><div class="etiket">TIR Sayısı</div><div class="deger buyuk">' + kiFmtInt(s.kamyon) + '</div></div>'
     + '<div class="satir"><div class="etiket">TIR Toplam Tonajı</div><div class="deger buyuk">' + tonajStr + ' ton</div>'
     + '<div class="deger alt">' + kiFmtInt(s.kg) + ' kg</div></div>'
@@ -4961,10 +4982,114 @@ function komurGunOzetYazdir(gun) {
     + '<div class="ort-kutu"><div class="etiket">Torba Ortalaması (kg)</div><div class="deger">' + kiFmtOrt(s.torbaOrt) + '</div></div>'
     + '</div>'
     + '<div class="saha-baslik">Sahada Çalışanlar</div>'
-    + sahaHtml
-    + '<script>window.onload=function(){window.print()}<\/script>'
-    + '</body></html>');
+    + sahaHtml;
+}
+
+function komurGunOzetCss() {
+  return ''
+    + '@page { size: A5 portrait; margin: 0; }'
+    + '* { margin:0; padding:0; box-sizing:border-box; }'
+    + 'html, body { background:#fff; }'
+    + 'body { font-family: Arial, sans-serif; color:#111; margin:0; padding:0; }'
+    + '.sayfa { width:148mm; height:210mm; padding:12mm 10mm; box-sizing:border-box; display:flex; flex-direction:column; page-break-after:always; }'
+    + '.kurum { font-size:9px; color:#666; text-align:center; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:5mm; }'
+    + '.tarih { font-size:22px; font-weight:900; text-align:center; color:#1a3a6b; margin-bottom:8mm; }'
+    + '.satir { text-align:center; margin-bottom:6mm; }'
+    + '.etiket { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; }'
+    + '.deger { font-size:20px; font-weight:800; color:#111; font-variant-numeric:tabular-nums; }'
+    + '.deger.buyuk { font-size:24px; color:#1a3a6b; }'
+    + '.deger.alt { font-size:11px; color:#888; font-weight:600; margin-top:2px; }'
+    + '.ort-wrap { display:flex; gap:6mm; justify-content:center; margin-bottom:8mm; }'
+    + '.ort-kutu { flex:1; max-width:58mm; border:1px solid #ddd; border-radius:6px; padding:4mm 3mm; background:#f8f8f8; text-align:center; }'
+    + '.saha-baslik { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; text-align:center; margin-bottom:4mm; border-top:1px solid #ddd; padding-top:6mm; }'
+    + '.saha-grid { display:flex; flex-wrap:wrap; gap:3mm; justify-content:center; margin-top:auto; padding-top:3mm; }'
+    + '.saha-kart { flex:1 1 40%; min-width:52mm; max-width:64mm; text-align:center; border:1px solid #ccc; border-radius:5px; padding:3.5mm 2.5mm; background:#fafafa; }'
+    + '.saha-ad { font-size:12px; font-weight:800; color:#1a3a6b; line-height:1.3; }'
+    + '.saha-unvan { font-size:9px; color:#555; margin-top:2px; line-height:1.25; }'
+    + '.saha-bos { text-align:center; font-size:10px; color:#999; font-style:italic; }'
+    + '@media print {'
+    + '  html, body { width:148mm; height:210mm; -webkit-print-color-adjust:exact; print-color-adjust:exact; }'
+    + '  .sayfa { width:148mm; height:210mm; }'
+    + '}';
+}
+
+function komurGunOzetBelgeHtml(icerik, gunTr, autoPrint) {
+  return '<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">'
+    + '<title>Günlük Özet — ' + escapeHtml(gunTr) + '</title>'
+    + '<style>' + komurGunOzetCss() + '</style></head><body>'
+    + '<div class="sayfa">' + icerik + '</div>'
+    + (autoPrint ? '<script>window.onload=function(){setTimeout(function(){window.print()},120)}<\/script>' : '')
+    + '</body></html>';
+}
+
+function komurGunOzetSatirBul(gun) {
+  var satirlar = komurIstatistikHesapla();
+  for (var i = 0; i < satirlar.length; i++) {
+    if (satirlar[i].gun === gun) return satirlar[i];
+  }
+  return null;
+}
+
+function komurGunOzetModalAc(gun) {
+  if (!gun) return;
+  var s = komurGunOzetSatirBul(gun);
+  if (!s) { toast('Bu güne ait veri yok', 'error'); return; }
+
+  var gunTr = kiGunTr(gun);
+  var icerik = komurGunOzetIcerikHtml(s, gunTr);
+  window._komurGunOzetSecili = gun;
+  window._komurGunOzetHtml = icerik;
+
+  var kart = document.getElementById('komur-gun-ozet-kart');
+  var baslik = document.getElementById('komur-gun-ozet-baslik');
+  var count = document.getElementById('komur-gun-ozet-count');
+  var modal = document.getElementById('komur-gun-ozet-modal');
+  if (!modal || !kart) return;
+
+  if (baslik) baslik.textContent = '📄 Günlük Özet — ' + gunTr;
+  if (count) count.textContent = 'A5 boyutu · İsterseniz indirip yazdırabilirsiniz';
+  kart.innerHTML = icerik;
+  modal.style.display = 'flex';
+}
+
+function komurGunOzetModalKapat() {
+  var modal = document.getElementById('komur-gun-ozet-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function komurGunOzetYazdir() {
+  var gun = window._komurGunOzetSecili;
+  var icerik = window._komurGunOzetHtml;
+  if (!gun || !icerik) {
+    toast('Önce bir günlük özet açın', 'error');
+    return;
+  }
+  var gunTr = kiGunTr(gun);
+  var win = window.open('', '_blank');
+  if (!win) { toast('Yazdırma penceresi açılamadı — açılır pencere engelini kaldırın', 'error'); return; }
+  win.document.write(komurGunOzetBelgeHtml(icerik, gunTr, true));
   win.document.close();
+}
+
+function komurGunOzetIndir() {
+  var gun = window._komurGunOzetSecili;
+  var icerik = window._komurGunOzetHtml;
+  if (!gun || !icerik) {
+    toast('Önce bir günlük özet açın', 'error');
+    return;
+  }
+  var gunTr = kiGunTr(gun);
+  var html = komurGunOzetBelgeHtml(icerik, gunTr, false);
+  var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'Gunluk-Ozet-' + String(gun).replace(/[^\d\-]/g, '') + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+  toast('Günlük özet indirildi. Açıp yazdırabilirsiniz.');
 }
 
 // ===== MAHALLE ÖZET YAZDIR =====
