@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716203400">
+<meta name="version" content="20260716204200">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -340,7 +340,7 @@
     box-shadow:0 8px 16px -12px rgba(0,0,0,0.55);pointer-events:none;
     overflow:hidden;
   }
-  #komur-thead-pin .komur-thead-pin-inner{padding:0;margin:0;width:100%;box-sizing:border-box;}
+  #komur-thead-pin .komur-thead-pin-inner{padding:0;margin:0;width:100%;box-sizing:border-box;overflow:hidden;}
   #komur-thead-pin table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:1.02rem;margin:0;}
   #komur-thead-pin th{
     background:var(--surface2);color:var(--muted);font-size:0.87rem;font-weight:700;
@@ -914,24 +914,35 @@
     .pkh-val{font-size:0.86rem;overflow:visible;text-overflow:clip;white-space:normal;line-height:1.1;}
     .komur-ist-card{padding:0.42rem 0.28rem;margin-left:-0.28rem;margin-right:-0.28rem;}
     .komur-ist-wrap{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;border-radius:7px;}
-    #komur-thead-pin{display:none !important;}
-    .komur-ist-tablo{width:420px;min-width:100%;font-size:0.7rem;table-layout:fixed;}
-    .komur-ist-tablo th{font-size:0.52rem;padding:0.3rem 0.08rem;line-height:1.08;letter-spacing:0;text-transform:uppercase;}
-    .komur-ist-tablo td{font-size:0.68rem;padding:0.28rem 0.08rem;line-height:1.1;}
-    .komur-ist-tablo tfoot td{font-size:0.68rem;padding:0.3rem 0.08rem;}
-    .komur-ist-tablo .ki-no{width:18px;}
-    .komur-ist-tablo .ki-tarih{width:58px;}
-    .komur-ist-tablo th:nth-child(3),.komur-ist-tablo td:nth-child(3){width:30px;}
-    .komur-ist-tablo th:nth-child(4),.komur-ist-tablo td:nth-child(4){width:54px;}
-    .komur-ist-tablo th:nth-child(5),.komur-ist-tablo td:nth-child(5){width:29px;}
-    .komur-ist-tablo th:nth-child(6),.komur-ist-tablo td:nth-child(6){width:36px;}
-    .komur-ist-tablo th:nth-child(7),.komur-ist-tablo td:nth-child(7){width:29px;}
-    .komur-ist-tablo th:nth-child(8),.komur-ist-tablo td:nth-child(8){width:29px;}
-    .komur-ist-tablo th:nth-child(9),.komur-ist-tablo td:nth-child(9){width:137px !important;}
+    /* İlk 8 sütun ekrana sığsın; saha çalışanı sağa taşsın (yatay kaydır) */
+    .komur-ist-tablo{
+      width:calc(100% + 128px);
+      min-width:calc(100% + 128px);
+      font-size:0.7rem;
+      table-layout:fixed;
+    }
+    .komur-ist-tablo th{font-size:0.52rem;padding:0.3rem 0.1rem;line-height:1.08;letter-spacing:0;text-transform:uppercase;}
+    .komur-ist-tablo td{font-size:0.68rem;padding:0.28rem 0.1rem;line-height:1.1;}
+    .komur-ist-tablo tfoot td{font-size:0.68rem;padding:0.3rem 0.1rem;}
+    .komur-ist-tablo .ki-no{width:20px;}
+    .komur-ist-tablo .ki-tarih{width:56px;}
+    .komur-ist-tablo th:nth-child(3),.komur-ist-tablo td:nth-child(3){width:34px;}
+    .komur-ist-tablo th:nth-child(4),.komur-ist-tablo td:nth-child(4){width:auto;}
+    .komur-ist-tablo th:nth-child(5),.komur-ist-tablo td:nth-child(5){width:32px;}
+    .komur-ist-tablo th:nth-child(6),.komur-ist-tablo td:nth-child(6){width:40px;}
+    .komur-ist-tablo th:nth-child(7),.komur-ist-tablo td:nth-child(7){width:34px;}
+    .komur-ist-tablo th:nth-child(8),.komur-ist-tablo td:nth-child(8){width:34px;}
+    .komur-ist-tablo th:nth-child(9),.komur-ist-tablo td:nth-child(9){width:128px !important;}
     .komur-ist-tablo .ki-sayi{font-size:0.68rem;letter-spacing:-0.02em;}
     .komur-ist-tablo .ki-ort{font-size:0.66rem;}
-    .komur-ist-tablo .ki-saha{font-size:0.62rem;line-height:1.12;max-width:120px;white-space:normal;word-break:break-word;}
-    .komur-ist-tablo .ki-elden-inp{max-width:32px;min-height:25px;font-size:0.68rem;padding:0.12rem 0.05rem;border-radius:4px;}
+    .komur-ist-tablo .ki-saha{font-size:0.62rem;line-height:1.12;max-width:none;white-space:normal;word-break:break-word;}
+    .komur-ist-tablo .ki-elden-inp{max-width:34px;min-height:25px;font-size:0.68rem;padding:0.12rem 0.05rem;border-radius:4px;}
+    #komur-thead-pin{
+      display:none;
+      border-radius:7px 7px 0 0;
+    }
+    #komur-thead-pin table{font-size:0.7rem;}
+    #komur-thead-pin th{font-size:0.52rem;padding:0.3rem 0.1rem;line-height:1.08;letter-spacing:0;}
     .mah-ozet-card{gap:0.42rem;}
     #mahalle-ozet-card > div:first-child{align-items:center;gap:0.5rem;}
     #mahalle-ozet-card > div:first-child button{font-size:0.68rem;padding:0.28rem 0.45rem;white-space:nowrap;}
@@ -4329,24 +4340,34 @@ function panelStickyYukseklikAyarla() {
 
 function komurTheadPinSenkron() {
   var wrap = document.querySelector('#komur-ist-card .komur-ist-wrap') || document.getElementById('komur-ist-card');
-  var src = document.querySelector('#komur-ist-card .komur-ist-tablo thead');
+  var srcTable = document.querySelector('#komur-ist-card .komur-ist-tablo');
+  var src = srcTable ? srcTable.querySelector('thead') : null;
   var dst = document.getElementById('komur-thead-pin-head');
+  var pinTable = document.querySelector('#komur-thead-pin table');
   if (!src || !dst) return;
   dst.innerHTML = src.innerHTML;
+  if (pinTable && srcTable) {
+    pinTable.style.width = srcTable.offsetWidth + 'px';
+    pinTable.style.minWidth = srcTable.offsetWidth + 'px';
+  }
   var srcTh = src.querySelectorAll('th');
   var dstTh = dst.querySelectorAll('th');
   for (var i = 0; i < srcTh.length && i < dstTh.length; i++) {
     dstTh[i].style.width = srcTh[i].getBoundingClientRect().width + 'px';
   }
+  komurTheadPinScrollSenkron();
   return wrap;
+}
+
+function komurTheadPinScrollSenkron() {
+  var wrap = document.querySelector('#komur-ist-card .komur-ist-wrap');
+  var pinInner = document.querySelector('#komur-thead-pin .komur-thead-pin-inner');
+  if (!wrap || !pinInner) return;
+  pinInner.scrollLeft = wrap.scrollLeft;
 }
 
 function komurTheadPinGuncelle() {
   var pin = document.getElementById('komur-thead-pin');
-  if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
-    if (pin) pin.style.display = 'none';
-    return;
-  }
   var sticky = document.getElementById('panel-sticky');
   var card = document.getElementById('komur-ist-card');
   var wrap = card ? (card.querySelector('.komur-ist-wrap') || card) : null;
@@ -4381,6 +4402,7 @@ function komurTheadPinGuncelle() {
     pin.style.width = Math.round(wrapRect.width) + 'px';
     pin.style.right = 'auto';
     if (ilkAcilis) komurTheadPinSenkron();
+    else komurTheadPinScrollSenkron();
   } else {
     pin.style.display = 'none';
   }
@@ -4441,6 +4463,13 @@ function panelStickyModKur() {
     komurTheadPinSenkron();
     onScroll();
   }, { passive: true });
+  var wrap = document.querySelector('#komur-ist-card .komur-ist-wrap');
+  if (wrap && !wrap._komurPinScrollBag) {
+    wrap._komurPinScrollBag = true;
+    wrap.addEventListener('scroll', function() {
+      komurTheadPinScrollSenkron();
+    }, { passive: true });
+  }
   panelStickyModGuncelle();
 }
 
