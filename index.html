@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716204200">
+<meta name="version" content="20260716204600">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4335,7 +4335,10 @@ function panelStickyYukseklikAyarla() {
   var sticky = document.getElementById('panel-sticky');
   var spacer = document.getElementById('panel-sticky-spacer');
   if (!sticky || !spacer) return;
-  spacer.style.height = sticky.offsetHeight + 'px';
+  var h = sticky.offsetHeight;
+  if (spacer._panelStickyH === h) return;
+  spacer._panelStickyH = h;
+  spacer.style.height = h + 'px';
 }
 
 function komurTheadPinSenkron() {
@@ -4411,36 +4414,71 @@ function komurTheadPinGuncelle() {
 function panelStickyModGuncelle() {
   var sticky = document.getElementById('panel-sticky');
   var mahalle = document.getElementById('mahalle-ozet-card');
+  var card = document.getElementById('komur-ist-card');
   var dash = document.getElementById('page-dashboard');
   if (!sticky || !mahalle || !dash) return;
   if (!dash.classList.contains('active')) return;
 
-  var stickyBottom = sticky.getBoundingClientRect().bottom;
-  var mahalleTop = mahalle.getBoundingClientRect().top;
-  var ozetSimdi = sticky.classList.contains('ozet-modu');
-
-  // Sadece mahalle konumuna göre — geniş histerezis
-  var ozetOlsun = ozetSimdi
-    ? (mahalleTop < stickyBottom + 220)
-    : (mahalleTop <= stickyBottom + 8);
-
-  if (ozetSimdi !== ozetOlsun) {
-    // Önce pin kapansın ki çakışma olmasın
-    var pin = document.getElementById('komur-thead-pin');
-    if (pin) pin.style.display = 'none';
-
-    var hOnceki = sticky.offsetHeight;
-    sticky.classList.toggle('ozet-modu', ozetOlsun);
-    void sticky.offsetHeight;
-    var hSonra = sticky.offsetHeight;
-    var spacer = document.getElementById('panel-sticky-spacer');
-    if (spacer) spacer.style.height = hSonra + 'px';
-    var delta = hOnceki - hSonra;
-    if (delta !== 0) window.scrollBy(0, -delta);
+  // Geçiş sırasında yeniden ölçüm = titreme; kilidi bekle
+  if (window._panelStickyLock) {
+    komurTheadPinGuncelle();
+    return;
   }
 
-  panelStickyYukseklikAyarla();
-  komurTheadPinGuncelle();
+  var ozetSimdi = sticky.classList.contains('ozet-modu');
+  var stickyBottom = sticky.getBoundingClientRect().bottom;
+  // Kömür tablosunun alt kenarı — mahalle top'undan daha kararlı referans
+  var refBottom = card
+    ? card.getBoundingClientRect().bottom
+    : mahalle.getBoundingClientRect().top;
+
+  // Genişlik farkını önceden ölç (özet modunda komur sticky gizli)
+  var komurEl = document.getElementById('panel-komur-sticky');
+  if (komurEl && !ozetSimdi) {
+    window._panelStickyKomurH = komurEl.offsetHeight || window._panelStickyKomurH || 180;
+  }
+  var komurH = window._panelStickyKomurH || 180;
+
+  // Giriş: tablo üst banda değdiğinde. Çıkış: komur yüksekliği + pay kadar yukarı kayınca.
+  // Böylece yükseklik değişince eşik geri tepmez.
+  var ozetOlsun = ozetSimdi
+    ? (refBottom < stickyBottom + komurH + 48)
+    : (refBottom <= stickyBottom + 6);
+
+  if (ozetSimdi === ozetOlsun) {
+    panelStickyYukseklikAyarla();
+    komurTheadPinGuncelle();
+    return;
+  }
+
+  window._panelStickyLock = true;
+  var pin = document.getElementById('komur-thead-pin');
+  if (pin) pin.style.display = 'none';
+
+  var hOnceki = sticky.offsetHeight;
+  sticky.classList.toggle('ozet-modu', ozetOlsun);
+  var hSonra = sticky.offsetHeight;
+  var spacer = document.getElementById('panel-sticky-spacer');
+  if (spacer) {
+    spacer._panelStickyH = hSonra;
+    spacer.style.height = hSonra + 'px';
+  }
+
+  var delta = hOnceki - hSonra;
+  if (delta !== 0) {
+    // Anlık kaydır — davranışsal animasyon yok, scroll olayını bir karede toparla
+    var y = window.scrollY || window.pageYOffset || 0;
+    window.scrollTo(0, Math.max(0, y - delta));
+  }
+
+  // Kilidi açmadan önce layout otursun; bu süre içinde mod tekrar değişmesin
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      window._panelStickyLock = false;
+      panelStickyYukseklikAyarla();
+      komurTheadPinGuncelle();
+    });
+  });
 }
 
 function panelStickyModKur() {
