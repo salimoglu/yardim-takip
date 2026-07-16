@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716200400">
+<meta name="version" content="20260716201600">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -60,6 +60,7 @@
   .ayar-btn-nav{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-size:1.05rem;line-height:1;transition:all 0.15s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
   .ayar-btn-nav:hover,.ayar-btn-nav:focus{border-color:var(--accent);color:var(--accent);background:var(--surface);outline:none;}
   .ayar-btn-nav:active{transform:scale(0.94);}
+  .nav-kul-ad{font-size:0.82rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;line-height:1.2;}
   /* ===== AYARLAR MODAL ===== */
   .ayar-modal-overlay{padding:0.5rem;z-index:200;}
   .ayar-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;font-size:0.9375rem;line-height:1.5;-webkit-font-smoothing:antialiased;}
@@ -199,6 +200,7 @@
     .nav-sag{display:flex;flex-direction:row;align-items:center;gap:0.4rem;flex-shrink:0;}
     #firebase-status{width:8px;height:8px;flex-shrink:0;}
     .ayar-btn-nav{width:34px;height:34px;font-size:1.05rem;}
+    .nav-kul-ad{font-size:0.72rem;max-width:88px;}
   }
   .nav-brand{font-size:1.1rem;font-weight:700;color:var(--accent);padding:1rem 1.5rem 1rem 0;white-space:nowrap;border-right:1px solid var(--border);margin-right:0.5rem;letter-spacing:0;}
   .nav-brand span{color:var(--text);}
@@ -350,12 +352,7 @@
   .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
   .komur-ist-tablo .ki-no{width:2.6rem;color:var(--muted);}
   .komur-ist-tablo .ki-tarih{width:6.2rem;font-variant-numeric:tabular-nums;}
-  .komur-ist-tablo .ki-tiklanabilir{
-    cursor:pointer;color:var(--accent2);font-weight:700;text-decoration:underline;
-    text-underline-offset:2px;-webkit-tap-highlight-color:transparent;
-  }
-  .komur-ist-tablo .ki-tiklanabilir:hover{color:var(--accent);}
-  .komur-ist-tablo .ki-tarih .ki-tiklanabilir{color:var(--accent2);}
+  .komur-ist-tablo .ki-tiklanabilir{cursor:pointer;-webkit-tap-highlight-color:transparent;}
   .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.99rem;}
   .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
   .komur-ist-tablo .ki-saha{text-align:left;font-size:0.93rem;white-space:normal;line-height:1.3;max-width:0;}
@@ -901,7 +898,6 @@
     .komur-ist-tablo th:nth-child(8),.komur-ist-tablo td:nth-child(8){width:29px;}
     .komur-ist-tablo th:nth-child(9),.komur-ist-tablo td:nth-child(9){width:137px !important;}
     .komur-ist-tablo .ki-sayi{font-size:0.68rem;letter-spacing:-0.02em;}
-    .komur-ist-tablo .ki-tiklanabilir{font-size:0.68rem;letter-spacing:-0.03em;text-underline-offset:1px;}
     .komur-ist-tablo .ki-ort{font-size:0.66rem;}
     .komur-ist-tablo .ki-saha{font-size:0.62rem;line-height:1.12;max-width:120px;white-space:normal;word-break:break-word;}
     .komur-ist-tablo .ki-elden-inp{max-width:32px;min-height:25px;font-size:0.68rem;padding:0.12rem 0.05rem;border-radius:4px;}
@@ -1046,6 +1042,7 @@
   <button class="nav-btn" onclick="showPage('raporlar',this)">📈 Raporlar</button>
   <div class="nav-sag" style="margin-left:auto;display:flex;align-items:center;gap:0.5rem">
     <div id="firebase-status" title="Veritabanı durumu" style="width:10px;height:10px;border-radius:50%;background:#888;flex-shrink:0;cursor:default"></div>
+    <span id="nav-kul-ad" class="nav-kul-ad" title="" style="display:none"></span>
     <button id="ayar-btn-nav" onclick="ayarModalAc()" class="ayar-btn-nav" title="Ayarlar" aria-label="Ayarlar">⚙️</button>
   </div>
 </nav>
@@ -2874,6 +2871,22 @@ function personelGunlukOzetRender() {
   });
 }
 
+function navKullaniciGuncelle() {
+  var el = document.getElementById('nav-kul-ad');
+  if (!el) return;
+  var u = window._aktifKullanici;
+  if (!u) {
+    el.textContent = '';
+    el.title = '';
+    el.style.display = 'none';
+    return;
+  }
+  var ad = (u.ad || u.kullaniciAdi || u.tel || '').trim();
+  el.textContent = ad;
+  el.title = ad;
+  el.style.display = ad ? '' : 'none';
+}
+
 function rolAyarla(rol) {
   var navBtnler = document.querySelectorAll('.nav-btn');
 
@@ -2946,6 +2959,7 @@ function rolAyarla(rol) {
       if (avEl)  avEl.textContent  = (ad || '?').trim().charAt(0).toUpperCase() || (rol === 'admin' ? '👑' : '👤');
     }
   } catch(_){}
+  try { navKullaniciGuncelle(); } catch(_){}
 }
 
 function showPage(p, btn) {
