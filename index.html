@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260715091400">
+<meta name="version" content="20260716200400">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -350,11 +350,12 @@
   .komur-ist-tablo tbody tr:hover{background:rgba(245,166,35,0.05);}
   .komur-ist-tablo .ki-no{width:2.6rem;color:var(--muted);}
   .komur-ist-tablo .ki-tarih{width:6.2rem;font-variant-numeric:tabular-nums;}
-  .komur-ist-tablo .ki-tarih-tik{
+  .komur-ist-tablo .ki-tiklanabilir{
     cursor:pointer;color:var(--accent2);font-weight:700;text-decoration:underline;
     text-underline-offset:2px;-webkit-tap-highlight-color:transparent;
   }
-  .komur-ist-tablo .ki-tarih-tik:hover{color:var(--accent);}
+  .komur-ist-tablo .ki-tiklanabilir:hover{color:var(--accent);}
+  .komur-ist-tablo .ki-tarih .ki-tiklanabilir{color:var(--accent2);}
   .komur-ist-tablo .ki-sayi{font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:0.99rem;}
   .komur-ist-tablo .ki-ort{background:rgba(245,166,35,0.18);font-weight:700;font-variant-numeric:tabular-nums;}
   .komur-ist-tablo .ki-saha{text-align:left;font-size:0.93rem;white-space:normal;line-height:1.3;max-width:0;}
@@ -900,7 +901,7 @@
     .komur-ist-tablo th:nth-child(8),.komur-ist-tablo td:nth-child(8){width:29px;}
     .komur-ist-tablo th:nth-child(9),.komur-ist-tablo td:nth-child(9){width:137px !important;}
     .komur-ist-tablo .ki-sayi{font-size:0.68rem;letter-spacing:-0.02em;}
-    .komur-ist-tablo .ki-tarih-tik{font-size:0.68rem;letter-spacing:-0.03em;text-underline-offset:1px;}
+    .komur-ist-tablo .ki-tiklanabilir{font-size:0.68rem;letter-spacing:-0.03em;text-underline-offset:1px;}
     .komur-ist-tablo .ki-ort{font-size:0.66rem;}
     .komur-ist-tablo .ki-saha{font-size:0.62rem;line-height:1.12;max-width:120px;white-space:normal;word-break:break-word;}
     .komur-ist-tablo .ki-elden-inp{max-width:32px;min-height:25px;font-size:0.68rem;padding:0.12rem 0.05rem;border-radius:4px;}
@@ -4007,12 +4008,18 @@ function komurIstatistikRender() {
   body.innerHTML = satirlar.map(function(s, i) {
     var eldenVal = s.elden ? String(s.elden) : '';
     var gunSafe = escapeHtml(s.gun);
+    var kamyonHtml = s.kamyon
+      ? '<span class="ki-tiklanabilir" title="Bu gün gelen TIR\'ları gör" onclick="komurGunTirModalAc(\'' + gunSafe + '\')">' + kiFmtInt(s.kamyon) + '</span>'
+      : '';
+    var fisHtml = s.fis
+      ? '<span class="ki-tiklanabilir" title="Bu gün teslim edilen fişleri gör" onclick="komurGunFisModalAc(\'' + gunSafe + '\')">' + kiFmtInt(s.fis) + '</span>'
+      : '';
     return '<tr>'
       + '<td class="ki-no">' + (i + 1) + '</td>'
-      + '<td class="ki-tarih"><span class="ki-tarih-tik" title="Bu gün gelen TIR\'ları gör" onclick="komurGunTirModalAc(\'' + gunSafe + '\')">' + kiGunTr(s.gun) + '</span></td>'
-      + '<td class="ki-sayi">' + (s.kamyon ? kiFmtInt(s.kamyon) : '') + '</td>'
+      + '<td class="ki-tarih"><span class="ki-tiklanabilir" title="Günlük özeti A5 yazdır" onclick="komurGunOzetYazdir(\'' + gunSafe + '\')">' + kiGunTr(s.gun) + '</span></td>'
+      + '<td class="ki-sayi">' + kamyonHtml + '</td>'
       + '<td class="ki-sayi">' + (s.kg ? kiFmtInt(s.kg) : '') + '</td>'
-      + '<td class="ki-sayi">' + (s.fis ? kiFmtInt(s.fis) : '') + '</td>'
+      + '<td class="ki-sayi">' + fisHtml + '</td>'
       + '<td><input class="ki-elden-inp" type="text" inputmode="numeric" pattern="[0-9]*" value="' + eldenVal + '" placeholder="" title="Elden fiş / kuran" oninput="this.value=this.value.replace(/\\D/g,\'\')" onchange="kiEldenKaydet(\'' + gunSafe + '\', this)" onkeydown="if(event.key===\'Enter\'){this.blur()}"></td>'
       + '<td class="ki-ort" title="kg ÷ dağıtılan torba (elden hariç)">' + kiFmtOrt(s.torbaOrt) + '</td>'
       + '<td class="ki-ort" title="kg ÷ sistem fiş (elden hariç)">' + kiFmtOrt(s.fisOrt) + '</td>'
@@ -4497,45 +4504,68 @@ function closeMahalleModal() {
   document.getElementById('mahalle-modal').style.display = 'none';
 }
 
-function bugunTeslimListesi() {
-  var today = bugunIsoYerel();
+function gunTeslimListesi(gun) {
+  if (!gun) return [];
   return Object.values(_allKisiler || {}).filter(function(x) {
-    return x && x.teslimEdildi && x.teslimTarihi && teslimGunAnahtar(x) === today && personelKendiTeslimiMi(x);
+    return x && x.teslimEdildi && x.teslimTarihi && teslimGunAnahtar(x) === gun && personelKendiTeslimiMi(x);
   }).sort(function(a, b) {
     return new Date(b.teslimTarihi) - new Date(a.teslimTarihi);
   });
 }
 
-function bugunTeslimModalAc() {
-  var liste = bugunTeslimListesi();
+function bugunTeslimListesi() {
+  return gunTeslimListesi(bugunIsoYerel());
+}
+
+function gunTeslimModalSatirHtml(x, i) {
+  var saat = '—';
+  try { saat = new Date(x.teslimTarihi).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (_) {}
+  return '<tr style="cursor:pointer" onclick="gunTeslimModalKapat();setTimeout(function(){showPage(\'kisiler\',document.querySelector(\'[onclick*=kisiler]\'));var a=document.getElementById(\'arama\');if(a){a.value=\'' + escapeHtml(x.adsoyad || '').replace(/'/g, "\\'") + '\';aramaYap();}},200)">'
+    + '<td style="color:var(--muted);font-size:0.78rem">' + (i + 1) + '</td>'
+    + '<td class="kisi-ad"><b>' + escapeHtml(x.adsoyad || '') + '</b></td>'
+    + '<td class="kisi-tc" style="font-size:0.85rem">' + escapeHtml(x.tc || '') + '</td>'
+    + '<td style="font-size:0.82rem">' + escapeHtml(x.adres || '—') + '</td>'
+    + '<td class="tc-no" style="font-size:0.85rem">' + saat + '</td>'
+    + '<td style="font-size:0.82rem">' + escapeHtml(x.teslimEden || '—') + '</td>'
+    + '</tr>';
+}
+
+function gunTeslimModalAc(gun) {
+  window._gunTeslimSecili = gun || bugunIsoYerel();
+  var liste = gunTeslimListesi(window._gunTeslimSecili);
   var baslik = document.getElementById('bugun-teslim-baslik');
   var count = document.getElementById('bugun-teslim-count');
   var tbody = document.getElementById('bugun-teslim-liste');
   var modal = document.getElementById('bugun-teslim-modal');
   if (!modal || !tbody) return;
-  var tarihTr = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  if (baslik) baslik.textContent = '📅 Bugün Teslim Edilenler';
-  if (count) count.textContent = tarihTr + ' · ' + liste.length.toLocaleString('tr-TR') + ' kişi';
+  var gunTr = (typeof kiGunTr === 'function') ? kiGunTr(window._gunTeslimSecili) : window._gunTeslimSecili;
+  var bugun = bugunIsoYerel();
+  var baslikMetin = window._gunTeslimSecili === bugun
+    ? '📅 Bugün Teslim Edilenler'
+    : '📋 ' + gunTr + ' — Teslim Edilenler';
+  if (baslik) baslik.textContent = baslikMetin;
+  if (count) count.textContent = gunTr + ' · ' + liste.length.toLocaleString('tr-TR') + ' fiş';
   tbody.innerHTML = liste.length === 0
-    ? '<tr><td colspan="6" class="text-muted text-center" style="padding:1.5rem">Bugün henüz teslim yok</td></tr>'
-    : liste.map(function(x, i) {
-      var saat = '—';
-      try { saat = new Date(x.teslimTarihi).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (_) {}
-      return '<tr style="cursor:pointer" onclick="bugunTeslimModalKapat();setTimeout(function(){showPage(\'kisiler\',document.querySelector(\'[onclick*=kisiler]\'));var a=document.getElementById(\'arama\');if(a){a.value=\'' + escapeHtml(x.adsoyad || '').replace(/'/g, "\\'") + '\';aramaYap();}},200)">'
-        + '<td style="color:var(--muted);font-size:0.78rem">' + (i + 1) + '</td>'
-        + '<td class="kisi-ad"><b>' + escapeHtml(x.adsoyad || '') + '</b></td>'
-        + '<td class="kisi-tc" style="font-size:0.85rem">' + escapeHtml(x.tc || '') + '</td>'
-        + '<td style="font-size:0.82rem">' + escapeHtml(x.adres || '—') + '</td>'
-        + '<td class="tc-no" style="font-size:0.85rem">' + saat + '</td>'
-        + '<td style="font-size:0.82rem">' + escapeHtml(x.teslimEden || '—') + '</td>'
-        + '</tr>';
-    }).join('');
+    ? '<tr><td colspan="6" class="text-muted text-center" style="padding:1.5rem">Bu güne ait teslim kaydı yok</td></tr>'
+    : liste.map(gunTeslimModalSatirHtml).join('');
   modal.style.display = 'flex';
 }
 
-function bugunTeslimModalKapat() {
+function bugunTeslimModalAc() {
+  gunTeslimModalAc(bugunIsoYerel());
+}
+
+function komurGunFisModalAc(gun) {
+  gunTeslimModalAc(gun);
+}
+
+function gunTeslimModalKapat() {
   var modal = document.getElementById('bugun-teslim-modal');
   if (modal) modal.style.display = 'none';
+}
+
+function bugunTeslimModalKapat() {
+  gunTeslimModalKapat();
 }
 
 function engelListesi() {
@@ -4651,8 +4681,12 @@ function panelListeExcelKaydet(opt) {
 }
 
 function bugunTeslimExcelAktar() {
-  var liste = bugunTeslimListesi();
-  var tarihTr = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  var gun = window._gunTeslimSecili || bugunIsoYerel();
+  var liste = gunTeslimListesi(gun);
+  var gunTr = (typeof kiGunTr === 'function') ? kiGunTr(gun) : gun;
+  var tarihTr = gun === bugunIsoYerel()
+    ? new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : gunTr;
   var rows = liste.map(function(x, i) {
     var saat = '—';
     var tarih = '—';
@@ -4834,6 +4868,85 @@ function komurGunTirExcelAktar() {
     sheetName: 'Günlük TIR',
     dosyaAdi: 'Gunluk-TIR-' + String(gun || 'liste').replace(/[^\d\-]/g, '')
   });
+}
+
+function komurGunSahaCalisanlari(gun) {
+  var map = {};
+  Object.values(_allKisiler || {}).forEach(function(k) {
+    if (!k || !k.teslimEdildi || !k.teslimTarihi) return;
+    if (kiTeslimGun(k) !== gun) return;
+    var ad = (k.teslimEden || '').trim();
+    if (!ad) return;
+    var key = personelKimlikNormalize(ad);
+    if (!map[key]) map[key] = { ad: ad, unvan: 'SYDV Saha Çalışanı' };
+  });
+  return Object.values(map).sort(function(a, b) {
+    return a.ad.localeCompare(b.ad, 'tr');
+  });
+}
+
+function komurGunOzetYazdir(gun) {
+  if (!gun) return;
+  var satirlar = komurIstatistikHesapla();
+  var s = null;
+  for (var i = 0; i < satirlar.length; i++) {
+    if (satirlar[i].gun === gun) { s = satirlar[i]; break; }
+  }
+  if (!s) { toast('Bu güne ait veri yok', 'error'); return; }
+
+  var gunTr = kiGunTr(gun);
+  var tonaj = (s.kg || 0) / 1000;
+  var tonajStr = tonaj.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var sahaListe = komurGunSahaCalisanlari(gun);
+  var sahaHtml = sahaListe.length === 0
+    ? '<div class="saha-bos">Bu gün sahada çalışan kaydı yok</div>'
+    : '<div class="saha-grid">' + sahaListe.map(function(p) {
+      return '<div class="saha-kart">'
+        + '<div class="saha-ad">' + escapeHtml(p.ad) + '</div>'
+        + '<div class="saha-unvan">' + escapeHtml(p.unvan) + '</div>'
+        + '</div>';
+    }).join('') + '</div>';
+
+  var win = window.open('', '_blank');
+  if (!win) { toast('Yazdırma penceresi açılamadı', 'error'); return; }
+  win.document.write('<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8">'
+    + '<title>Günlük Özet — ' + gunTr + '</title>'
+    + '<style>'
+    + '@page { size: A5 portrait; margin: 12mm; }'
+    + '* { margin:0; padding:0; box-sizing:border-box; }'
+    + 'body { font-family: Arial, sans-serif; color:#111; background:#fff; width:148mm; min-height:210mm; margin:0 auto; padding:14mm 12mm; display:flex; flex-direction:column; }'
+    + '.kurum { font-size:9px; color:#666; text-align:center; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6mm; }'
+    + '.tarih { font-size:22px; font-weight:900; text-align:center; color:#1a3a6b; margin-bottom:10mm; }'
+    + '.satir { text-align:center; margin-bottom:7mm; }'
+    + '.etiket { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; }'
+    + '.deger { font-size:20px; font-weight:800; color:#111; font-variant-numeric:tabular-nums; }'
+    + '.deger.buyuk { font-size:24px; color:#1a3a6b; }'
+    + '.deger.alt { font-size:11px; color:#888; font-weight:600; margin-top:2px; }'
+    + '.ort-wrap { display:flex; gap:8mm; justify-content:center; margin-bottom:10mm; }'
+    + '.ort-kutu { flex:1; max-width:58mm; border:1px solid #ddd; border-radius:6px; padding:5mm 4mm; background:#f8f8f8; }'
+    + '.saha-baslik { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.06em; text-align:center; margin-bottom:5mm; border-top:1px solid #ddd; padding-top:8mm; }'
+    + '.saha-grid { display:flex; flex-wrap:wrap; gap:4mm; justify-content:center; margin-top:auto; padding-top:4mm; }'
+    + '.saha-kart { flex:1 1 40%; min-width:58mm; max-width:64mm; text-align:center; border:1px solid #ccc; border-radius:5px; padding:4mm 3mm; background:#fafafa; }'
+    + '.saha-ad { font-size:12px; font-weight:800; color:#1a3a6b; line-height:1.3; }'
+    + '.saha-unvan { font-size:9px; color:#555; margin-top:2px; line-height:1.25; }'
+    + '.saha-bos { text-align:center; font-size:10px; color:#999; font-style:italic; }'
+    + '@media print { body { padding:0; width:auto; min-height:auto; } }'
+    + '</style></head><body>'
+    + '<div class="kurum">Zalp Sosyal Yardım ve Dayanışma Vakfı — Günlük Kömür Özeti</div>'
+    + '<div class="tarih">' + gunTr + '</div>'
+    + '<div class="satir"><div class="etiket">TIR Sayısı</div><div class="deger buyuk">' + kiFmtInt(s.kamyon) + '</div></div>'
+    + '<div class="satir"><div class="etiket">TIR Toplam Tonajı</div><div class="deger buyuk">' + tonajStr + ' ton</div>'
+    + '<div class="deger alt">' + kiFmtInt(s.kg) + ' kg</div></div>'
+    + '<div class="satir"><div class="etiket">Fiş Sayısı</div><div class="deger buyuk">' + kiFmtInt(s.fis) + '</div></div>'
+    + '<div class="ort-wrap">'
+    + '<div class="ort-kutu"><div class="etiket">Fiş Ortalaması (kg)</div><div class="deger">' + kiFmtOrt(s.fisOrt) + '</div></div>'
+    + '<div class="ort-kutu"><div class="etiket">Torba Ortalaması (kg)</div><div class="deger">' + kiFmtOrt(s.torbaOrt) + '</div></div>'
+    + '</div>'
+    + '<div class="saha-baslik">Sahada Çalışanlar</div>'
+    + sahaHtml
+    + '<script>window.onload=function(){window.print()}<\/script>'
+    + '</body></html>');
+  win.document.close();
 }
 
 // ===== MAHALLE ÖZET YAZDIR =====
