@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yardım Takip</title>
-<meta name="version" content="20260716204600">
+<meta name="version" content="20260716205000">
 <meta name="theme-color" content="#f5a623">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -279,7 +279,8 @@
     box-sizing:border-box;
   }
   .panel-sticky .stats-grid,.rapor-sticky .stats-grid{margin-bottom:0;}
-  #page-dashboard .panel-sticky .stats-grid{margin-bottom:0.65rem;}
+  #page-dashboard .panel-sticky .stats-grid{margin-bottom:0.45rem;}
+  #page-tir .panel-sticky .stats-grid{margin-bottom:0.45rem;}
   #page-dashboard .panel-komur-sticky{
     display:flex;flex-direction:column;align-items:stretch;gap:0.55rem;
     padding:0.55rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;
@@ -303,12 +304,12 @@
   .pkh-val.pkh-kalan.sifir{color:var(--success);}
   .pkh-val.pkh-kalan.asim{color:var(--accent);}
   .pkh-val.pkh-pct{color:var(--accent);}
-  .tir-hedef-kart{position:relative;padding-bottom:2.1rem;}
+  .tir-hedef-kart{position:relative;padding-bottom:1.55rem;}
   .tir-hedef-kart .tir-hedef-satir{
-    display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;align-items:end;
+    display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;align-items:end;
   }
-  .tir-hedef-kart .stat-val{font-size:1.05rem;margin-bottom:0.15rem;}
-  .tir-hedef-kart .stat-label{font-size:0.62rem;}
+  .tir-hedef-kart .stat-val{font-size:0.98rem;margin-bottom:0.1rem;}
+  .tir-hedef-kart .stat-label{font-size:0.6rem;}
   #tir-stat-teslim{color:var(--success);}
   #tir-stat-kalan{color:var(--danger);}
   #tir-stat-kalan.sifir{color:var(--success);}
@@ -401,7 +402,7 @@
   [data-theme="light"] .komur-ist-tablo thead th{background:#f0ebe0;box-shadow:inset 0 -1px 0 var(--border), 0 6px 10px -8px rgba(0,0,0,0.12);}
   #page-dashboard.page{max-width:1280px;}
   #page-tir .panel-sticky{padding-bottom:0.55rem;}
-  #page-tir .panel-sticky .stats-grid{margin-bottom:0.65rem;}
+  #page-tir .panel-sticky .stats-grid{margin-bottom:0.45rem;}
   #page-tir .tir-toolbar-card{margin-bottom:0;padding:0.75rem 0.85rem;}
   #page-tir.page{max-width:1360px;padding-bottom:calc(7.5rem + env(safe-area-inset-bottom));}
   #page-tir .tir-liste-card{padding:0;overflow:visible;margin-bottom:0;}
@@ -660,12 +661,12 @@
   tr:last-child td{border-bottom:none;}
   tr:hover td{background:var(--surface2);}
 
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;}
-  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:0.45rem;margin-bottom:1rem;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.55rem;min-width:0;}
   .stat-card.stat-tiklanabilir{cursor:pointer;transition:border-color 0.15s,background 0.15s;-webkit-tap-highlight-color:transparent;}
   .stat-card.stat-tiklanabilir:hover{border-color:var(--accent);background:var(--surface2);}
-  .stat-val{font-size:1.9rem;font-weight:700;color:var(--accent);line-height:1;margin-bottom:0.3rem;font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:0;}
-  .stat-label{font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;font-family:var(--font);}
+  .stat-val{font-size:1.05rem;font-weight:700;color:var(--accent);line-height:1.2;margin-bottom:0.15rem;font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:0;}
+  .stat-label{font-size:0.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-family:var(--font);line-height:1.2;}
 
   #qr-reader{border-radius:10px;overflow:hidden;}
   .qr-box{display:flex;flex-direction:column;align-items:center;gap:0.8rem;padding:1.2rem;background:#fff;border-radius:12px;width:fit-content;}
@@ -825,10 +826,10 @@
     }
     #page-dashboard #panel-sticky .panel-sticky-inner{padding:0 0.4rem;}
     .card{padding:0.7rem 0.6rem;margin-bottom:0.7rem;border-radius:10px;}
-    .stats-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:0.7rem;}
-    .stat-card{padding:0.75rem 0.6rem;}
-    .stat-val{font-size:1.4rem;}
-    .stat-label{font-size:0.65rem;}
+    .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.35rem;margin-bottom:0.55rem;}
+    .stat-card{padding:0.42rem 0.4rem;border-radius:7px;}
+    .stat-val{font-size:0.98rem;margin-bottom:0.1rem;}
+    .stat-label{font-size:0.55rem;line-height:1.15;letter-spacing:0.02em;}
     .step{font-size:0.62rem;padding:0.5rem 0.2rem;}
     .card-title{margin-bottom:0.8rem;}
     th,td{padding:0.45rem 0.4rem;font-size:0.8rem;}
@@ -897,10 +898,10 @@
     .panel-donem-baslik{margin-bottom:0.35rem;align-items:center;}
     .panel-donem-baslik h2{font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .panel-donem-baslik .panel-donem-etiket{font-size:0.68rem;}
-    #page-dashboard .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.4rem;margin-bottom:0.5rem;}
-    #page-dashboard .stat-card{padding:0.55rem 0.48rem;border-radius:8px;min-width:0;}
-    #page-dashboard .stat-val{font-size:1.15rem;margin-bottom:0.18rem;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.05;}
-    #page-dashboard .stat-label{font-size:0.62rem;line-height:1.15;letter-spacing:0.02em;white-space:normal;}
+    #page-dashboard .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.34rem;margin-bottom:0.4rem;}
+    #page-dashboard .stat-card{padding:0.4rem 0.35rem;border-radius:7px;min-width:0;}
+    #page-dashboard .stat-val{font-size:0.95rem;margin-bottom:0.1rem;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15;}
+    #page-dashboard .stat-label{font-size:0.52rem;line-height:1.12;letter-spacing:0.01em;white-space:normal;}
     #page-dashboard .panel-komur-sticky{padding:0.45rem;gap:0.42rem;border-radius:9px;}
     #page-dashboard .panel-komur-ust{gap:0.35rem;}
     #page-dashboard .panel-komur-sticky .card-title{font-size:0.78rem;}
@@ -982,10 +983,10 @@
 
     /* Raporlar */
     #page-raporlar.page{padding-left:0.5rem;padding-right:0.5rem;}
-    #page-raporlar .panel-sticky .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:0.35rem;}
-    #page-raporlar .panel-sticky .stat-card{padding:0.48rem 0.3rem;}
-    #page-raporlar .panel-sticky .stat-val{font-size:1rem;}
-    #page-raporlar .panel-sticky .stat-label{font-size:0.5rem;line-height:1.05;}
+    #page-raporlar .panel-sticky .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.34rem;}
+    #page-raporlar .panel-sticky .stat-card{padding:0.4rem 0.35rem;}
+    #page-raporlar .panel-sticky .stat-val{font-size:0.95rem;}
+    #page-raporlar .panel-sticky .stat-label{font-size:0.5rem;line-height:1.1;}
     .rapor-hero{padding:0.75rem;margin-bottom:0.65rem;border-radius:11px;}
     .rapor-hero h2{font-size:0.98rem;}
     .rapor-hero p{font-size:0.78rem;}
@@ -1010,10 +1011,14 @@
     /* TIR: sığmayan alanlar yatay kaydırmalı */
     #page-tir.page{padding-left:0.4rem;padding-right:0.4rem;padding-bottom:calc(9.8rem + env(safe-area-inset-bottom));}
     #page-tir .panel-sticky{padding-left:0.4rem;padding-right:0.4rem;margin-left:-0.4rem;margin-right:-0.4rem;}
-    #page-tir .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0.4rem;}
-    #page-tir .stat-card{padding:0.55rem 0.45rem;}
-    #page-tir .stat-val{font-size:1.1rem;}
-    #page-tir .stat-label{font-size:0.55rem;}
+    #page-tir .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.34rem;}
+    #page-tir .stat-card{padding:0.4rem 0.35rem;}
+    #page-tir .stat-val{font-size:0.92rem;}
+    #page-tir .stat-label{font-size:0.5rem;line-height:1.1;}
+    #page-tir .tir-hedef-kart{grid-column:1 / -1;padding-bottom:1.4rem;}
+    #page-tir .tir-hedef-kart .stat-val{font-size:0.9rem;}
+    #page-tir .tir-hedef-kart .stat-label{font-size:0.48rem;}
+    #page-tir .tir-hedef-edit{font-size:0.62rem;padding:0.14rem 0.38rem;bottom:0.35rem;right:0.4rem;}
     #page-tir .tir-toolbar-card{padding:0.55rem;}
     #page-tir .tir-filtre-satir{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;width:100%;}
     #page-tir .tir-filtre-satir input,#page-tir .tir-filtre-satir .btn{max-width:none !important;width:100%;font-size:0.72rem;padding:0.35rem 0.45rem;min-height:32px;}
@@ -1026,11 +1031,12 @@
   }
 
   @media(max-width:420px){
-    #page-dashboard .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-    #page-dashboard .stat-val{font-size:1.05rem;}
-    #page-dashboard .stat-label{font-size:0.58rem;}
+    #page-dashboard .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.28rem;}
+    #page-dashboard .stat-val{font-size:0.88rem;}
+    #page-dashboard .stat-label{font-size:0.48rem;letter-spacing:0;}
     .pkh-val{font-size:0.8rem;}
     #page-raporlar .panel-sticky .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    #page-tir .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
     #page-kisiler th:nth-child(3),#page-kisiler td:nth-child(3){display:table-cell;}
   }
 </style>
